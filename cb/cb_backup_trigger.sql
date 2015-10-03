@@ -1,6 +1,7 @@
 create or replace trigger cb_backup_trigger
 before insert on reviews
 for each row
+define
         fk_exception exception;
         pragma exception_init(fk_exception, -2191);
         backup_flag users.backup_flag%type;
