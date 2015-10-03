@@ -1,5 +1,3 @@
--- fk_exception: 20001
-
 create or replace package cb_thing is
 
     -- types
@@ -25,7 +23,7 @@ create or replace package cb_thing is
     -- @param rating        the rating
     -- @param creation_date the creation date
     -- @param content       the content
-    procedure add_user(
+    procedure add_review(
         user_id       reviews.user_id%type,
         movie_id      reviews.movie_id%type,
         rating        reviews.rating%type,
@@ -34,6 +32,6 @@ create or replace package cb_thing is
     );
 
     -- Synchonizes the db with it's backup counter part
-    procedure async_backup();
+    procedure async_backup;
 
 end cb_thing;

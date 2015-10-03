@@ -4,7 +4,7 @@ create table users (
     user_id number constraint pk_users primary key,
     lastname varchar2(63),
     firstname varchar2(63),
-    creation_date date current_date,
+    creation_date date default current_date,
     backup_flag number(1) -- 1 = backed up, 0 = to backup
 );
 -- create sequence user_seq;
@@ -21,7 +21,7 @@ create table reviews (
     user_id number constraint fk_reviews_user_id references users(user_id),
     movie_id number, --constraint fk_reviews_movie_id references movies(movie_id),
     rating number,
-    creation_date date current_date,
+    creation_date date default current_date,
     content varchar2(511),
     backup_flag number(1)
 );

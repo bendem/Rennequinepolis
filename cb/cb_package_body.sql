@@ -15,6 +15,7 @@ create or replace package body cb_thing is
             0
         );
     exception
+        when others then raise;
         -- will come later...
         -- when dup_val_on_index then
         --     raise_application_error(20001, '')
@@ -50,35 +51,29 @@ create or replace package body cb_thing is
             raise_application_error(20001, '');
     end;
 
-    procedure async_backup() is
-        type users_t is table of users%rowtype index by pls_integer;
-        type reviews_t is table of reviews%rowtype index by pls_integer;
-
-        users_to_backup users_t;
-        reviews_to_backup reviews_t;
+    procedure async_backup is
     begin
-        select
+        insert into users@link.backup
+          select
             user_id,
             lastname,
             firstname,
+            current_date,
             1
-        into users_to_backup
-        from users
-        where backup_flag = 0;
-        insert into users@link.users values users_to_backup;
+          from users
+          where backup_flag = 0;
 
-        select
-            review_id,
-            user_id,
-            movie_id,
-            rating,
-            creation_date,
-            content,
-            1
-        into reviews_to_backup
-        from reviews
-        where backup_flag = 0;
-        insert into reviews@link.reviews values reviews_to_backup;
+        insert into reviews@link.backup
+          select
+              review_id,
+              user_id,
+              movie_id,
+              rating,
+              creation_date,
+              content,
+              1
+          from reviews
+          where backup_flag = 0;
     end;
 
 end cb_thing;

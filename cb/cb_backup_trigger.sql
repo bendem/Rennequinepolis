@@ -31,6 +31,6 @@ begin
         end if;
     end if;
 exception
-    when fk_exception then
+    when fk_exception then raise;
         -- TODO if fk_reviews_user_id, user not copied yet
 end;
