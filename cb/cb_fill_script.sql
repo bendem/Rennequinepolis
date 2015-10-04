@@ -1,4 +1,4 @@
-BEGIN
+begin
     cb_thing.add_user('username1','password1','Flohic','Erwan');
     cb_thing.add_user('username2','password2','Demarteau','Benjamin');
     cb_thing.add_user('username3','password3','Kamishin','Ilja');
@@ -15,7 +15,7 @@ BEGIN
     cb_thing.add_review('username6', 1, 6, 'Meh could have been better6')
     cb_thing.add_review('username7', 1, 7, 'Meh could have been better7')
     commit;
-EXCEPTION
-  WHEN OTHERS THEN
-    raise;
-END;
+exception
+    when others then
+        raise;
+end;

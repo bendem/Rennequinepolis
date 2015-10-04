@@ -28,10 +28,10 @@ create or replace package body cb_thing is
     end;
 
     procedure add_review(
-        p_username      reviews.username%type,
-        p_movie_id      reviews.movie_id%type,
-        p_rating        reviews.rating%type,
-        p_content       reviews.content%type
+        p_username reviews.username%type,
+        p_movie_id reviews.movie_id%type,
+        p_rating   reviews.rating%type,
+        p_content  reviews.content%type
     ) is
         fk_exception exception;
         pragma exception_init(fk_exception, -2191);
@@ -56,8 +56,7 @@ create or replace package body cb_thing is
 
     procedure async_backup is
     begin
-        merge into users@link.backup u
-        using(
+        merge into users@link.backup u using (
             select
                 username,
                 password,
@@ -66,8 +65,8 @@ create or replace package body cb_thing is
                 creation_date,
                 backup_flag
             from users
-            where backup_flag = 0) p
-        on(u.username = p.username)
+            where backup_flag = 0
+        ) p on (u.username = p.username)
         when matched then
             update set
                 u.password = p.password,
@@ -76,18 +75,16 @@ create or replace package body cb_thing is
                 u.creation_date = p.creation_date,
                 u.backup_flag = 1
         when not matched then
-            insert
-            values(
+            insert values (
                 p.username,
                 p.password,
                 p.lastname,
                 p.firstname,
                 p.creation_date,
-                1)
-        ;
+                1
+            );
 
-        merge into reviews@link.backup u
-        using(
+        merge into reviews@link.backup u using (
             select
                 username,
                 movie_id,
@@ -96,8 +93,8 @@ create or replace package body cb_thing is
                 content,
                 backup_flag
             from reviews
-            where backup_flag = 0) p
-        on(u.username = p.username and u.movie_id = p.movie_id)
+            where backup_flag = 0
+        ) p on (u.username = p.username and u.movie_id = p.movie_id)
         when matched then
             update set
                 u.rating = p.rating,
@@ -105,15 +102,14 @@ create or replace package body cb_thing is
                 u.content = p.content,
                 u.backup_flag = 1
         when not matched then
-            insert
-            values(
+            insert values (
                 p.username,
                 p.movie_id,
                 p.rating,
                 p.creation_date,
                 p.content,
-                1)
-        ;
+                1
+            );
 
         update users set backup_flag = 1 where backup_flag = 0;
         update reviews set backup_flag = 1 where backup_flag = 0;

@@ -1,23 +1,31 @@
-CREATE ROLE MYROLE NOT IDENTIFIED;
-GRANT ALTER SESSION TO MYROLE;
-GRANT CREATE DATABASE LINK TO MYROLE;
-GRANT CREATE SESSION TO MYROLE;
-GRANT CREATE PROCEDURE TO MYROLE;
-GRANT CREATE SEQUENCE TO MYROLE;
-GRANT CREATE TABLE TO MYROLE;
-GRANT CREATE TRIGGER TO MYROLE;
-GRANT CREATE TYPE TO MYROLE;
-GRANT CREATE SYNONYM TO MYROLE;
-GRANT CREATE VIEW TO MYROLE;
-GRANT CREATE JOB TO MYROLE;
-GRANT CREATE MATERIALIZED VIEW TO MYROLE;
-GRANT EXECUTE ON SYS.DBMS_LOCK TO MYROLE;
-GRANT EXECUTE ON SYS.OWA_OPT_LOCK TO MYROLE;
+create role myrole not identified;
+grant alter session to myrole;
+grant create database link to myrole;
+grant create session to myrole;
+grant create procedure to myrole;
+grant create sequence to myrole;
+grant create table to myrole;
+grant create trigger to myrole;
+grant create type to myrole;
+grant create synonym to myrole;
+grant create view to myrole;
+grant create job to myrole;
+grant create materialized view to myrole;
+grant execute on sys.dbms_lock to myrole;
+grant execute on sys.owa_opt_lock to myrole;
 
-CREATE USER CB IDENTIFIED BY dummy DEFAULT TABLESPACE USERS TEMPORARY TABLESPACE TEMP PROFILE DEFAULT ACCOUNT UNLOCK;
-ALTER USER CB QUOTA UNLIMITED ON USERS;
-GRANT MYROLE TO CB;
+create user cb identified by dummy
+    default tablespace users
+    temporary tablespace temp
+    profile default
+    account unlock;
+alter user cb quota unlimited on users;
+grant myrole to cb;
 
-CREATE USER CBB IDENTIFIED BY dummy DEFAULT TABLESPACE USERS TEMPORARY TABLESPACE TEMP PROFILE DEFAULT ACCOUNT UNLOCK;
-ALTER USER CBB QUOTA UNLIMITED ON USERS;
-GRANT MYROLE TO CBB;
+create user cbb identified by dummy
+    default tablespace users
+    temporary tablespace temp
+    profile default
+    account unlock;
+alter user cbb quota unlimited on users;
+grant myrole to cbb;
