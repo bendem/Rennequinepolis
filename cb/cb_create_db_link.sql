@@ -1,7 +1,7 @@
 -- Use in CB
 create database link link.backup connect to
-CBB identified by dummy using 'xe'; -- Change xe to final database handle added in TNSNAME.ORA
+CBB identified by dummy using 'xe';
 
 -- Use in CBB
 create database link link.backup connect to
-CB identified by dummy using 'xe'; -- Change xe to final database handle added in TNSNAME.ORA
+CB identified by dummy using 'xe';

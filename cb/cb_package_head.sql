@@ -13,22 +13,22 @@ create or replace package cb_thing is
     -- @param lastname the user's last name
     -- @param firstname the user's first name
     procedure add_user(
-        lastname  users.lastname%type,
-        firstname users.firstname%type
+        p_username  users.username%type,
+        p_password  users.password%type,
+        p_lastname  users.lastname%type,
+        p_firstname users.firstname%type
     );
 
     -- Inserts a review into the db
-    -- @param user_id       the user id
+    -- @param username      the user's username
     -- @param movie_id      the movie id
     -- @param rating        the rating
-    -- @param creation_date the creation date
     -- @param content       the content
     procedure add_review(
-        user_id       reviews.user_id%type,
-        movie_id      reviews.movie_id%type,
-        rating        reviews.rating%type,
-        creation_date reviews.creation_date%type,
-        content       reviews.content%type
+        p_username      reviews.username%type,
+        p_movie_id      reviews.movie_id%type,
+        p_rating        reviews.rating%type,
+        p_content       reviews.content%type
     );
 
     -- Synchonizes the db with it's backup counter part
