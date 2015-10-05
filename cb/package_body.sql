@@ -91,6 +91,7 @@ create or replace package body cb_thing is
 
     procedure async_backup is
     begin
+        -- TODO Remove where backup_flag = 2
         merge into users@link.backup u using (
             select
                 username,
