@@ -23,25 +23,25 @@ fi
 SYS_PWD=$1
 CB_PWD=$2
 
-sqlplus -S sys/$SYS_PWD@$CB_IP as sysdba @$ROOT/cb_create_users $CB_PWD
+sqlplus -S sys/$SYS_PWD@$CB_IP as sysdba @$ROOT/create_users $CB_PWD
 
-sqlplus -S cb/$CB_PWD@$CB_IP @$ROOT/cb_create_db_link_cb $CB_PWD
-sqlplus -S cbb/$CB_PWD@$CB_IP @$ROOT/cb_create_db_link_cbb $CB_PWD
+sqlplus -S cb/$CB_PWD@$CB_IP @$ROOT/create_db_link_cb $CB_PWD
+sqlplus -S cbb/$CB_PWD@$CB_IP @$ROOT/create_db_link_cbb $CB_PWD
 
-sqlplus -S cb/$CB_PWD@$CB_IP @$ROOT/cb_crea
-sqlplus -S cbb/$CB_PWD@$CB_IP @$ROOT/cb_crea
+sqlplus -S cb/$CB_PWD@$CB_IP @$ROOT/crea
+sqlplus -S cbb/$CB_PWD@$CB_IP @$ROOT/crea
 
-sqlplus -S cb/$CB_PWD@$CB_IP @$ROOT/cb_logs
-sqlplus -S cbb/$CB_PWD@$CB_IP @$ROOT/cb_logs
+sqlplus -S cb/$CB_PWD@$CB_IP @$ROOT/logs
+sqlplus -S cbb/$CB_PWD@$CB_IP @$ROOT/logs
 
-sqlplus -S cb/$CB_PWD@$CB_IP @$ROOT/cb_backup_trigger
-sqlplus -S cbb/$CB_PWD@$CB_IP @$ROOT/cb_backup_trigger
+sqlplus -S cb/$CB_PWD@$CB_IP @$ROOT/backup_trigger
+sqlplus -S cbb/$CB_PWD@$CB_IP @$ROOT/backup_trigger
 
-sqlplus -S cb/$CB_PWD@$CB_IP @$ROOT/cb_package_head
-sqlplus -S cbb/$CB_PWD@$CB_IP @$ROOT/cb_package_head
+sqlplus -S cb/$CB_PWD@$CB_IP @$ROOT/package_head
+sqlplus -S cbb/$CB_PWD@$CB_IP @$ROOT/package_head
 
-sqlplus -S cb/$CB_PWD@$CB_IP @$ROOT/cb_package_body
-sqlplus -S cbb/$CB_PWD@$CB_IP @$ROOT/cb_package_body
+sqlplus -S cb/$CB_PWD@$CB_IP @$ROOT/package_body
+sqlplus -S cbb/$CB_PWD@$CB_IP @$ROOT/package_body
 
-sqlplus -S cb/$CB_PWD@$CB_IP @$ROOT/cb_create_job
-sqlplus -S cbb/$CB_PWD@$CB_IP @$ROOT/cb_create_job
+sqlplus -S cb/$CB_PWD@$CB_IP @$ROOT/create_job
+sqlplus -S cbb/$CB_PWD@$CB_IP @$ROOT/create_job
