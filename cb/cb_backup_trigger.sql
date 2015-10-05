@@ -37,6 +37,9 @@ begin
 exception
     when fk_exception then raise;
         -- TODO if fk_reviews_user_id, user not copied yet
+    when others then
+        insert_log(sqlerrm);
+        raise;
 end;
 /
 

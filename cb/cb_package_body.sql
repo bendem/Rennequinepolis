@@ -21,10 +21,12 @@ create or replace package body cb_thing is
             0
         );
     exception
-        when others then raise;
         -- will come later...
         -- when dup_val_on_index then
         --     raise_application_error(20001, '')
+        when others then
+            insert_log(sqlerrm);
+            raise;
     end;
 
     procedure add_review(
@@ -52,6 +54,9 @@ create or replace package body cb_thing is
     exception
         when fk_exception then
             raise_application_error(20001, '');
+        when others then
+            insert_log(sqlerrm);
+            raise;
     end;
 
     procedure async_backup is
@@ -115,6 +120,10 @@ create or replace package body cb_thing is
         update reviews set backup_flag = 1 where backup_flag = 0;
         insert_log('Async backup done');
         -- implicit commit by dbms_scheduler
+    exception
+        when others then
+            insert_log(sqlerrm);
+            raise;
     end;
 
 end cb_thing;
