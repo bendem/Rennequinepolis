@@ -31,7 +31,22 @@ create or replace package cb_thing is
         p_content  reviews.content%type
     );
 
+    -- Marks a user for removal and removes all his reviews
+    -- @param username the username of the user to delete
+    procedure delete_user(
+        p_username  users.username%type
+    );
+
+    -- Removes the review of a user for a movie
+    -- @param username the username of the user
+    -- @param movie_id the movie id
+    procedure delete_review(
+        p_username reviews.username%type,
+        p_movie_id reviews.movie_id%type
+    );
+
     -- Synchonizes the db with it's backup counter part
+    -- TODO Move to own backup package
     procedure async_backup;
 
 end cb_thing;
