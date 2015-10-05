@@ -1,0 +1,27 @@
+#!/bin/sh
+
+if [ "$CB_IP" == "" ]; then
+    echo
+    echo ' CB_IP not provided'
+    echo
+    exit 2
+fi
+
+if [ $# -ne 1 ]; then
+    echo
+    echo ' Needs exactly 1 args'
+    echo
+    echo ' Usage:'
+    echo '  CB_IP=<ip[:<port>]> ./uninstall.sh <sys_pwd>'
+    echo
+    exit 1
+fi
+
+SYS_PWD=$1
+
+echo "
+drop user cb cascade;
+drop user cbb cascade;
+drop role myrole;
+exit
+" | sqlplus -S sys/$SYS_PWD@$CB_IP as sysdba

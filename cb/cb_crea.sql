@@ -1,5 +1,3 @@
-drop table reviews;
-drop table users;
 -- users
 -- -------
 create table users (

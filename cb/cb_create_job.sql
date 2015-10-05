@@ -1,11 +1,4 @@
 begin
-    dbms_scheduler.drop_job(
-        job_name        => 'job_async_backup'
-    );
-end;
-/
-
-begin
     dbms_scheduler.create_job(
         job_name        => 'job_async_backup',
         job_type        => 'STORED_PROCEDURE',
