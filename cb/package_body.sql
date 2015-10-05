@@ -76,12 +76,12 @@ create or replace package body cb_thing is
     begin
         delete from reviews@link.backup
         where
-            username = p_username a
+            username = p_username
             and movie_id = p_movie_id;
 
         delete from reviews
         where
-            username = p_username a
+            username = p_username
             and movie_id = p_movie_id;
     exception
         when others then
@@ -91,7 +91,20 @@ create or replace package body cb_thing is
 
     procedure async_backup is
     begin
-        -- TODO Remove where backup_flag = 2
+        insert_log('Starting backup job');
+        -- Remove marked users
+        delete from reviews@link.backup where username in (
+            select username from users where backup_flag = 2
+        );
+        delete from users@link.backup where username in (
+            select username from users where backup_flag = 2
+        );
+        delete from reviews where username in (
+            select username from users where backup_flag = 2
+        );
+        delete from users where backup_flag = 2;
+
+        -- Backup users
         merge into users@link.backup u using (
             select
                 username,
@@ -120,6 +133,7 @@ create or replace package body cb_thing is
                 1
             );
 
+        -- Backup reviews
         merge into reviews@link.backup u using (
             select
                 username,
@@ -149,11 +163,11 @@ create or replace package body cb_thing is
 
         update users set backup_flag = 1 where backup_flag = 0;
         update reviews set backup_flag = 1 where backup_flag = 0;
-        insert_log('Async backup done');
+        insert_log('Backup job done');
         -- implicit commit by dbms_scheduler
     exception
         when others then
-            insert_log('Async backup failed:' || sqlerrm);
+            insert_log('Backup job failed:' || sqlerrm);
             raise;
     end;
 
