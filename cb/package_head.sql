@@ -45,10 +45,6 @@ create or replace package cb_thing is
         p_movie_id reviews.movie_id%type
     );
 
-    -- Synchonizes the db with it's backup counter part
-    -- TODO Move to own backup package
-    procedure async_backup;
-
 end cb_thing;
 /
 

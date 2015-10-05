@@ -37,6 +37,12 @@ sqlplus -S cbb/$CB_PWD@$CB_IP @$ROOT/logs
 sqlplus -S cb/$CB_PWD@$CB_IP @$ROOT/backup_trigger
 sqlplus -S cbb/$CB_PWD@$CB_IP @$ROOT/backup_trigger
 
+sqlplus -S cb/$CB_PWD@$CB_IP @$ROOT/backup_head
+sqlplus -S cbb/$CB_PWD@$CB_IP @$ROOT/backup_head
+
+sqlplus -S cb/$CB_PWD@$CB_IP @$ROOT/backup_body
+sqlplus -S cbb/$CB_PWD@$CB_IP @$ROOT/backup_body
+
 sqlplus -S cb/$CB_PWD@$CB_IP @$ROOT/package_head
 sqlplus -S cbb/$CB_PWD@$CB_IP @$ROOT/package_head
 
