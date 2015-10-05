@@ -118,3 +118,6 @@ create or replace package body cb_thing is
     end;
 
 end cb_thing;
+/
+
+exit

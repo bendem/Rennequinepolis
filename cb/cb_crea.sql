@@ -22,3 +22,5 @@ create table reviews (
     backup_flag number(1, 0),
     constraint pk_reviews primary key (username, movie_id)
 );
+
+exit

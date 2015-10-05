@@ -35,3 +35,6 @@ create or replace package cb_thing is
     procedure async_backup;
 
 end cb_thing;
+/
+
+exit

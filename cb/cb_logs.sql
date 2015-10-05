@@ -12,6 +12,7 @@ before insert on logs
 for each row begin
     select logs_seq.nextval into :new.log_id from dual;
 end;
+/
 
 create or replace procedure insert_log(
     p_message in logs.message%type
@@ -21,3 +22,6 @@ begin
     insert into logs(message) values (p_message);
     commit;
 end;
+/
+
+exit

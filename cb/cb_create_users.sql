@@ -14,7 +14,7 @@ grant create materialized view to myrole;
 grant execute on sys.dbms_lock to myrole;
 grant execute on sys.owa_opt_lock to myrole;
 
-create user cb identified by dummy
+create user cb identified by &1
     default tablespace users
     temporary tablespace temp
     profile default
@@ -22,10 +22,12 @@ create user cb identified by dummy
 alter user cb quota unlimited on users;
 grant myrole to cb;
 
-create user cbb identified by dummy
+create user cbb identified by &1
     default tablespace users
     temporary tablespace temp
     profile default
     account unlock;
 alter user cbb quota unlimited on users;
 grant myrole to cbb;
+
+exit
