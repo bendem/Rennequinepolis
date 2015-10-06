@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 if [ "$CB_IP" == "" ]; then
     echo
     echo ' CB_IP not provided'
@@ -24,4 +26,4 @@ drop user cb cascade;
 drop user cbb cascade;
 drop role myrole;
 exit
-" | sqlplus -S sys/$SYS_PWD@$CB_IP as sysdba
+" | sqlplus -S -L sys/$SYS_PWD@$CB_IP as sysdba
