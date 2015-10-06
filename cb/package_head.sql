@@ -45,6 +45,16 @@ create or replace package cb_thing is
         p_movie_id reviews.movie_id%type
     );
 
+    procedure modify_user(
+        p_userbefore in users%rowtype,
+        p_userafter  in users%rowtype
+    );
+
+    procedure modify_review(
+        p_reviewbefore in reviews%rowtype,
+        p_reviewafter  in reviews%rowtype
+    );
+
 end cb_thing;
 /
 

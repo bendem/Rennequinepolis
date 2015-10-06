@@ -11,8 +11,6 @@ grant create synonym to myrole;
 grant create view to myrole;
 grant create job to myrole;
 grant create materialized view to myrole;
-grant execute on sys.dbms_lock to myrole;
-grant execute on sys.owa_opt_lock to myrole;
 
 create user cb identified by &1
     default tablespace users
@@ -29,5 +27,10 @@ create user cbb identified by &1
     account unlock;
 alter user cbb quota unlimited on users;
 grant myrole to cbb;
+
+grant execute on dbms_lock to cb;
+grant execute on dbms_lock to cbb;
+grant execute on sys.owa_opt_lock to cb;
+grant execute on sys.owa_opt_lock to cbb;
 
 exit

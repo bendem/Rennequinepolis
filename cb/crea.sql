@@ -6,7 +6,7 @@ create table users (
     lastname varchar2(63),
     firstname varchar2(63),
     creation_date date default current_date,
-    backup_flag number(1, 0) -- 1 = backed up, 0 = to backup
+    backup_flag number(1, 0) -- 1 = backed up, 0 = to backup, 2 = to delete
 );
 
 -- reviews

@@ -7,13 +7,13 @@ begin
     cb_thing.add_user('username6','password6','Marley','Bob');
     cb_thing.add_user('username7','password7','Morane','Bob');
 
-    cb_thing.add_review('username1', 1, 1, 'Meh could have been better1')
-    cb_thing.add_review('username2', 1, 2, 'Meh could have been better2')
-    cb_thing.add_review('username3', 1, 3, 'Meh could have been better3')
-    cb_thing.add_review('username4', 1, 4, 'Meh could have been better4')
-    cb_thing.add_review('username5', 1, 5, 'Meh could have been better5')
-    cb_thing.add_review('username6', 1, 6, 'Meh could have been better6')
-    cb_thing.add_review('username7', 1, 7, 'Meh could have been better7')
+    cb_thing.add_review('username1', 1, 1, 'Meh could have been better1');
+    cb_thing.add_review('username2', 1, 2, 'Meh could have been better2');
+    cb_thing.add_review('username3', 1, 3, 'Meh could have been better3');
+    cb_thing.add_review('username4', 1, 4, 'Meh could have been better4');
+    cb_thing.add_review('username5', 1, 5, 'Meh could have been better5');
+    cb_thing.add_review('username6', 1, 6, 'Meh could have been better6');
+    cb_thing.add_review('username7', 1, 7, 'Meh could have been better7');
     commit;
 exception
     when others then
