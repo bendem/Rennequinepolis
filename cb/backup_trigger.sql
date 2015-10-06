@@ -40,11 +40,7 @@ begin
                 where username = :new.username and movie_id = :new.movie_id;
             end if;
 
-            update reviews
-            set backup_flag = 1
-            where
-                username = :new.username
-                and movie_id = :new.movie_id;
+            :new.backup_flag = 1;
         end if;
     end if;
 exception
