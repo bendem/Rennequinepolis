@@ -94,70 +94,77 @@ create or replace package body cb_thing is
         p_userafter  in users%rowtype
     )
     AS
-        busyexception       exception;
-        notfoundexception   exception;
-        notequalexception   exception;
+        busy_exception      exception;
+        not_found_exception exception;
+        not_equal_exception exception;
         pkey_null           exception;
 
-        pragma exception_init(busyexception ,-0054);
+        pragma exception_init(busy_exception ,-0054);
         pragma exception_init(pkey_null, -1400);
 
         i number;
 
-        user users%ROWTYPE;
+        user users%rowtype;
     BEGIN
         i := 0;
         user.username := NULL;
 
         -- Try to get the ressource needed
-        while (i<3)
+        while (i < 3)
         loop
             begin
-                select * into user from users where username = p_userbefore.username and backup_flag <> 2 for update nowait;
+                select * into user
+                from users
+                where username = p_userbefore.username and backup_flag <> 2
+                for update nowait;
                 i := 3;
             exception
-                when busyexception then
-                    dbms_lock.sleep(3);
-                    i := i+1;
+                when busy_exception then
+                    i := i + 1;
+                    dbms_lock.sleep(3 * i);
                 when no_data_found then
-                    raise notfoundexception;
+                    raise not_found_exception;
             end;
         end loop;
 
         -- Check if we got the ressource we needed
         if (user.username is null) then
-            raise busyexception;
+            raise busy_exception;
         end if;
 
 
         -- Compare the old record with the one we just read
         if (owa_opt_lock.checksum(p_userbefore.password || p_userbefore.lastname || p_userbefore.firstname || to_char(p_userbefore.creation_date, 'yyyymmdd'))
-            <> owa_opt_lock.checksum(user.password || user.lastname || user.firstname || to_char(user.creation_date, 'yyyymmdd'))) then
-            raise notequalexception;
+                <> owa_opt_lock.checksum(user.password || user.lastname || user.firstname || to_char(user.creation_date, 'yyyymmdd'))) then
+            raise not_equal_exception;
         end if;
 
         -- Update the record
         update users
         set password = p_userafter.password,
-        lastname = p_userafter.lastname,
-        firstname = p_userafter.firstname,
-        backup_flag = 0
+            lastname = p_userafter.lastname,
+            firstname = p_userafter.firstname,
+            backup_flag = 0
         where username = user.username;
         commit;
 
     exception
-        when busyexception then
-            insert_log('Modify_user: ' || sqlerrm);
+        when busy_exception then
+            insert_log('Busy when modifying user: ' || sqlerrm);
             raise_application_error(-20160, 'Record is busy');
-        when notfoundexception then
-            insert_log('Modify_user: ' || sqlerrm);
+        when not_found_exception then
+            insert_log('User to modify not found: ' || sqlerrm);
             raise_application_error(-20161, 'Record not found');
-        when notequalexception then
-            insert_log('Modify_user: ' || sqlerrm);
+        when not_equal_exception then
+            insert_log('User modification mismatch: ' || sqlerrm);
             raise_application_error(-20162, 'Record has been modified before your modification could be applied');
             rollback;
-        when dup_val_on_index then raise_application_error(-20140, 'Primary key already in use');
-        when pkey_null then raise_application_error(-20141, 'Primary key can''t be null');
+        when dup_val_on_index then
+            insert_log('Duplicated value on index: ' || sqlerrm);
+            raise_application_error(-20140, 'Primary key already in use');
+        when pkey_null then
+            insert_log('Primary key was null: ' || sqlerrm);
+            raise_application_error(-20141, 'Primary key can''t be null');
         when others then raise;
     end modify_user;
 
@@ -166,23 +173,23 @@ create or replace package body cb_thing is
         p_reviewafter  in reviews%rowtype
     )
     AS
-        busyexception       exception;
-        notfoundexception   exception;
-        notequalexception   exception;
+        busy_exception      exception;
+        not_found_exception exception;
+        not_equal_exception exception;
         pkey_null           exception;
-        fkeyexception       exception;
+        fkey_exception       exception;
 
-        pragma exception_init(busyexception ,-0054);
+        pragma exception_init(busy_exception ,-0054);
         pragma exception_init(pkey_null, -1400);
-        pragma exception_init(fkeyexception, -2291);
+        pragma exception_init(fkey_exception, -2291);
 
         i number;
 
-        review reviews%ROWTYPE;
+        review reviews%rowtype;
     BEGIN
         i := 0;
-        review.username := NULL;
-        review.movie_id := NULL;
+        review.username := null;
+        review.movie_id := null;
 
         -- Try to get the ressource needed
         while (i<3)
@@ -190,57 +197,64 @@ create or replace package body cb_thing is
             begin
                 select * into review
                 from reviews
-                where username = p_reviewbefore.username and movie_id = p_reviewbefore.movie_id and backup_flag <> 2 for update nowait;
+                where username = p_reviewbefore.username
+                    and movie_id = p_reviewbefore.movie_id
+                    and backup_flag <> 2
+                for update nowait;
 
                 i := 3;
             exception
-                when busyexception then
-                    dbms_lock.sleep(3);
+                when busy_exception then
                     i := i+1;
+                    dbms_lock.sleep(3 * i);
                 when no_data_found then
-                    raise notfoundexception;
+                    raise not_found_exception;
             end;
         end loop;
 
         -- Check if we got the ressource we needed
         if (review.username is null or review.movie_id is null) then
-            raise busyexception;
+            raise busy_exception;
         end if;
 
 
         -- Compare the old record with the one we just read
         if (owa_opt_lock.checksum(p_reviewbefore.rating || p_reviewbefore.content || to_char(p_reviewbefore.creation_date, 'yyyymmdd'))
-            <> owa_opt_lock.checksum(review.rating || review.content || to_char(review.creation_date, 'yyyymmdd'))) then
-            raise notequalexception;
+                <> owa_opt_lock.checksum(review.rating || review.content || to_char(review.creation_date, 'yyyymmdd'))) then
+            raise not_equal_exception;
         end if;
 
         -- Update the record
         update reviews
         set rating = p_reviewafter.rating,
-        content = p_reviewafter.content,
-        backup_flag = 0
-        where username = review.username and movie_id = review.movie_id;
+            content = p_reviewafter.content,
+            backup_flag = 0
+        where username = review.username
+            and movie_id = review.movie_id;
         commit;
 
     exception
-        when busyexception then
-            insert_log('Modify_review: ' || sqlerrm);
+        when busy_exception then
+            insert_log('Busy when modifying review: ' || sqlerrm);
             raise_application_error(-20160, 'Record is busy');
-        when notfoundexception then
-            insert_log('Modify_review: ' || sqlerrm);
+        when not_found_exception then
+            insert_log('Review to modify not found: ' || sqlerrm);
             raise_application_error(-20161, 'Record not found');
-        when notequalexception then
-            insert_log('Modify_review: ' || sqlerrm);
+        when not_equal_exception then
+            insert_log('Data mismatch on review update: ' || sqlerrm);
             raise_application_error(-20162, 'Record has been modified before your modification could be applied');
             rollback;
-        when dup_val_on_index then raise_application_error(-20140, 'Primary key already in use');
-        when pkey_null then raise_application_error(-20141, 'Primary key can''t be null');
-        when fkeyexception then
+        when dup_val_on_index then
+            raise_application_error(-20140, 'Primary key already in use');
+        when pkey_null then
+            raise_application_error(-20141, 'Primary key can''t be null');
+        when fkey_exception then
             case
-                when sqlerrm like '%fk_reviews_username%'
-                    then raise_application_error(-20142, 'Username referenced wasn''t found. (' || p_reviewafter.username || ')');
+                when sqlerrm like '%fk_reviews_username%' then
+                    raise_application_error(-20142, 'Username referenced wasn''t found. (' || p_reviewafter.username || ')');
             end case;
-        when others then raise;
+        when others then
+            raise;
     end modify_review;
 
 end cb_thing;
