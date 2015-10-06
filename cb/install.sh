@@ -1,6 +1,7 @@
 #!/bin/sh
 # Usage:
 #   CB_IP=<ip[:<port>]> ./install.sh <sys_pwd> <cb_pwd>
+set -e
 ROOT=`dirname \`realpath $0\``
 
 if [ $# -ne 2 ]; then
