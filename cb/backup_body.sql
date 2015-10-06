@@ -7,11 +7,11 @@ create or replace package body backup is
         backup.copy_them_userz;
         backup.copy_them_reviewz;
         insert_log('Backup job done');
-        -- implicit commit by dbms_scheduler
+        commit;
     exception
         when others then
             insert_log('Backup job failed:' || sqlerrm);
-            raise;
+            rollback;
     end;
 
     procedure delete_them_userz is

@@ -40,7 +40,7 @@ begin
                 where username = :new.username and movie_id = :new.movie_id;
             end if;
 
-            :new.backup_flag = 1;
+            :new.backup_flag := 1;
         end if;
     end if;
 exception
