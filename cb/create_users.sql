@@ -11,6 +11,7 @@ grant create synonym to myrole;
 grant create view to myrole;
 grant create job to myrole;
 grant create materialized view to myrole;
+grant create any directory to myrole;
 
 create user cb identified by &1
     default tablespace users
