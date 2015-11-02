@@ -20,7 +20,7 @@ create table movies_ext (
     overview clob,
     genres varchar2(1000),
     directors varchar2(4000),
-    actors clob,
+    actors varchar2(4000),
     production_companies varchar2(1000),
     production_countries varchar2(1000),
     spoken_languages varchar2(1000)
@@ -50,7 +50,7 @@ create table movies_ext (
             overview char(2000),
             genres char(1000),
             directors char(4000),
-            actors char(20000),
+            actors char(4000),
             production_companies char(1000),
             production_countries char(1000),
             spoken_languages char(1000)
