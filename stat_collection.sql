@@ -247,19 +247,23 @@ begin
         stat_request := replace(stat_request_template, ':column', single_columns(m));
         tab_result.extend;
         execute immediate stat_request into tab_result(tab_result.count) using single_columns(m);
+
+        execute immediate 'select count(*) from movies_ext where ' || single_columns(m) || ' is not null' into tab_result(tab_result.count).nbvalue;
+        execute immediate 'select count(*) from movies_ext where ' || single_columns(m) || ' is null' into tab_result(tab_result.count).nbnull;
+
+        select data_type into z from USER_TAB_COLUMNS where column_name = upper(single_columns(m));
+
+        case z
+            when 'NUMBER' then
+                execute immediate 'select count(*) from movies_ext where ' || single_columns(m) || ' = 0' into tab_result(tab_result.count).nbzero;
+            when 'VARCHAR2' then
+                execute immediate 'select count(*) from movies_ext where ' || single_columns(m) || ' = ''''' into tab_result(tab_result.count).nbzero;
+            else
+                dbms_output.put_line('else');
+        end case;
     end loop;
 
-    -- execute immediate 'select count(*) from movies_ext where ' || tab(i).name || ' is not null' into tab_result(i).nbvalue;
-    -- execute immediate 'select count(*) from movies_ext where ' || tab(i).name || ' is null' into tab_result(i).nbnull;
 
-    -- case tab(i).type
-    --     when 'NUMBER' then
-    --         execute immediate 'select count(*) from movies_ext where ' || tab(i).name || ' = 0' into tab_result(i).nbzero;
-    --     when 'VARCHAR2' then
-    --         execute immediate 'select count(*) from movies_ext where ' || tab(i).name || ' = ''''' into tab_result(i).nbzero;
-    --     else
-    --         dbms_output.put_line('else');
-    -- end case;
 
 
 
