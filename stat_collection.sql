@@ -132,8 +132,7 @@ create or replace procedure field_analysis is
                 and actors is not null
                 and actors <> ''[[]]''
                 and length(actors) <> 0
-        ) where 1 = 1
-            and rnum > :min
+        ) where rnum > :min
         union all
         select
             substr(
@@ -169,14 +168,12 @@ begin
     --------------------------
 
     select count(*) into c from movies_ext
-    where 1 = 1
-        and actors is not null
+    where actors is not null
         and actors <> '[[]]'
         and length(actors) <> 0;
     dbms_output.put_line('counted ' || c || ' rows');
 
     while i_min < c loop
-    -- while i_min < 20000 loop
         execute immediate split_request bulk collect into chars1_v using in i_max, in i_min;
         dbms_output.put_line('batch ' || i_min || ':' || i_max || ', got ' || chars1_v.count || ' results');
         i_min := i_min + chunk_size;
@@ -215,7 +212,7 @@ begin
 
     tab_result.extend;
     select
-        'Actors' || ' id profile',
+        'Actors id profile',
         median(length(column_value)),
         stddev(length(column_value)),
         max(length(column_value)),
@@ -229,7 +226,7 @@ begin
 
     tab_result.extend;
     select
-        'Actors' || ' name profile',
+        'Actors name profile',
         median(length(column_value)),
         stddev(length(column_value)),
         max(length(column_value)),
@@ -243,7 +240,7 @@ begin
 
     tab_result.extend;
     select
-        'Actors' || ' cast_id profile',
+        'Actors cast_id profile',
         median(length(column_value)),
         stddev(length(column_value)),
         max(length(column_value)),
@@ -257,7 +254,7 @@ begin
 
     tab_result.extend;
     select
-        'Actors' || ' character profile',
+        'Actors character profile',
         median(length(column_value)),
         stddev(length(column_value)),
         max(length(column_value)),
@@ -271,7 +268,7 @@ begin
 
     tab_result.extend;
     select
-        'Actors' || ' profile_path profile',
+        'Actors profile_path profile',
         median(length(column_value)),
         stddev(length(column_value)),
         max(length(column_value)),
