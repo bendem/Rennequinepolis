@@ -374,7 +374,7 @@ begin
 
     tab_result.extend;
     select
-        'Directors' || ' id ' || ' profile',
+        'Directors id profile',
         median(length(column_value)),
         stddev(length(column_value)),
         max(length(column_value)),
