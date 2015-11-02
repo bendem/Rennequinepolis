@@ -95,6 +95,8 @@ create or replace procedure field_analysis is
     chars2_v varchar2_t;
     chars3_v varchar2_t;
     chars4_v varchar2_t;
+    chars5_v varchar2_t;
+    chars6_v varchar2_t;
 
     columns_names varchar2_t := varchar2_t('genres',
         'production_companies',
@@ -109,7 +111,178 @@ create or replace procedure field_analysis is
         'overview'
     );
 
+    split_request_actor varchar2(2000) := 'with split(splitted, field, idx) as (
+        select
+            substr(
+                actors,
+                3,
+                case instr(actors, ''||'', 3, 1)
+                    when 0 then length(actors) - 4
+                    else instr(actors, ''||'', 3, 1) - 3
+                end
+            ),
+            actors,
+            case instr(actors, ''||'', 3, 1)
+                when 0 then length(actors)
+                else instr(actors, ''||'', 3, 1) + 2
+            end
+        from (
+            select actors, rownum rnum from movies_ext
+            where rownum <= :max
+                and actors is not null
+                and actors <> ''[[]]''
+                and length(actors) <> 0
+        ) where 1 = 1
+            and rnum > :min
+        union all
+        select
+            substr(
+                field,
+                idx,
+                case instr(field, ''||'', idx)
+                    when 0 then length(field) - 1
+                    else instr(field, ''||'', idx)
+                end - idx
+            ),
+            field,
+            case instr(field, ''||'', idx, 1)
+                when 0 then length(field)
+                else instr(field, ''||'', idx, 1)
+            end + 2
+        from split
+        where idx < length(field)
+    ) select distinct splitted from split';
+
+    c pls_integer := 0;
+    chunk_size pls_integer := 6500;
+    i_min pls_integer := 0;
+    i_max pls_integer := chunk_size;
 begin
+
+    chars2_v := varchar2_t();
+    chars3_v := varchar2_t();
+    chars4_v := varchar2_t();
+    chars5_v := varchar2_t();
+    chars6_v := varchar2_t();
+
+    -- Actors
+    --------------------------
+
+    select count(*) into c from movies_ext
+    where 1 = 1
+        and actors is not null
+        and actors <> '[[]]'
+        and length(actors) <> 0;
+    dbms_output.put_line('counted ' || c || ' rows');
+
+    while i_min < c loop
+    -- while i_min < 20000 loop
+        execute immediate split_request bulk collect into chars1_v using in i_max, in i_min;
+        dbms_output.put_line('batch ' || i_min || ':' || i_max || ', got ' || chars1_v.count || ' results');
+        i_min := i_min + chunk_size;
+        i_max := i_max + chunk_size;
+
+        dbms_output.put_line(chars1_v.count);
+
+        for i in chars1_v.first..chars1_v.last loop
+            j := 1;
+            y := regexp_substr(chars1_v(i), '(.+?)(\,{2,}|$)', 1, j);
+
+            while length(y) <> 0 loop
+                y := trim(trailing ',' from y);
+                case j
+                    when 1 then
+                        chars2_v.extend;
+                        chars2_v(chars2_v.count) := y;
+                    when 2 then
+                        chars3_v.extend;
+                        chars3_v(chars3_v.count) := y;
+                    when 3 then
+                        chars4_v.extend;
+                        chars4_v(chars4_v.count) := y;
+                    when 4 then
+                        chars5_v.extend;
+                        chars5_v(chars5_v.count) := y;
+                    when 5 then
+                        chars6_v.extend;
+                        chars6_v(chars6_v.count) := y;
+                end case;
+                j := j + 1;
+                y := regexp_substr(chars1_v(i), '(.+?)(\,{2,}|$)', 1, j);
+            end loop;
+        end loop;
+    end loop;
+
+    tab_result.extend;
+    select
+        'Actors' || ' id profile',
+        median(length(column_value)),
+        stddev(length(column_value)),
+        max(length(column_value)),
+        min(length(column_value)),
+        avg(length(column_value)),
+        percentile_cont(0.99) within group (order by length(column_value)),
+        percentile_cont(0.9999) within group (order by length(column_value)),
+        -1, -1, -1
+    into tab_result(tab_result.count)
+    from table(chars2_v);
+
+    tab_result.extend;
+    select
+        'Actors' || ' name profile',
+        median(length(column_value)),
+        stddev(length(column_value)),
+        max(length(column_value)),
+        min(length(column_value)),
+        avg(length(column_value)),
+        percentile_cont(0.99) within group (order by length(column_value)),
+        percentile_cont(0.9999) within group (order by length(column_value)),
+        -1, -1, -1
+    into tab_result(tab_result.count)
+    from table(chars3_v);
+
+    tab_result.extend;
+    select
+        'Actors' || ' cast_id profile',
+        median(length(column_value)),
+        stddev(length(column_value)),
+        max(length(column_value)),
+        min(length(column_value)),
+        avg(length(column_value)),
+        percentile_cont(0.99) within group (order by length(column_value)),
+        percentile_cont(0.9999) within group (order by length(column_value)),
+        -1, -1, -1
+    into tab_result(tab_result.count)
+    from table(chars4_v);
+
+    tab_result.extend;
+    select
+        'Actors' || ' character profile',
+        median(length(column_value)),
+        stddev(length(column_value)),
+        max(length(column_value)),
+        min(length(column_value)),
+        avg(length(column_value)),
+        percentile_cont(0.99) within group (order by length(column_value)),
+        percentile_cont(0.9999) within group (order by length(column_value)),
+        -1, -1, -1
+    into tab_result(tab_result.count)
+    from table(chars5_v);
+
+    tab_result.extend;
+    select
+        'Actors' || ' profile_path profile',
+        median(length(column_value)),
+        stddev(length(column_value)),
+        max(length(column_value)),
+        min(length(column_value)),
+        avg(length(column_value)),
+        percentile_cont(0.99) within group (order by length(column_value)),
+        percentile_cont(0.9999) within group (order by length(column_value)),
+        -1, -1, -1
+    into tab_result(tab_result.count)
+    from table(chars6_v);
+
     for l in columns_names.first..columns_names.last loop
         split_request := replace(split_request_template, ':column', columns_names(l));
 
@@ -262,12 +435,6 @@ begin
                 dbms_output.put_line('else');
         end case;
     end loop;
-
-
-
-
-
-
 
     dbms_output.put_line('displaying results');
 
