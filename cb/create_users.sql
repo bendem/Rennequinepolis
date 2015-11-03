@@ -30,6 +30,7 @@ alter user cbb quota unlimited on users;
 grant myrole to cbb;
 
 grant execute on dbms_lock to cb;
+grant execute on utl_file to cb;
 grant execute on dbms_lock to cbb;
 grant execute on sys.owa_opt_lock to cb;
 grant execute on sys.owa_opt_lock to cbb;

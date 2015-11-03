@@ -1,4 +1,5 @@
 create or replace procedure field_analysis is
+    output_file   utl_file.file_type;
     type r_result is record (
         name            varchar2(100),
         median          pls_integer,
@@ -174,7 +175,7 @@ begin
     dbms_output.put_line('counted ' || c || ' rows');
 
     while i_min < c loop
-        execute immediate split_request bulk collect into chars1_v using in i_max, in i_min;
+        execute immediate split_request_actor bulk collect into chars1_v using in i_max, in i_min;
         dbms_output.put_line('batch ' || i_min || ':' || i_max || ', got ' || chars1_v.count || ' results');
         i_min := i_min + chunk_size;
         i_max := i_max + chunk_size;
@@ -223,6 +224,7 @@ begin
         -1, -1, -1
     into tab_result(tab_result.count)
     from table(chars2_v);
+    tab_result(tab_result.count).nbvalue := chars2_v.count;
 
     tab_result.extend;
     select
@@ -237,6 +239,7 @@ begin
         -1, -1, -1
     into tab_result(tab_result.count)
     from table(chars3_v);
+    tab_result(tab_result.count).nbvalue := chars3_v.count;
 
     tab_result.extend;
     select
@@ -251,6 +254,7 @@ begin
         -1, -1, -1
     into tab_result(tab_result.count)
     from table(chars4_v);
+    tab_result(tab_result.count).nbvalue := chars4_v.count;
 
     tab_result.extend;
     select
@@ -265,6 +269,7 @@ begin
         -1, -1, -1
     into tab_result(tab_result.count)
     from table(chars5_v);
+    tab_result(tab_result.count).nbvalue := chars5_v.count;
 
     tab_result.extend;
     select
@@ -279,6 +284,7 @@ begin
         -1, -1, -1
     into tab_result(tab_result.count)
     from table(chars6_v);
+    tab_result(tab_result.count).nbvalue := chars6_v.count;
 
     for l in columns_names.first..columns_names.last loop
         split_request := replace(split_request_template, ':column', columns_names(l));
@@ -321,6 +327,7 @@ begin
             -1, -1, -1
         into tab_result(tab_result.count)
         from table(chars2_v);
+        tab_result(tab_result.count).nbvalue := chars2_v.count;
 
         tab_result.extend;
         select
@@ -335,6 +342,7 @@ begin
             -1, -1, -1
         into tab_result(tab_result.count)
         from table(chars3_v);
+        tab_result(tab_result.count).nbvalue := chars3_v.count;
 
     end loop;
 
@@ -382,6 +390,7 @@ begin
         -1, -1, -1
     into tab_result(tab_result.count)
     from table(chars2_v);
+    tab_result(tab_result.count).nbvalue := chars2_v.count;
 
     tab_result.extend;
     select
@@ -396,9 +405,9 @@ begin
         -1, -1, -1
     into tab_result(tab_result.count)
     from table(chars3_v);
+    tab_result(tab_result.count).nbvalue := chars3_v.count;
 
     tab_result.extend;
-
     select
         'Directors profile_path profile',
         median(length(column_value)),
@@ -411,6 +420,7 @@ begin
         -1, -1, -1
     into tab_result(tab_result.count)
     from table(chars4_v);
+    tab_result(tab_result.count).nbvalue := chars4_v.count;
 
 
     for m in single_columns.first..single_columns.last loop
@@ -434,24 +444,34 @@ begin
     end loop;
 
     dbms_output.put_line('displaying results');
+    output_file := utl_file.fopen ('MOVIES_DIR', 'AnalysisResult.txt', 'W');
+    utl_file.put_line(output_file,'ANALYSIS REPORT FOR MOVIES_EXT');
+    utl_file.put_line(output_file,'');
+    utl_file.put_line(output_file,'');
 
     indx := tab_result.first;
     while indx is not null loop
-        dbms_output.put_line('Nom: ' || tab_result(indx).name);
-        dbms_output.put_line('Median: ' || tab_result(indx).median
-            || ' stddev: '  || tab_result(indx).stddev
-            || ' max: '     || tab_result(indx).max
-            || ' min: '     || tab_result(indx).min
-            || ' avg: '     || tab_result(indx).average
-            || ' cperc: '   || tab_result(indx).cperc
-            || ' mperc: '   || tab_result(indx).mperc
-            || ' nbvalue: ' || tab_result(indx).nbvalue
-            || ' nbnull: '  || tab_result(indx).nbnull
-            || ' nbzero: '  || tab_result(indx).nbzero);
+        utl_file.put_line(output_file,'Nom: ' || tab_result(indx).name);
+        utl_file.put_line(output_file,'Median: ' || tab_result(indx).median);
+        utl_file.put_line(output_file,'Stddev: '  || tab_result(indx).stddev);
+        utl_file.put_line(output_file,'Max: '     || tab_result(indx).max);
+        utl_file.put_line(output_file,'Min: '     || tab_result(indx).min);
+        utl_file.put_line(output_file,'Avg: '     || tab_result(indx).average);
+        utl_file.put_line(output_file,'Cperc: '   || tab_result(indx).cperc);
+        utl_file.put_line(output_file,'Mperc: '   || tab_result(indx).mperc);
+        utl_file.put_line(output_file,'Nbvalue: ' || tab_result(indx).nbvalue);
+        utl_file.put_line(output_file,'Nbnull: '  || tab_result(indx).nbnull);
+        utl_file.put_line(output_file,'Nbzero: '  || tab_result(indx).nbzero);
+        utl_file.put_line(output_file,'');
+        utl_file.put_line(output_file,'');
         indx := tab_result.next(indx);
     end loop;
+    utl_file.fclose(output_file);
 exception
     when others then
+        if utl_file.is_open(output_file) then
+          utl_file.fclose (output_file);
+        end if;
         dbms_output.put_line(sqlerrm);
         dbms_output.put_line(dbms_utility.format_call_stack);
         dbms_output.put_line(dbms_utility.format_error_backtrace);
