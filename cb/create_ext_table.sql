@@ -1,4 +1,4 @@
-create or replace directory movies_dir as '/home/oracle/movies';
+create or replace directory movies_dir as '/dev/shm/movies';
 
 -- place movies.txt in the directory and change user rights to oracle:dba
 
