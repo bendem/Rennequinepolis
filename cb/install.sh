@@ -53,3 +53,5 @@ $SQLPLUS cbb/$CB_PWD@$CB_IP @$ROOT/package_body
 
 $SQLPLUS cb/$CB_PWD@$CB_IP @$ROOT/create_job
 $SQLPLUS cbb/$CB_PWD@$CB_IP @$ROOT/create_job
+
+$SQLPLUS cb/$CB_PWD@$CB_IP @$ROOT/create_ext_table

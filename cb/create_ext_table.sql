@@ -1,5 +1,5 @@
 create or replace directory movies_dir as '/dev/shm/movies';
-
+/
 -- place movies.txt in the directory and change user rights to oracle:dba
 
 create table movies_ext (
@@ -58,3 +58,5 @@ create table movies_ext (
     )
     location('movies.txt')
 ) reject limit unlimited;
+
+exit
