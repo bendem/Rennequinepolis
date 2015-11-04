@@ -3,7 +3,7 @@ create or replace package body timer is
     m_start       timestamp;
     m_current_lap timestamp;
 
-    function init return interval day to second is
+    function init return timestamp is
     begin
         select current_timestamp into m_start from dual;
         m_current_lap := m_start;
@@ -16,7 +16,7 @@ create or replace package body timer is
     begin
         select current_timestamp into now from dual;
         i := now - m_current_lap;
-        m_current_lap := now
+        m_current_lap := now;
         return i;
     end;
 
