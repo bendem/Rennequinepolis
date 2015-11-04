@@ -3,11 +3,10 @@ create or replace package body timer is
     m_start       timestamp;
     m_current_lap timestamp;
 
-    function init return timestamp is
+    procedure init is
     begin
         select current_timestamp into m_start from dual;
         m_current_lap := m_start;
-        return m_start;
     end;
 
     function lap return interval day to second is
