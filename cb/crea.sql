@@ -21,15 +21,33 @@ create table actors (
 -- --------
 create table certifications (
     certification_id number(6, 0) constraint pk_certifications primary key,
-    certification_name varchar2(9) not null
+    certification_name varchar2(9) not null,
+    constraint certification_name_unique unique (certification_name)
 );
+
+create sequence certifications_seq;
+create or replace trigger logs_autoinc
+before insert on certifications
+for each row begin
+    select certifications_seq.nextval into :new.certification_id from dual;
+end;
+/
 
 -- statuses
 -- --------
 create table statuses (
     status_id number(6, 0) constraint pk_statuses primary key,
-    status_name varchar2(8) not null
+    status_name varchar2(8) not null,
+    constraint status_name_unique unique (status_name)
 );
+
+create sequence statuses_seq;
+create or replace trigger logs_autoinc
+before insert on statuses
+for each row begin
+    select statuses_seq.nextval into :new.status_id from dual;
+end;
+/
 
 -- spoken_languages
 -- --------
@@ -159,7 +177,6 @@ create table movies_directors (
     constraint fk_mov_dir_movie_id foreign key (movie_id) references movies(movie_id),
     constraint fk_mov_dir_director_id foreign key (director_id) references directors(director_id)
 );
-
 -- movies_genres
 -- --------
 create table movies_genres (
