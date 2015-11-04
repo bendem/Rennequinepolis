@@ -7,3 +7,5 @@ create or replace package timer is
 
 end timer;
 /
+
+exit
