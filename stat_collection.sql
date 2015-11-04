@@ -1,3 +1,7 @@
+-- Needs
+-- create or replace type number_t is table of number;
+-- create or replace type varchar2_t is table of varchar2(4000);
+
 create or replace procedure field_analysis is
     output_file   utl_file.file_type;
     type r_result is record (
@@ -445,25 +449,36 @@ begin
 
     dbms_output.put_line('displaying results');
     output_file := utl_file.fopen ('MOVIES_DIR', 'AnalysisResult.txt', 'W');
-    utl_file.put_line(output_file,'ANALYSIS REPORT FOR MOVIES_EXT');
-    utl_file.put_line(output_file,'');
-    utl_file.put_line(output_file,'');
-
+    utl_file.put_line(output_file, 'analysis report for movies_ext');
+    utl_file.put_line(output_file, '');
+    utl_file.put_line(output_file,
+           'Name                 | '
+        || ' Median | '
+        || ' Stddev | '
+        || '  Max | '
+        || '  Min | '
+        || '  Avg | '
+        || ' Cperc | '
+        || ' Mperc | '
+        || ' Nbvalue | '
+        || ' Nbnull | '
+        || ' Nbzero'
+    );
     indx := tab_result.first;
     while indx is not null loop
-        utl_file.put_line(output_file,'Nom: ' || tab_result(indx).name);
-        utl_file.put_line(output_file,'Median: ' || tab_result(indx).median);
-        utl_file.put_line(output_file,'Stddev: '  || tab_result(indx).stddev);
-        utl_file.put_line(output_file,'Max: '     || tab_result(indx).max);
-        utl_file.put_line(output_file,'Min: '     || tab_result(indx).min);
-        utl_file.put_line(output_file,'Avg: '     || tab_result(indx).average);
-        utl_file.put_line(output_file,'Cperc: '   || tab_result(indx).cperc);
-        utl_file.put_line(output_file,'Mperc: '   || tab_result(indx).mperc);
-        utl_file.put_line(output_file,'Nbvalue: ' || tab_result(indx).nbvalue);
-        utl_file.put_line(output_file,'Nbnull: '  || tab_result(indx).nbnull);
-        utl_file.put_line(output_file,'Nbzero: '  || tab_result(indx).nbzero);
-        utl_file.put_line(output_file,'');
-        utl_file.put_line(output_file,'');
+        utl_file.put_line(output_file,
+               rpad(tab_result(indx).name,   20, ' ') || ' | '
+            || lpad(tab_result(indx).median,  7, ' ') || ' | '
+            || lpad(tab_result(indx).stddev,  7, ' ') || ' | '
+            || lpad(tab_result(indx).max,     5, ' ') || ' | '
+            || lpad(tab_result(indx).min,     5, ' ') || ' | '
+            || lpad(tab_result(indx).average, 5, ' ') || ' | '
+            || lpad(tab_result(indx).cperc,   6, ' ') || ' | '
+            || lpad(tab_result(indx).mperc,   6, ' ') || ' | '
+            || lpad(tab_result(indx).nbvalue, 8, ' ') || ' | '
+            || lpad(tab_result(indx).nbnull,  7, ' ') || ' | '
+            || lpad(tab_result(indx).nbzero,  7, ' ')
+        );
         indx := tab_result.next(indx);
     end loop;
     utl_file.fclose(output_file);
