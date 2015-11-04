@@ -162,6 +162,7 @@ create or replace procedure field_analysis is
     i_min pls_integer := 0;
     i_max pls_integer := chunk_size;
 begin
+    timer.init;
 
     chars2_v := varchar2_t();
     chars3_v := varchar2_t();
@@ -176,15 +177,12 @@ begin
     where actors is not null
         and actors <> '[[]]'
         and length(actors) <> 0;
-    dbms_output.put_line('counted ' || c || ' rows');
+    dbms_output.put_line('counted ' || c || ' actor rows in ' || timer.restart);
 
     while i_min < c loop
         execute immediate split_request_actor bulk collect into chars1_v using in i_max, in i_min;
-        dbms_output.put_line('batch ' || i_min || ':' || i_max || ', got ' || chars1_v.count || ' results');
         i_min := i_min + chunk_size;
         i_max := i_max + chunk_size;
-
-        dbms_output.put_line(chars1_v.count);
 
         for i in chars1_v.first..chars1_v.last loop
             j := 1;
@@ -214,10 +212,11 @@ begin
             end loop;
         end loop;
     end loop;
+    dbms_output.put_line('Collected actors in ' || timer.restart);
 
     tab_result.extend;
     select
-        'Actors id profile',
+        'Actors id',
         median(length(column_value)),
         stddev(length(column_value)),
         max(length(column_value)),
@@ -232,7 +231,7 @@ begin
 
     tab_result.extend;
     select
-        'Actors name profile',
+        'Actors name',
         median(length(column_value)),
         stddev(length(column_value)),
         max(length(column_value)),
@@ -247,7 +246,7 @@ begin
 
     tab_result.extend;
     select
-        'Actors cast_id profile',
+        'Actors cast_id',
         median(length(column_value)),
         stddev(length(column_value)),
         max(length(column_value)),
@@ -262,7 +261,7 @@ begin
 
     tab_result.extend;
     select
-        'Actors character profile',
+        'Actors character',
         median(length(column_value)),
         stddev(length(column_value)),
         max(length(column_value)),
@@ -277,7 +276,7 @@ begin
 
     tab_result.extend;
     select
-        'Actors profile_path profile',
+        'Actors profile_path',
         median(length(column_value)),
         stddev(length(column_value)),
         max(length(column_value)),
@@ -289,13 +288,13 @@ begin
     into tab_result(tab_result.count)
     from table(chars6_v);
     tab_result(tab_result.count).nbvalue := chars6_v.count;
+    dbms_output.put_line('Actor stats in ' || timer.restart);
+
 
     for l in columns_names.first..columns_names.last loop
         split_request := replace(split_request_template, ':column', columns_names(l));
 
         execute immediate split_request bulk collect into chars1_v;
-
-        dbms_output.put_line(chars1_v.count);
 
         chars2_v := varchar2_t();
         chars3_v := varchar2_t();
@@ -317,10 +316,11 @@ begin
                 y := regexp_substr(chars1_v(i), '(.+?)(\,{2,}|$)', 1, j);
             end loop;
         end loop;
+        dbms_output.put_line('Fetched ' || columns_names(l) || ' in ' || timer.restart);
 
         tab_result.extend;
         select
-            columns_names(l) || ' id profile',
+            columns_names(l) || ' id',
             median(length(column_value)),
             stddev(length(column_value)),
             max(length(column_value)),
@@ -335,7 +335,7 @@ begin
 
         tab_result.extend;
         select
-            columns_names(l) || ' value profile',
+            columns_names(l) || ' value',
             median(length(column_value)),
             stddev(length(column_value)),
             max(length(column_value)),
@@ -347,7 +347,7 @@ begin
         into tab_result(tab_result.count)
         from table(chars3_v);
         tab_result(tab_result.count).nbvalue := chars3_v.count;
-
+        dbms_output.put_line(columns_names(l) || ' stats in ' || timer.restart);
     end loop;
 
     -- ---------------------------
@@ -380,10 +380,11 @@ begin
             y := regexp_substr(chars1_v(i), '(.+?)(\,{2,}|$)', 1, j);
         end loop;
     end loop;
+    dbms_output.put_line('Fetched directors in ' || timer.restart);
 
     tab_result.extend;
     select
-        'Directors id profile',
+        'Directors id',
         median(length(column_value)),
         stddev(length(column_value)),
         max(length(column_value)),
@@ -398,7 +399,7 @@ begin
 
     tab_result.extend;
     select
-        'Directors name profile',
+        'Directors name',
         median(length(column_value)),
         stddev(length(column_value)),
         max(length(column_value)),
@@ -413,7 +414,7 @@ begin
 
     tab_result.extend;
     select
-        'Directors profile_path profile',
+        'Directors profile_path',
         median(length(column_value)),
         stddev(length(column_value)),
         max(length(column_value)),
@@ -425,6 +426,7 @@ begin
     into tab_result(tab_result.count)
     from table(chars4_v);
     tab_result(tab_result.count).nbvalue := chars4_v.count;
+    dbms_output.put_line('Director stats in ' || timer.restart);
 
 
     for m in single_columns.first..single_columns.last loop
@@ -443,16 +445,17 @@ begin
             when 'VARCHAR2' then
                 execute immediate 'select count(*) from movies_ext where ' || single_columns(m) || ' = ''''' into tab_result(tab_result.count).nbzero;
             else
-                dbms_output.put_line('else');
+                null;
         end case;
+        dbms_output.put_line(single_columns(m) || ' stats in ' || timer.restart);
     end loop;
 
-    dbms_output.put_line('displaying results');
+    dbms_output.put_line('Displaying results');
     output_file := utl_file.fopen ('MOVIES_DIR', 'AnalysisResult.txt', 'W');
     utl_file.put_line(output_file, 'analysis report for movies_ext');
     utl_file.put_line(output_file, '');
     utl_file.put_line(output_file,
-           'Name                 | '
+           'Name                       | '
         || ' Median | '
         || ' Stddev | '
         || '  Max | '
@@ -467,7 +470,7 @@ begin
     indx := tab_result.first;
     while indx is not null loop
         utl_file.put_line(output_file,
-               rpad(tab_result(indx).name,   20, ' ') || ' | '
+               rpad(tab_result(indx).name,   26, ' ') || ' | '
             || lpad(tab_result(indx).median,  7, ' ') || ' | '
             || lpad(tab_result(indx).stddev,  7, ' ') || ' | '
             || lpad(tab_result(indx).max,     5, ' ') || ' | '
@@ -482,6 +485,7 @@ begin
         indx := tab_result.next(indx);
     end loop;
     utl_file.fclose(output_file);
+    dbms_output.put_line('Wrote to file in ' || timer.restart);
 exception
     when others then
         if utl_file.is_open(output_file) then
