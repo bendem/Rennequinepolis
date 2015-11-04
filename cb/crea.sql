@@ -13,7 +13,7 @@ create table users (
 -- --------
 create table actors (
     actor_id number(7, 0) constraint pk_actors primary key,
-    actor_name varchar2(22),
+    actor_name varchar2(22) not null,
     actor_profile_path varchar2(32)
 );
 
@@ -21,42 +21,42 @@ create table actors (
 -- --------
 create table certifications (
     certification_id number(6, 0) constraint pk_certifications primary key,
-    certification_name varchar2(9)
+    certification_name varchar2(9) not null
 );
 
 -- statuses
 -- --------
 create table statuses (
     status_id number(6, 0) constraint pk_statuses primary key,
-    status_name varchar2(8)
+    status_name varchar2(8) not null
 );
 
 -- spoken_languages
 -- --------
 create table spoken_languages (
     spoken_language_id varchar2(2) constraint pk_spoken_languages primary key,
-    spoken_language_name varchar2(15)
+    spoken_language_name varchar2(15) not null
 );
 
 -- production_countries
 -- --------
 create table production_countries (
     production_country_id varchar2(2) constraint pk_production_countries primary key,
-    production_country_name varchar2(31)
+    production_country_name varchar2(31) not null
 );
 
 -- production_companies
 -- --------
 create table production_companies (
     production_company_id number(5, 0) constraint pk_production_companies primary key,
-    production_company_name varchar2(45)
+    production_company_name varchar2(45) not null
 );
 
 -- directors
 -- --------
 create table directors (
     director_id number(7, 0) constraint pk_directors primary key,
-    director_name varchar2(23),
+    director_name varchar2(23) not null,
     director_profile_path varchar2(32)
 );
 
@@ -64,15 +64,15 @@ create table directors (
 -- --------
 create table genres (
     genre_id number(5, 0) constraint pk_genres primary key,
-    genre_name varchar2(16)
+    genre_name varchar2(16) not null
 );
 
 -- movies
 -- --------
 create table movies (
     movie_id number(6, 0) constraint pk_movies primary key,
-    movie_title varchar2(58),
-    movie_original_title varchar2(59),
+    movie_title varchar2(58) not null,
+    movie_original_title varchar2(59) not null,
     movie_release_date date,
     movie_status_id number(6, 0) constraint fk_movies_status_id references statuses(status_id),
     movie_certification_id number(6, 0) constraint fk_movies_certification_id references certifications(certification_id),
