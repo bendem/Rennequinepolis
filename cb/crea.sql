@@ -76,12 +76,12 @@ create table movies (
     movie_release_date date,
     movie_status_id number(6, 0) constraint fk_movies_status_id references statuses(status_id),
     movie_certification_id number(6, 0) constraint fk_movies_certification_id references certifications(certification_id),
-    movie_vote_avg number(2, 1),
-    movie_vote_count number(4), -- TODO Check
+    movie_vote_avg number(2, 1) not null,
+    movie_vote_count number(4) not null, -- TODO Check
     movie_runtime number(5), -- TODO Check
     movie_poster_path varchar2(32),
-    movie_budget number(8, 0), -- TODO Check
-    movie_revenue number(8, 0), -- TODO Check
+    movie_budget number(8, 0) not null, -- TODO Check
+    movie_revenue number(8, 0) not null, -- TODO Check
     movie_homepage varchar2(112),
     movie_tagline varchar2(172),
     movie_overview clob
@@ -90,22 +90,25 @@ create table movies (
 -- characters
 -- --------
 create table characters (
-    movie_id number(6, 0) constraint fk_characters_movie_id references movies(movie_id),
-    character_id number(4, 0),
-    character_name varchar2(111),
-    constraint pk_characters primary key (movie_id, character_id)
+    movie_id number(6, 0) not null,
+    character_id number(4, 0) not null,
+    character_name varchar2(111) not null,
+    constraint pk_characters primary key (movie_id, character_id),
+    constraint fk_characters_movie_id foreign key (movie_id) references movies(movie_id)
 );
 
 -- reviews
 -- ---------
 create table reviews (
-    username varchar2(63) constraint fk_reviews_username references users(username),
-    movie_id number(6, 0) constraint fk_reviews_movie_id references movies(movie_id),
+    username varchar2(63) not null,
+    movie_id number(6, 0) not null,
     rating number(2, 0),
     creation_date date default current_date,
     content varchar2(511),
     backup_flag number(1, 0),
-    constraint pk_reviews primary key (username, movie_id)
+    constraint pk_reviews primary key (username, movie_id),
+    constraint fk_reviews_movie_id foreign key (movie_id) references movies(movie_id),
+    constraint fk_reviews_username foreign key (username) references users(username)
 );
 
 -- movies_actors_characters
@@ -121,41 +124,50 @@ create table movies_actors_characters (
 -- movies_spoken_languages
 -- --------
 create table movies_spoken_languages (
-    movie_id number(6, 0) constraint fk_mov_spo_lan_movie_id references movies(movie_id),
+    movie_id number(6, 0) not null,
     spoken_language_id varchar2(2) constraint fk_mov_spo_lan_spo_language_id references spoken_languages(spoken_language_id),
-    constraint pk_movies_spoken_languages primary key (movie_id, spoken_language_id)
+    constraint pk_movies_spoken_languages primary key (movie_id, spoken_language_id),
+    constraint fk_mov_spo_lan_movie_id foreign key (movie_id) references movies(movie_id)
 );
 
 -- movies_production_countries
 -- --------
 create table movies_production_countries (
-    movie_id number(6, 0) constraint fk_mov_pro_cou_movie_id references movies(movie_id),
-    production_country_id varchar2(2) constraint fk_mov_pro_cou_prod_country_id references production_countries(production_country_id),
-    constraint pk_movies_production_countries primary key (movie_id, production_country_id)
+    movie_id number(6, 0) not null,
+    production_country_id varchar2(2) not null,
+    constraint pk_movies_production_countries primary key (movie_id, production_country_id),
+    constraint fk_mov_pro_cou_movie_id foreign key (movie_id) references movies(movie_id),
+    constraint fk_mov_pro_cou_prod_country_id foreign key (production_country_id) references production_countries(production_country_id)
 );
 
 -- movies_production_companies
 -- --------
 create table movies_production_companies (
-    movie_id number(6, 0) constraint fk_mov_pro_com_movie_id references movies(movie_id),
-    production_company_id number(5, 0) constraint fk_mov_pro_com_prod_company_id references production_companies(production_company_id),
-    constraint pk_movies_production_companies primary key (movie_id, production_company_id)
+    movie_id number(6, 0) not null,
+    production_company_id number(5, 0) not null,
+    constraint pk_movies_production_companies primary key (movie_id, production_company_id),
+    constraint fk_mov_pro_com_movie_id foreign key (movie_id) references movies(movie_id),
+    constraint fk_mov_pro_com_prod_company_id foreign key (production_company_id) references production_companies(production_company_id)
 );
 
 -- movies_directors
 -- --------
 create table movies_directors (
-    movie_id number(6, 0) constraint fk_mov_dir_movie_id references movies(movie_id),
-    director_id number(7, 0) constraint fk_mov_dir_director_id references directors(director_id),
-    constraint pk_movies_directors primary key (movie_id, director_id)
+    movie_id number(6, 0) not null,
+    director_id number(7, 0) not null,
+    constraint pk_movies_directors primary key (movie_id, director_id),
+    constraint fk_mov_dir_movie_id foreign key (movie_id) references movies(movie_id),
+    constraint fk_mov_dir_director_id foreign key (director_id) references directors(director_id)
 );
 
 -- movies_genres
 -- --------
 create table movies_genres (
-    movie_id number(6, 0) constraint fk_mov_gen_movie_id references movies(movie_id),
-    genre_id number(5, 0) constraint fk_mov_gen_genre_id references genres(genre_id),
-    constraint pk_movies_genres primary key (movie_id, genre_id)
+    movie_id number(6, 0) not null,
+    genre_id number(5, 0) not null,
+    constraint pk_movies_genres primary key (movie_id, genre_id),
+    constraint fk_mov_gen_movie_id foreign key (movie_id) references movies(movie_id),
+    constraint fk_mov_gen_genre_id foreign key (genre_id) references genres(genre_id)
 );
 
 exit
