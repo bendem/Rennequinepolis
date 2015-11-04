@@ -1,6 +1,5 @@
--- Needs
--- create or replace type number_t is table of number;
--- create or replace type varchar2_t is table of varchar2(4000);
+create or replace type number_t is table of number;
+create or replace type varchar2_t is table of varchar2(4000);
 
 create or replace procedure field_analysis is
     output_file   utl_file.file_type;
@@ -177,7 +176,7 @@ begin
     where actors is not null
         and actors <> '[[]]'
         and length(actors) <> 0;
-    dbms_output.put_line('counted ' || c || ' actor rows in ' || timer.restart);
+    dbms_output.put_line('counted ' || c || ' actor rows in ' || timer.lap);
 
     while i_min < c loop
         execute immediate split_request_actor bulk collect into chars1_v using in i_max, in i_min;
@@ -212,7 +211,7 @@ begin
             end loop;
         end loop;
     end loop;
-    dbms_output.put_line('Collected actors in ' || timer.restart);
+    dbms_output.put_line('Collected actors in ' || timer.lap);
 
     tab_result.extend;
     select
@@ -288,7 +287,7 @@ begin
     into tab_result(tab_result.count)
     from table(chars6_v);
     tab_result(tab_result.count).nbvalue := chars6_v.count;
-    dbms_output.put_line('Actor stats in ' || timer.restart);
+    dbms_output.put_line('Actor stats in ' || timer.lap);
 
 
     for l in columns_names.first..columns_names.last loop
@@ -316,7 +315,7 @@ begin
                 y := regexp_substr(chars1_v(i), '(.+?)(\,{2,}|$)', 1, j);
             end loop;
         end loop;
-        dbms_output.put_line('Fetched ' || columns_names(l) || ' in ' || timer.restart);
+        dbms_output.put_line('Fetched ' || columns_names(l) || ' in ' || timer.lap);
 
         tab_result.extend;
         select
@@ -347,7 +346,7 @@ begin
         into tab_result(tab_result.count)
         from table(chars3_v);
         tab_result(tab_result.count).nbvalue := chars3_v.count;
-        dbms_output.put_line(columns_names(l) || ' stats in ' || timer.restart);
+        dbms_output.put_line(columns_names(l) || ' stats in ' || timer.lap);
     end loop;
 
     -- ---------------------------
@@ -380,7 +379,7 @@ begin
             y := regexp_substr(chars1_v(i), '(.+?)(\,{2,}|$)', 1, j);
         end loop;
     end loop;
-    dbms_output.put_line('Fetched directors in ' || timer.restart);
+    dbms_output.put_line('Fetched directors in ' || timer.lap);
 
     tab_result.extend;
     select
@@ -426,7 +425,7 @@ begin
     into tab_result(tab_result.count)
     from table(chars4_v);
     tab_result(tab_result.count).nbvalue := chars4_v.count;
-    dbms_output.put_line('Director stats in ' || timer.restart);
+    dbms_output.put_line('Director stats in ' || timer.lap);
 
 
     for m in single_columns.first..single_columns.last loop
@@ -447,7 +446,7 @@ begin
             else
                 null;
         end case;
-        dbms_output.put_line(single_columns(m) || ' stats in ' || timer.restart);
+        dbms_output.put_line(single_columns(m) || ' stats in ' || timer.lap);
     end loop;
 
     dbms_output.put_line('Displaying results');
@@ -485,7 +484,8 @@ begin
         indx := tab_result.next(indx);
     end loop;
     utl_file.fclose(output_file);
-    dbms_output.put_line('Wrote to file in ' || timer.restart);
+    dbms_output.put_line('Wrote to file in ' || timer.lap);
+    dbms_output.put_line('Script took '      || timer.total);
 exception
     when others then
         if utl_file.is_open(output_file) then
