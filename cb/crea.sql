@@ -1,10 +1,10 @@
 -- users
 -- -------
 create table users (
-    username varchar2(63) constraint pk_users primary key,
-    password varchar2(63) not null,
-    lastname varchar2(63),
-    firstname varchar2(63),
+    username varchar2(63 char) constraint pk_users primary key,
+    password varchar2(63 char) not null,
+    lastname varchar2(63 char),
+    firstname varchar2(63 char),
     creation_date date default current_date,
     backup_flag number(1, 0) -- 1 = backed up, 0 = to backup, 2 = to delete
 );
@@ -13,15 +13,15 @@ create table users (
 -- --------
 create table actors (
     actor_id number(7, 0) constraint pk_actors primary key,
-    actor_name varchar2(22) not null,
-    actor_profile_path varchar2(32)
+    actor_name varchar2(22 char) not null,
+    actor_profile_path varchar2(32 char)
 );
 
 -- certifications
 -- --------
 create table certifications (
     certification_id number(6, 0) constraint pk_certifications primary key,
-    certification_name varchar2(9) not null,
+    certification_name varchar2(9 char) not null,
     constraint certification_name_unique unique (certification_name)
 );
 
@@ -37,7 +37,7 @@ end;
 -- --------
 create table statuses (
     status_id number(6, 0) constraint pk_statuses primary key,
-    status_name varchar2(8) not null,
+    status_name varchar2(8 char) not null,
     constraint status_name_unique unique (status_name)
 );
 
@@ -52,56 +52,56 @@ end;
 -- spoken_languages
 -- --------
 create table spoken_languages (
-    spoken_language_id varchar2(2) constraint pk_spoken_languages primary key,
-    spoken_language_name varchar2(15) not null
+    spoken_language_id varchar2(2 char) constraint pk_spoken_languages primary key,
+    spoken_language_name varchar2(15 char) not null
 );
 
 -- production_countries
 -- --------
 create table production_countries (
-    production_country_id varchar2(2) constraint pk_production_countries primary key,
-    production_country_name varchar2(31) not null
+    production_country_id varchar2(2 char) constraint pk_production_countries primary key,
+    production_country_name varchar2(31 char) not null
 );
 
 -- production_companies
 -- --------
 create table production_companies (
     production_company_id number(5, 0) constraint pk_production_companies primary key,
-    production_company_name varchar2(45) not null
+    production_company_name varchar2(45 char) not null
 );
 
 -- directors
 -- --------
 create table directors (
     director_id number(7, 0) constraint pk_directors primary key,
-    director_name varchar2(23) not null,
-    director_profile_path varchar2(32)
+    director_name varchar2(23 char) not null,
+    director_profile_path varchar2(32 char)
 );
 
 -- genres
 -- --------
 create table genres (
     genre_id number(5, 0) constraint pk_genres primary key,
-    genre_name varchar2(16) not null
+    genre_name varchar2(16 char) not null
 );
 
 -- movies
 -- --------
 create table movies (
     movie_id number(6, 0) constraint pk_movies primary key,
-    movie_title varchar2(58) not null,
-    movie_original_title varchar2(59) not null,
+    movie_title varchar2(58 char) not null,
+    movie_original_title varchar2(59 char) not null,
     movie_release_date date,
     movie_status_id number(6, 0) constraint fk_movies_status_id references statuses(status_id),
     movie_certification_id number(6, 0) constraint fk_movies_certification_id references certifications(certification_id),
     movie_vote_avg number(2, 1) not null,
     movie_vote_count number(4) not null, -- TODO Check
     movie_runtime number(5), -- TODO Check
-    movie_poster_path varchar2(32),
+    movie_poster_path varchar2(32 char),
     movie_budget number(8, 0) not null, -- TODO Check
     movie_revenue number(8, 0) not null, -- TODO Check
-    movie_homepage varchar2(112),
-    movie_tagline varchar2(172),
+    movie_homepage varchar2(112 char),
+    movie_tagline varchar2(172 char),
     movie_overview clob
 );
 
@@ -110,7 +110,7 @@ create table movies (
 create table characters (
     movie_id number(6, 0) not null,
     character_id number(4, 0) not null,
-    character_name varchar2(111) not null,
+    character_name varchar2(111 char) not null,
     constraint pk_characters primary key (movie_id, character_id),
     constraint fk_characters_movie_id foreign key (movie_id) references movies(movie_id)
 );
@@ -118,11 +118,11 @@ create table characters (
 -- reviews
 -- ---------
 create table reviews (
-    username varchar2(63) not null,
+    username varchar2(63 char) not null,
     movie_id number(6, 0) not null,
     rating number(2, 0),
     creation_date date default current_date,
-    content varchar2(511),
+    content varchar2(511 char),
     backup_flag number(1, 0),
     constraint pk_reviews primary key (username, movie_id),
     constraint fk_reviews_movie_id foreign key (movie_id) references movies(movie_id),
@@ -143,7 +143,7 @@ create table movies_actors_characters (
 -- --------
 create table movies_spoken_languages (
     movie_id number(6, 0) not null,
-    spoken_language_id varchar2(2) constraint fk_mov_spo_lan_spo_language_id references spoken_languages(spoken_language_id),
+    spoken_language_id varchar2(2 char) constraint fk_mov_spo_lan_spo_language_id references spoken_languages(spoken_language_id),
     constraint pk_movies_spoken_languages primary key (movie_id, spoken_language_id),
     constraint fk_mov_spo_lan_movie_id foreign key (movie_id) references movies(movie_id)
 );
@@ -152,7 +152,7 @@ create table movies_spoken_languages (
 -- --------
 create table movies_production_countries (
     movie_id number(6, 0) not null,
-    production_country_id varchar2(2) not null,
+    production_country_id varchar2(2 char) not null,
     constraint pk_movies_production_countries primary key (movie_id, production_country_id),
     constraint fk_mov_pro_cou_movie_id foreign key (movie_id) references movies(movie_id),
     constraint fk_mov_pro_cou_prod_country_id foreign key (production_country_id) references production_countries(production_country_id)

@@ -83,6 +83,62 @@ create or replace procedure insert_movie (movie_id in movies.movie_id%type) is
     movies_directors_v            movies_directors_t;
     movies_genres_v               movies_genres_t;
 
+
+    size_movies_title number := 58;
+    size_max_movies_title number := 112;
+    size_movies_original_title number := 59;
+    size_max_movies_original_title number := 113;
+    -- size_movies_vote_avg number := 3;
+    -- size_max_movies_vote_avg number := 3;
+    size_movies_vote_count number := 2;
+    size_max_movies_vote_count number := 4;
+    size_movies_runtime number := 5;
+    size_max_movies_runtime number := 9;
+    -- size_movies_poster_path number := 32;
+    -- size_max_movies_poster_path number := 32;
+    size_movies_budget number := 8;
+    size_max_movies_budget number := 9;
+    size_movies_revenue number := 8;
+    size_max_movies_revenue number := 9;
+    size_movies_homepage number := 122;
+    size_max_movies_homepage number := 359;
+    size_movies_tagline number := 172;
+    size_max_movies_tagline number := 871;
+    -- size_actors_id number := 7;
+    -- size_max_actors_id number := 7;
+    size_actors_name number := 22;
+    size_max_actors_name number := 40;
+    -- size_actors_profile_path number := 32;
+    -- size_max_actors_profile_path number := 32;
+    -- size_characters_id number := 4;
+    -- size_max_characters_id number := 4;
+    size_characters_name number := 35;
+    size_max_characters_name number := 111;
+    -- size_production_countries_id number := 2;
+    -- size_max_production_countries_id number := 2;
+    size_prod_countries_name number := 31;
+    size_max_prod_countries_name number := 38;
+    -- size_production_companies_id number := 5;
+    -- size_max_production_companies_id number := 5;
+    size_prod_companies_name number := 45;
+    size_max_prod_companies_name number := 91;
+    size_spoken_languages_name number := 15;
+    size_max_spoken_languages_name number := 16;
+    size_directors_id number := 7;
+    size_max_directors_id number := 7;
+    size_directors_name number := 23;
+    size_max_directors_name number := 35;
+    -- size_directors_profile_path number := 32;
+    -- size_max_directors_profile_path number := 32;
+    size_statuses_name number := 8;
+    size_max_statuses_name number := 15;
+    size_certifications_name number := 5;
+    size_max_certifications_name number := 9;
+    -- size_genres_id number := 5;
+    -- size_max_genres_id number := 5;
+    -- size_genres_name number := 16;
+    -- size_max_genres_name number := 16;
+
 begin
     select * into raw_data from movies_ext where id = movie_id;
 
@@ -102,11 +158,13 @@ begin
                     actors_v(i).actor_id := y;
                     movies_actors_characters_v(i).actor_id := y;
                 when 2 then
+                    check_size(y, size_actors_name, size_max_actors_name);
                     actors_v(i).actor_name := y;
                 when 3 then
                     characters_v(i).character_id := y;
                     movies_actors_characters_v(i).character_id := y;
                 when 4 then
+                    check_size(y, size_characters_name, size_max_characters_name);
                     characters_v(i).character_name := y;
                 when 5 then
                     actors_v(i).actor_profile_path := y;
@@ -131,6 +189,7 @@ begin
                     directors_v(i).director_id := y;
                     movies_directors_v(i).director_id := y;
                 when 2 then
+                    check_size(y, size_directors_name, size_max_directors_name);
                     directors_v(i).director_name := y;
                 when 3 then
                     directors_v(i).director_profile_path := y;
@@ -155,6 +214,7 @@ begin
                     spoken_languages_v(i).spoken_language_id := y;
                     movies_spoken_languages_v(i).spoken_language_id := y;
                 when 2 then
+                    check_size(y, size_spoken_languages_name , size_max_spoken_languages_name);
                     spoken_languages_v(i).spoken_language_name := y;
             end case;
             j := j + 1;
@@ -177,6 +237,7 @@ begin
                     production_companies_v(i).production_company_id := y;
                     movies_production_companies_v(i).production_company_id := y;
                 when 2 then
+                    check_size(y, size_prod_companies_name , size_max_prod_companies_name);
                     production_companies_v(i).production_company_name := y;
             end case;
             j := j + 1;
@@ -199,6 +260,7 @@ begin
                     production_countries_v(i).production_country_id := y;
                     movies_production_countries_v(i).production_country_id := y;
                 when 2 then
+                    check_size(y, size_prod_countries_name , size_max_prod_countries_name);
                     production_countries_v(i).production_country_name := y;
             end case;
             j := j + 1;
@@ -229,16 +291,24 @@ begin
     end loop;
 
     movie_rec.movie_id := movie_id;
+    check_size(raw_data.title, size_movies_title , size_max_movies_title);
     movie_rec.movie_title := raw_data.title;
+    check_size(raw_data.original_title, size_movies_original_title , size_max_movies_original_title);
     movie_rec.movie_original_title := raw_data.original_title;
     movie_rec.movie_release_date := raw_data.release_date;
     movie_rec.movie_vote_avg := raw_data.vote_average;
+    check_size(raw_data.vote_count, size_movies_vote_count , size_max_movies_vote_count);
     movie_rec.movie_vote_count := raw_data.vote_count;
+    check_size(raw_data.runtime, size_movies_runtime , size_max_movies_runtime);
     movie_rec.movie_runtime := raw_data.runtime;
     movie_rec.movie_poster_path := raw_data.poster_path;
+    check_size(raw_data.budget, size_movies_budget , size_max_movies_budget);
     movie_rec.movie_budget := raw_data.budget;
+    check_size(raw_data.revenue, size_movies_revenue , size_max_movies_revenue);
     movie_rec.movie_revenue := raw_data.revenue;
+    check_size(raw_data.homepage, size_movies_homepage , size_max_movies_homepage);
     movie_rec.movie_homepage := raw_data.homepage;
+    check_size(raw_data.tagline, size_movies_tagline , size_max_movies_tagline);
     movie_rec.movie_tagline := raw_data.tagline;
     movie_rec.movie_overview := raw_data.overview;
 
@@ -364,3 +434,5 @@ exception
         raise;
 end;
 /
+
+exit
