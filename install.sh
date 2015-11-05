@@ -23,7 +23,9 @@ fi
 
 SYS_PWD=$1
 CB_PWD=$2
+export NLS_LANG=.UTF8
 SQLPLUS="sqlplus -S -L"
+
 
 $SQLPLUS sys/$SYS_PWD@$CB_IP as sysdba @$ROOT/cb/create_users $CB_PWD
 
