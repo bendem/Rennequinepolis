@@ -3,38 +3,41 @@ create or replace type varchar2_t is table of varchar2(4000);
 
 create or replace procedure insert_movie (movie_id in movies.movie_id%type) is
 
-    split_request_template varchar2(2000) := 'with split(splitted, field, idx) as (
+    split_request constant varchar2(2000) := 'with split(splitted, field, idx) as (
         select
             substr(
-                :column,
-                3,
-                case instr(:column, ''||'', 3, 1)
-                    when 0 then length(:column) - 4
-                    else instr(:column, ''||'', 3, 1) - 3
+                value,
+                1,
+                case instr(value, ''||'')
+                    when 0 then length(value)
+                    else instr(value, ''||'') - 1
                 end
             ),
-            :column,
-            case instr(:column, ''||'', 3, 1)
-                when 0 then length(:column)
-                else instr(:column, ''||'', 3, 1) + 2
+            value,
+            case instr(value, ''||'')
+                when 0 then length(value)
+                else instr(value, ''||'') + 2
             end
-        from movies_ext
-        where :id = id
+        from (
+            select substr(value, 3, length(value) - 4) value from (
+                select :value value from dual
+            )
+        )
         union all
         select
             substr(
                 field,
                 idx,
                 case instr(field, ''||'', idx)
-                    when 0 then length(field) - 1
+                    when 0 then length(field) + 1
                     else instr(field, ''||'', idx)
                 end - idx
             ),
             field,
-            case instr(field, ''||'', idx, 1)
+            case instr(field, ''||'', idx)
                 when 0 then length(field)
-                else instr(field, ''||'', idx, 1)
-            end + 2
+                else instr(field, ''||'', idx) + 2
+            end
         from split
         where idx < length(field)
     ) select distinct splitted from split';
@@ -61,32 +64,29 @@ create or replace procedure insert_movie (movie_id in movies.movie_id%type) is
 
     raw_data movies_ext%rowtype;
 
-    actors_t table of actors%rowtype index by pls_integer;
-    certification_rec certifications%rowtype;
-    status_rec statuses%rowtype;
-    spoken_languages_t table of spoken_languages%rowtype index by pls_integer;
+    actors_t               table of actors%rowtype index by pls_integer;
+    certification_rec      certifications%rowtype;
+    status_rec             statuses%rowtype;
+    spoken_languages_t     table of spoken_languages%rowtype index by pls_integer;
     production_countries_t table of production_countries%rowtype index by pls_integer;
     production_companies_t table of production_companies%rowtype index by pls_integer;
-    directors_t table of directors%rowtype index by pls_integer;
-    genres_t table of genres%rowtype index by pls_integer;
-    movie_rec movies%rowtype;
-    characters_t table of characters%rowtype index by pls_integer;
+    directors_t            table of directors%rowtype index by pls_integer;
+    genres_t               table of genres%rowtype index by pls_integer;
+    movie_rec              movies%rowtype;
+    characters_t           table of characters%rowtype index by pls_integer;
 
-    movies_spoken_languages_t table of movies_spoken_languages%rowtype index by pls_integer;
+    movies_spoken_languages_t     table of movies_spoken_languages%rowtype index by pls_integer;
     movies_production_countries_t table of movies_production_countries%rowtype index by pls_integer;
     movies_production_companies_t table of movies_production_companies%rowtype index by pls_integer;
-    movies_directors_t table of movies_directors%rowtype index by pls_integer;
-    movies_genres_t table of movies_genres%rowtype index by pls_integer;
+    movies_directors_t            table of movies_directors%rowtype index by pls_integer;
+    movies_genres_t               table of movies_genres%rowtype index by pls_integer;
 
 begin
 
     select * into raw_data from movies_ext where id = movie_id;
 
     -- Actors / Characters
-
-    split_request := replace(split_request_template, ':column', actors);
-
-    execute immediate split_request bulk collect into chars1_v using in movie_id;
+    execute immediate split_request bulk collect into chars1_v using raw_data.actors;
 
     chars2_v := varchar2_t();
     chars3_v := varchar2_t();
@@ -135,10 +135,7 @@ begin
     end loop;
 
     -- Directors
-
-    split_request := replace(split_request_template, ':column', 'directors');
-
-    execute immediate split_request bulk collect into chars1_v;
+    execute immediate split_request bulk collect into chars1_v using raw_data.directors;
 
     chars2_v := varchar2_t();
     chars3_v := varchar2_t();
@@ -174,10 +171,7 @@ begin
     end loop;
 
     -- spoken_languages
-
-    split_request := replace(split_request_template, ':column', 'spoken_languages');
-
-    execute immediate split_request bulk collect into chars1_v;
+    execute immediate split_request bulk collect into chars1_v using raw_data.spoken_languages;
 
     chars2_v := varchar2_t();
     chars3_v := varchar2_t();
@@ -208,10 +202,7 @@ begin
     end loop;
 
     -- production_companies
-
-    split_request := replace(split_request_template, ':column', 'production_companies');
-
-    execute immediate split_request bulk collect into chars1_v;
+    execute immediate split_request bulk collect into chars1_v using raw_data.production_companies;
 
     chars2_v := varchar2_t();
     chars3_v := varchar2_t();
@@ -242,10 +233,7 @@ begin
     end loop;
 
     -- production_countries
-
-    split_request := replace(split_request_template, ':column', 'production_countries');
-
-    execute immediate split_request bulk collect into chars1_v;
+    execute immediate split_request bulk collect into chars1_v using raw_data.production_countries;
 
     chars2_v := varchar2_t();
     chars3_v := varchar2_t();
@@ -276,10 +264,7 @@ begin
     end loop;
 
      -- genres
-
-    split_request := replace(split_request_template, ':column', 'genres');
-
-    execute immediate split_request bulk collect into chars1_v;
+    execute immediate split_request bulk collect into chars1_v using raw_data.genres;
 
     chars2_v := varchar2_t();
     chars3_v := varchar2_t();
