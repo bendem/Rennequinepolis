@@ -32,5 +32,3 @@ exception
         raise;
 end;
 /
-
-exit

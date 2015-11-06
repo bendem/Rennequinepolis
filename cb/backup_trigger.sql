@@ -49,5 +49,3 @@ exception
         raise;
 end;
 /
-
-exit

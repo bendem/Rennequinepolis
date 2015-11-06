@@ -95,5 +95,3 @@ create or replace package body backup is
 
 end backup;
 /
-
-exit

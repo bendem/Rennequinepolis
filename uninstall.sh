@@ -21,9 +21,6 @@ fi
 
 SYS_PWD=$1
 
-echo "
-drop user cb cascade;
-drop user cbb cascade;
-drop role myrole;
-exit
-" | sqlplus -S -L sys/$SYS_PWD@$CB_IP as sysdba
+echo "drop user cb cascade;
+    drop user cbb cascade;
+    drop role myrole;" | sqlplus -S -L sys/$SYS_PWD@$CB_IP as sysdba

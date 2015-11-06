@@ -508,5 +508,3 @@ exception
         raise;
 end;
 /
-
-exit

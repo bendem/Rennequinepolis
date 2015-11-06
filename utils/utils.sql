@@ -73,5 +73,3 @@ create or replace package body utils is
 
 end utils;
 /
-
-exit

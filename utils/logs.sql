@@ -53,5 +53,3 @@ create or replace package body logging is
 
 end logging;
 /
-
-exit

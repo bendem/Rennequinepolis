@@ -259,5 +259,3 @@ create or replace package body cb_thing is
 
 end cb_thing;
 /
-
-exit

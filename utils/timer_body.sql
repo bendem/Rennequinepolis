@@ -38,5 +38,3 @@ create or replace package body timer is
 
 end timer;
 /
-
-exit

@@ -13,7 +13,7 @@ grant create job to myrole;
 grant create materialized view to myrole;
 grant create any directory to myrole;
 
-create user cb identified by &1
+create user cb identified by &cb_pwd
     default tablespace users
     temporary tablespace temp
     profile default
@@ -21,7 +21,7 @@ create user cb identified by &1
 alter user cb quota unlimited on users;
 grant myrole to cb;
 
-create user cbb identified by &1
+create user cbb identified by &cb_pwd
     default tablespace users
     temporary tablespace temp
     profile default
@@ -34,5 +34,3 @@ grant execute on utl_file to cb;
 grant execute on dbms_lock to cbb;
 grant execute on sys.owa_opt_lock to cb;
 grant execute on sys.owa_opt_lock to cbb;
-
-exit

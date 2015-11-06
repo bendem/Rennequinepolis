@@ -58,5 +58,3 @@ create table movies_ext (
     )
     location('movies.txt')
 ) reject limit unlimited;
-
-exit

@@ -57,5 +57,3 @@ create or replace package cb_thing is
 
 end cb_thing;
 /
-
-exit

@@ -8,5 +8,3 @@ create or replace package backup is
 
 end backup;
 /
-
-exit

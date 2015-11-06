@@ -186,5 +186,3 @@ create table movies_genres (
     constraint fk_mov_gen_movie_id foreign key (movie_id) references movies(movie_id),
     constraint fk_mov_gen_genre_id foreign key (genre_id) references genres(genre_id)
 );
-
-exit
