@@ -188,7 +188,7 @@ begin
 
         for i in chars1_v.first..chars1_v.last loop
             j := 1;
-            y := regexp_substr(chars1_v(i), '(.+?)(\,{2,}|$)', 1, j);
+            y := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
 
             while length(y) <> 0 loop
                 y := trim(trailing ',' from y);
@@ -210,7 +210,7 @@ begin
                         chars6_v(chars6_v.count) := y;
                 end case;
                 j := j + 1;
-                y := regexp_substr(chars1_v(i), '(.+?)(\,{2,}|$)', 1, j);
+                y := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
             end loop;
         end loop;
     end loop;
@@ -302,7 +302,7 @@ begin
         chars3_v := varchar2_t();
         for i in chars1_v.first..chars1_v.last loop
             j := 1;
-            y := regexp_substr(chars1_v(i), '(.+?)(\,{2,}|$)', 1, j);
+            y := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
 
             while length(y) <> 0 loop
                 y := trim(trailing ',' from y);
@@ -315,7 +315,7 @@ begin
                         chars3_v(chars3_v.count) := y;
                 end case;
                 j := j + 1;
-                y := regexp_substr(chars1_v(i), '(.+?)(\,{2,}|$)', 1, j);
+                y := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
             end loop;
         end loop;
         dbms_output.put_line('Fetched ' || columns_names(l) || ' in ' || timer.lap);
@@ -363,7 +363,7 @@ begin
     chars4_v := varchar2_t();
     for i in chars1_v.first..chars1_v.last loop
         j := 1;
-        y := regexp_substr(chars1_v(i), '(.+?)(\,{2,}|$)', 1, j);
+        y := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
 
         while length(y) <> 0 loop
             y := trim(trailing ',' from y);
@@ -379,7 +379,7 @@ begin
                     chars4_v(chars4_v.count) := y;
             end case;
             j := j + 1;
-            y := regexp_substr(chars1_v(i), '(.+?)(\,{2,}|$)', 1, j);
+            y := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
         end loop;
     end loop;
     dbms_output.put_line('Fetched directors in ' || timer.lap);
