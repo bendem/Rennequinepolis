@@ -64,3 +64,4 @@ $SQLPLUS cbb/$CB_PWD@$CB_IP @$ROOT/cb/create_job
 $SQLPLUS cb/$CB_PWD@$CB_IP @$ROOT/cb/create_ext_table
 
 $SQLPLUS cb/$CB_PWD@$CB_IP @$ROOT/cb/insert_movie
+$SQLPLUS cb/$CB_PWD@$CB_IP @$ROOT/cb/insert_random_movies

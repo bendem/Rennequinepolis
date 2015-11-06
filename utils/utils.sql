@@ -43,7 +43,6 @@ create or replace package body utils is
             rollback;
             raise;
     end;
-    /
 
     procedure check_size(
         var in out number,

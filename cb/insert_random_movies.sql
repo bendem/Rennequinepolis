@@ -1,6 +1,6 @@
 create or replace procedure insert_random_movies (n in number) is
 
-    table_record_t is table of movies_ext%rowtype indexed by pls_integer;
+    type table_record_t is table of movies_ext%rowtype index by pls_integer;
 
     movies table_record_t;
 
@@ -21,11 +21,10 @@ begin
     close query;
 
 exception
-    if query%isopen then
-        close query;
-    end if;
-
     when others then
+        if query%isopen then
+            close query;
+        end if;
         dbms_output.put_line(sqlerrm);
         dbms_output.put_line(dbms_utility.format_call_stack);
         dbms_output.put_line(dbms_utility.format_error_backtrace);
