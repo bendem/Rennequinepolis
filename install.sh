@@ -38,6 +38,10 @@ $SQLPLUS cbb/$CB_PWD@$CB_IP @$ROOT/cb/crea
 $SQLPLUS cb/$CB_PWD@$CB_IP @$ROOT/utils/logs
 $SQLPLUS cbb/$CB_PWD@$CB_IP @$ROOT/utils/logs
 
+$SQLPLUS cb/$CB_PWD@$CB_IP @$ROOT/utils/utils
+$SQLPLUS cb/$CB_PWD@$CB_IP @$ROOT/utils/timer_head
+$SQLPLUS cb/$CB_PWD@$CB_IP @$ROOT/utils/timer_body
+
 $SQLPLUS cb/$CB_PWD@$CB_IP @$ROOT/cb/backup_trigger
 $SQLPLUS cbb/$CB_PWD@$CB_IP @$ROOT/cb/backup_trigger
 
@@ -58,8 +62,4 @@ $SQLPLUS cbb/$CB_PWD@$CB_IP @$ROOT/cb/create_job
 
 $SQLPLUS cb/$CB_PWD@$CB_IP @$ROOT/cb/create_ext_table
 
-$SQLPLUS cb/$CB_PWD@$CB_IP @$ROOT/cb/check_size
 $SQLPLUS cb/$CB_PWD@$CB_IP @$ROOT/cb/insert_movie
-
-$SQLPLUS cb/$CB_PWD@$CB_IP @$ROOT/utils/timer_head
-$SQLPLUS cb/$CB_PWD@$CB_IP @$ROOT/utils/timer_body
