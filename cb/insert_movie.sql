@@ -155,7 +155,7 @@ begin
                         movies_actors_characters_v(i).actor_id := y;
                     when 2 then
                         dbms_output.put_line('DEBUG READ ACTOR name before : ' || y);
-                        check_size_varchar(y, size_actors_name, size_max_actors_name);
+                        utils.check_size(y, size_actors_name, size_max_actors_name);
                         dbms_output.put_line('DEBUG READ ACTOR name after : ' || y);
                         actors_v(i).actor_name := y;
                     when 3 then
@@ -163,7 +163,7 @@ begin
                         movies_actors_characters_v(i).character_id := y;
                     when 4 then
                         dbms_output.put_line('DEBUG READ CHARACTER name before : ' || y);
-                        check_size_varchar(y, size_characters_name, size_max_characters_name);
+                        utils.check_size(y, size_characters_name, size_max_characters_name);
                         dbms_output.put_line('DEBUG READ CHARACTER name after : ' || y);
                         characters_v(i).character_name := y;
                     when 5 then
@@ -192,7 +192,7 @@ begin
                         movies_directors_v(i).director_id := y;
                     when 2 then
                         dbms_output.put_line('DEBUG READ DIRECTOR name before : ' || y);
-                        check_size_varchar(y, size_directors_name, size_max_directors_name);
+                        utils.check_size(y, size_directors_name, size_max_directors_name);
                         dbms_output.put_line('DEBUG READ DIRECTOR name after : ' || y);
                         directors_v(i).director_name := y;
                     when 3 then
@@ -221,7 +221,7 @@ begin
                         movies_spoken_languages_v(i).spoken_language_id := y;
                     when 2 then
                         dbms_output.put_line('DEBUG READ SPOKEN_LANGUAGE name before : ' || y);
-                        check_size_varchar(y, size_spoken_languages_name , size_max_spoken_languages_name);
+                        utils.check_size(y, size_spoken_languages_name , size_max_spoken_languages_name);
                         dbms_output.put_line('DEBUG READ SPOKEN_LANGUAGE name after : ' || y);
                         spoken_languages_v(i).spoken_language_name := y;
                 end case;
@@ -248,7 +248,7 @@ begin
                         movies_production_companies_v(i).production_company_id := y;
                     when 2 then
                         dbms_output.put_line('DEBUG READ PRODUCTION_COMPANY name before : ' || y);
-                        check_size_varchar(y, size_prod_companies_name , size_max_prod_companies_name);
+                        utils.check_size(y, size_prod_companies_name , size_max_prod_companies_name);
                         dbms_output.put_line('DEBUG READ PRODUCTION_COMPANY name after : ' || y);
                         production_companies_v(i).production_company_name := y;
                 end case;
@@ -275,7 +275,7 @@ begin
                         movies_production_countries_v(i).production_country_id := y;
                     when 2 then
                         dbms_output.put_line('DEBUG READ PRODUCTION_COUNTRIES name before : ' || y);
-                        check_size_varchar(y, size_prod_countries_name , size_max_prod_countries_name);
+                        utils.check_size(y, size_prod_countries_name , size_max_prod_countries_name);
                         dbms_output.put_line('DEBUG READ PRODUCTION_COUNTRIES name after : ' || y);
                         production_countries_v(i).production_country_name := y;
                 end case;
@@ -310,24 +310,24 @@ begin
     end if;
 
     movie_rec.movie_id := raw_data.id;
-    check_size_varchar(raw_data.title, size_movies_title , size_max_movies_title);
+    utils.check_size(raw_data.title, size_movies_title , size_max_movies_title);
     movie_rec.movie_title := raw_data.title;
-    check_size_varchar(raw_data.original_title, size_movies_original_title , size_max_movies_original_title);
+    utils.check_size(raw_data.original_title, size_movies_original_title , size_max_movies_original_title);
     movie_rec.movie_original_title := raw_data.original_title;
     movie_rec.movie_release_date := raw_data.release_date;
     movie_rec.movie_vote_avg := raw_data.vote_average;
-    check_size_number(raw_data.vote_count, size_movies_vote_count , size_max_movies_vote_count);
+    utils.check_size(raw_data.vote_count, size_movies_vote_count , size_max_movies_vote_count);
     movie_rec.movie_vote_count := raw_data.vote_count;
-    check_size_number(raw_data.runtime, size_movies_runtime , size_max_movies_runtime);
+    utils.check_size(raw_data.runtime, size_movies_runtime , size_max_movies_runtime);
     movie_rec.movie_runtime := raw_data.runtime;
     movie_rec.movie_poster_path := raw_data.poster_path;
-    check_size_number(raw_data.budget, size_movies_budget , size_max_movies_budget);
+    utils.check_size(raw_data.budget, size_movies_budget , size_max_movies_budget);
     movie_rec.movie_budget := raw_data.budget;
-    check_size_number(raw_data.revenue, size_movies_revenue , size_max_movies_revenue);
+    utils.check_size(raw_data.revenue, size_movies_revenue , size_max_movies_revenue);
     movie_rec.movie_revenue := raw_data.revenue;
-    check_size_varchar(raw_data.homepage, size_movies_homepage , size_max_movies_homepage);
+    utils.check_size(raw_data.homepage, size_movies_homepage , size_max_movies_homepage);
     movie_rec.movie_homepage := raw_data.homepage;
-    check_size_varchar(raw_data.tagline, size_movies_tagline , size_max_movies_tagline);
+    utils.check_size(raw_data.tagline, size_movies_tagline , size_max_movies_tagline);
     movie_rec.movie_tagline := raw_data.tagline;
     movie_rec.movie_overview := raw_data.overview;
 
@@ -507,3 +507,4 @@ exception
         rollback;
         raise;
 end;
+/
