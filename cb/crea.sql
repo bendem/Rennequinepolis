@@ -94,7 +94,7 @@ create table movies (
     movie_release_date date,
     movie_status_id number(6, 0) constraint fk_movies_status_id references statuses(status_id),
     movie_certification_id number(6, 0) constraint fk_movies_certification_id references certifications(certification_id),
-    movie_vote_avg number(2, 1) not null,
+    movie_vote_avg number(3, 1) not null,
     movie_vote_count number(4) not null, -- TODO Check
     movie_runtime number(5), -- TODO Check
     movie_poster_path varchar2(32 char),
