@@ -25,6 +25,7 @@ create or replace package logging is
     procedure e(p_message in logs.message%type);
 
 end logging;
+/
 
 create or replace package body logging is
 
