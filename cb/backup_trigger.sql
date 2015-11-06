@@ -45,7 +45,7 @@ begin
     end if;
 exception
     when others then
-        insert_log(sqlerrm);
+        logging.e(sqlerrm);
         raise;
 end;
 /

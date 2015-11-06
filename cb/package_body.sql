@@ -25,7 +25,7 @@ create or replace package body cb_thing is
         -- when dup_val_on_index then
         --     raise_application_error(20001, '')
         when others then
-            insert_log('Failed to add a user: ' || sqlerrm);
+            logging.e('Failed to add a user: ' || sqlerrm);
             raise;
     end;
 
@@ -55,7 +55,7 @@ create or replace package body cb_thing is
         when fk_exception then
             raise_application_error(20001, '');
         when others then
-            insert_log('Failed to add a review: ' || sqlerrm);
+            logging.e('Failed to add a review: ' || sqlerrm);
             raise;
     end;
 
@@ -85,7 +85,7 @@ create or replace package body cb_thing is
             and movie_id = p_movie_id;
     exception
         when others then
-            insert_log('Failed to remove review: ' || sqlerrm);
+            logging.e('Failed to remove review: ' || sqlerrm);
             raise;
     end;
 
@@ -150,20 +150,20 @@ create or replace package body cb_thing is
 
     exception
         when busy_exception then
-            insert_log('Busy when modifying user: ' || sqlerrm);
+            logging.e('Busy when modifying user: ' || sqlerrm);
             raise_application_error(-20160, 'Record is busy');
         when not_found_exception then
-            insert_log('User to modify not found: ' || sqlerrm);
+            logging.e('User to modify not found: ' || sqlerrm);
             raise_application_error(-20161, 'Record not found');
         when not_equal_exception then
-            insert_log('User modification mismatch: ' || sqlerrm);
+            logging.e('User modification mismatch: ' || sqlerrm);
             raise_application_error(-20162, 'Record has been modified before your modification could be applied');
             rollback;
         when dup_val_on_index then
-            insert_log('Duplicated value on index: ' || sqlerrm);
+            logging.e('Duplicated value on index: ' || sqlerrm);
             raise_application_error(-20140, 'Primary key already in use');
         when pkey_null then
-            insert_log('Primary key was null: ' || sqlerrm);
+            logging.e('Primary key was null: ' || sqlerrm);
             raise_application_error(-20141, 'Primary key can''t be null');
         when others then raise;
     end modify_user;
@@ -235,13 +235,13 @@ create or replace package body cb_thing is
 
     exception
         when busy_exception then
-            insert_log('Busy when modifying review: ' || sqlerrm);
+            logging.e('Busy when modifying review: ' || sqlerrm);
             raise_application_error(-20160, 'Record is busy');
         when not_found_exception then
-            insert_log('Review to modify not found: ' || sqlerrm);
+            logging.e('Review to modify not found: ' || sqlerrm);
             raise_application_error(-20161, 'Record not found');
         when not_equal_exception then
-            insert_log('Data mismatch on review update: ' || sqlerrm);
+            logging.e('Data mismatch on review update: ' || sqlerrm);
             raise_application_error(-20162, 'Record has been modified before your modification could be applied');
             rollback;
         when dup_val_on_index then

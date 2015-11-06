@@ -2,15 +2,15 @@ create or replace package body backup is
 
     procedure do_the_thing is
     begin
-        insert_log('Starting backup job');
+        logging.i('Starting backup job');
         backup.delete_them_userz;
         backup.copy_them_userz;
         backup.copy_them_reviewz;
-        insert_log('Backup job done');
+        logging.i('Backup job done');
         commit;
     exception
         when others then
-            insert_log('Backup job failed:' || sqlerrm);
+            logging.e('Backup job failed:' || sqlerrm);
             rollback;
     end;
 
