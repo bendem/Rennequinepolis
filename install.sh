@@ -38,6 +38,7 @@ $SQLPLUS cbb/$CB_PWD@$CB_IP @$ROOT/cb/crea
 $SQLPLUS cb/$CB_PWD@$CB_IP @$ROOT/utils/logs
 $SQLPLUS cbb/$CB_PWD@$CB_IP @$ROOT/utils/logs
 
+$SQLPLUS cb/$CB_PWD@$CB_IP @$ROOT/utils/types
 $SQLPLUS cb/$CB_PWD@$CB_IP @$ROOT/utils/utils
 $SQLPLUS cb/$CB_PWD@$CB_IP @$ROOT/utils/timer_head
 $SQLPLUS cb/$CB_PWD@$CB_IP @$ROOT/utils/timer_body
