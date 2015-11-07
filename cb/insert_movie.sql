@@ -346,7 +346,7 @@ begin
     utils.check_size(raw_data.tagline, size_movies_tagline , size_max_movies_tagline);
     movie_rec.movie_tagline := raw_data.tagline;
     movie_rec.movie_overview := raw_data.overview;
-    movie_rec.movie_copies := round((SYS.DBMS_RANDOM.NORMAL*2)+5);
+    movie_rec.movie_copies := round(abs(SYS.DBMS_RANDOM.NORMAL * 2) + 5);
 
     if raw_data.status is not null then
         begin
