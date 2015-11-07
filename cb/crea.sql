@@ -102,7 +102,8 @@ create table movies (
     movie_revenue number(8, 0) not null, -- TODO Check
     movie_homepage varchar2(112 char),
     movie_tagline varchar2(172 char),
-    movie_overview clob
+    movie_overview clob,
+    movie_copies number(4, 0)
 );
 
 -- characters
