@@ -25,30 +25,24 @@ create or replace package body utils is
         size_max in number,
         remplacement in varchar2 default 'undefined'
     ) is
-    v_before varchar2(2000);
+        v_before varchar2(2000);
     begin
-        if var is not null then
-            v_before := var;
-            if length(var) > size_var then
-                if length(var) > size_max then
-                    var := remplacement;
-                    logging.i('String "' || v_before || '"" too long. Replacing by : "' || coalesce(remplacement, '(null)' || '"'));
-                else
-                    var := substr(var, 1, size_var - 1) || '…';
-                    logging.i('String too long. Truncating "' || v_before ||  '"" to : "' || var || '"');
-                end if;
-            end if;
-        else
+        if var is null then
             logging.i('String is null. Replacing by : "' || coalesce(remplacement, '(null)' ) || '"');
             var := remplacement;
+            return;
         end if;
-    exception
-        when others then
-            dbms_output.put_line(sqlerrm);
-            dbms_output.put_line(dbms_utility.format_call_stack);
-            dbms_output.put_line(dbms_utility.format_error_backtrace);
-            rollback;
-            raise;
+
+        v_before := var;
+        if length(var) > size_var then
+            if length(var) > size_max then
+                var := remplacement;
+                logging.i('String "' || v_before || '"" too long. Replacing by : "' || coalesce(remplacement, '(null)' || '"'));
+            else
+                var := substr(var, 1, size_var - 1) || '…';
+                logging.i('String too long. Truncating "' || v_before ||  '"" to : "' || var || '"');
+            end if;
+        end if;
     end;
 
     procedure check_size(
@@ -57,30 +51,24 @@ create or replace package body utils is
         size_max in number,
         remplacement in number default 0
     ) is
-    v_before number;
+        v_before number;
     begin
-        if var is not null then
-            v_before := var;
-            if length(var) > size_var then
-                if length(var) > size_max then
-                    var := remplacement;
-                    logging.i('Number "' || v_before || '"" too long. Replacing by : "' || coalesce(remplacement, '(null)' || '"'));
-                else
-                    var := substr(var, 1, size_var);
-                    logging.i('Number too long. Truncating "' || v_before ||  '"" to : "' || var || '"');
-                end if;
-            end if;
-        else
+        if var is null then
             logging.i('Number is null. Replacing by : "' || coalesce(remplacement, '(null)')  || '"');
             var := remplacement;
+            return;
         end if;
-    exception
-        when others then
-            dbms_output.put_line(sqlerrm);
-            dbms_output.put_line(dbms_utility.format_call_stack);
-            dbms_output.put_line(dbms_utility.format_error_backtrace);
-            rollback;
-            raise;
+
+        v_before := var;
+        if length(var) > size_var then
+            if length(var) > size_max then
+                var := remplacement;
+                logging.i('Number "' || v_before || '"" too long. Replacing by : "' || coalesce(remplacement, '(null)' || '"'));
+            else
+                var := substr(var, 1, size_var);
+                logging.i('Number too long. Truncating "' || v_before ||  '"" to : "' || var || '"');
+            end if;
+        end if;
     end;
 
 end utils;
