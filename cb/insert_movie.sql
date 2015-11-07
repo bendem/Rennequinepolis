@@ -146,7 +146,7 @@ begin
     if exist = 1 then
         logging.i('Update of movie n°' || raw_data.id || ' number of copies starting.');
         update movies set
-            movie_copies = movie_copies + round((SYS.DBMS_RANDOM.NORMAL*2)+5)
+            movie_copies = movie_copies + round(abs(sys.dbms_random.normal*2)+5)
         where movie_id = v_movie.id;
         commit;
         logging.i('Update of movie n°' || raw_data.id || ' number of copies done.');
@@ -167,8 +167,7 @@ begin
             j := 1;
             y := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
             while length(y) <> 0 loop
-                y := trim(trailing ',' from y);
-                y := trim(leading ',' from y);
+                y := trim(both ',' from y);
                 case j
                     when 1 then
                         actors_v(i).actor_id := y;
@@ -201,8 +200,7 @@ begin
             j := 1;
             y := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
             while length(y) <> 0 loop
-                y := trim(trailing ',' from y);
-                y := trim(leading ',' from y);
+                y := trim(both ',' from y);
                 case j
                     when 1 then
                         directors_v(i).director_id := y;
@@ -229,8 +227,7 @@ begin
             j := 1;
             y := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
             while length(y) <> 0 loop
-                y := trim(trailing ',' from y);
-                y := trim(leading ',' from y);
+                y := trim(both ',' from y);
                 case j
                     when 1 then
                         spoken_languages_v(i).spoken_language_id := y;
@@ -255,8 +252,7 @@ begin
             j := 1;
             y := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
             while length(y) <> 0 loop
-                y := trim(trailing ',' from y);
-                y := trim(leading ',' from y);
+                y := trim(both ',' from y);
                 case j
                     when 1 then
                         production_companies_v(i).production_company_id := y;
@@ -281,8 +277,7 @@ begin
             j := 1;
             y := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
             while length(y) <> 0 loop
-                y := trim(trailing ',' from y);
-                y := trim(leading ',' from y);
+                y := trim(both ',' from y);
                 case j
                     when 1 then
                         production_countries_v(i).production_country_id := y;
@@ -307,8 +302,7 @@ begin
             j := 1;
             y := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
             while length(y) <> 0 loop
-                y := trim(trailing ',' from y);
-                y := trim(leading ',' from y);
+                y := trim(both ',' from y);
                 case j
                     when 1 then
                         genres_v(i).genre_id := y;
@@ -351,7 +345,7 @@ begin
             insert into statuses values (null, upper(raw_data.status));
         exception
             when dup_val_on_index then
-                null;
+                logging.i('Status ' || raw_data.status || ' already present');
             when others then
                 raise;
         end;
@@ -366,7 +360,7 @@ begin
             insert into certifications values (null, upper(raw_data.certification));
         exception
             when dup_val_on_index then
-                null;
+                logging.i('Certification ' || raw_data.certification || ' already present');
             when others then
                 raise;
         end;
