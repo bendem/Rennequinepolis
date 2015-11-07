@@ -23,7 +23,7 @@ create or replace package body utils is
         var in out varchar2,
         size_var in number,
         size_max in number,
-        remplacement in varchar2 default 'undefined'
+        remplacement in varchar2
     ) is
         v_before varchar2(2000);
     begin
@@ -49,7 +49,7 @@ create or replace package body utils is
         var in out number,
         size_var in number,
         size_max in number,
-        remplacement in number default 0
+        remplacement in number
     ) is
         v_before number;
     begin
