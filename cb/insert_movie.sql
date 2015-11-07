@@ -78,61 +78,40 @@ create or replace procedure insert_movie (v_movie in movies_ext%rowtype) is
     movies_directors_v            movies_directors_t;
     movies_genres_v               movies_genres_t;
 
-
-    size_movies_title number := 58;
-    size_max_movies_title number := 112;
-    size_movies_original_title number := 59;
-    size_max_movies_original_title number := 113;
-    -- size_movies_vote_avg number := 3;
-    -- size_max_movies_vote_avg number := 3;
-    size_movies_vote_count number := 2;
-    size_max_movies_vote_count number := 4;
-    size_movies_runtime number := 5;
-    size_max_movies_runtime number := 9;
-    -- size_movies_poster_path number := 32;
-    -- size_max_movies_poster_path number := 32;
-    size_movies_budget number := 8;
-    size_max_movies_budget number := 9;
-    size_movies_revenue number := 8;
-    size_max_movies_revenue number := 9;
-    size_movies_homepage number := 122;
-    size_max_movies_homepage number := 359;
-    size_movies_tagline number := 172;
-    size_max_movies_tagline number := 871;
-    -- size_actors_id number := 7;
-    -- size_max_actors_id number := 7;
-    size_actors_name number := 22;
-    size_max_actors_name number := 40;
-    -- size_actors_profile_path number := 32;
-    -- size_max_actors_profile_path number := 32;
-    -- size_characters_id number := 4;
-    -- size_max_characters_id number := 4;
-    size_characters_name number := 35;
-    size_max_characters_name number := 111;
-    -- size_production_countries_id number := 2;
-    -- size_max_production_countries_id number := 2;
-    size_prod_countries_name number := 31;
-    size_max_prod_countries_name number := 38;
-    -- size_production_companies_id number := 5;
-    -- size_max_production_companies_id number := 5;
-    size_prod_companies_name number := 45;
-    size_max_prod_companies_name number := 91;
-    size_spoken_languages_name number := 15;
-    size_max_spoken_languages_name number := 16;
-    size_directors_id number := 7;
-    size_max_directors_id number := 7;
-    size_directors_name number := 23;
-    size_max_directors_name number := 35;
-    -- size_directors_profile_path number := 32;
-    -- size_max_directors_profile_path number := 32;
-    size_statuses_name number := 8;
-    size_max_statuses_name number := 15;
-    size_certifications_name number := 5;
-    size_max_certifications_name number := 9;
-    -- size_genres_id number := 5;
-    -- size_max_genres_id number := 5;
-    -- size_genres_name number := 16;
-    -- size_max_genres_name number := 16;
+    size_movies_title              pls_integer := 58;
+    size_max_movies_title          pls_integer := 112;
+    size_movies_original_title     pls_integer := 59;
+    size_max_movies_original_title pls_integer := 113;
+    size_movies_vote_count         pls_integer := 2;
+    size_max_movies_vote_count     pls_integer := 4;
+    size_movies_runtime            pls_integer := 5;
+    size_max_movies_runtime        pls_integer := 9;
+    size_movies_budget             pls_integer := 8;
+    size_max_movies_budget         pls_integer := 9;
+    size_movies_revenue            pls_integer := 8;
+    size_max_movies_revenue        pls_integer := 9;
+    size_movies_homepage           pls_integer := 122;
+    size_max_movies_homepage       pls_integer := 359;
+    size_movies_tagline            pls_integer := 172;
+    size_max_movies_tagline        pls_integer := 871;
+    size_actors_name               pls_integer := 22;
+    size_max_actors_name           pls_integer := 40;
+    size_characters_name           pls_integer := 35;
+    size_max_characters_name       pls_integer := 111;
+    size_prod_countries_name       pls_integer := 31;
+    size_max_prod_countries_name   pls_integer := 38;
+    size_prod_companies_name       pls_integer := 45;
+    size_max_prod_companies_name   pls_integer := 91;
+    size_spoken_languages_name     pls_integer := 15;
+    size_max_spoken_languages_name pls_integer := 16;
+    size_directors_id              pls_integer := 7;
+    size_max_directors_id          pls_integer := 7;
+    size_directors_name            pls_integer := 23;
+    size_max_directors_name        pls_integer := 35;
+    size_statuses_name             pls_integer := 8;
+    size_max_statuses_name         pls_integer := 15;
+    size_certifications_name       pls_integer := 5;
+    size_max_certifications_name   pls_integer := 9;
     exist number(1, 0);
 begin
     begin
@@ -146,7 +125,7 @@ begin
     if exist = 1 then
         logging.i('Update of movie n°' || raw_data.id || ' number of copies starting.');
         update movies set
-            movie_copies = movie_copies + round(abs(sys.dbms_random.normal*2)+5)
+            movie_copies = movie_copies + round(abs(sys.dbms_random.normal * 2) + 5)
         where movie_id = v_movie.id;
         commit;
         logging.i('Update of movie n°' || raw_data.id || ' number of copies done.');
@@ -233,7 +212,7 @@ begin
                         spoken_languages_v(i).spoken_language_id := y;
                         movies_spoken_languages_v(i).spoken_language_id := y;
                     when 2 then
-                        utils.check_size(y, size_spoken_languages_name , size_max_spoken_languages_name, null);
+                        utils.check_size(y, size_spoken_languages_name, size_max_spoken_languages_name, null);
                         spoken_languages_v(i).spoken_language_name := y;
                 end case;
                 j := j + 1;
@@ -258,7 +237,7 @@ begin
                         production_companies_v(i).production_company_id := y;
                         movies_production_companies_v(i).production_company_id := y;
                     when 2 then
-                        utils.check_size(y, size_prod_companies_name , size_max_prod_companies_name);
+                        utils.check_size(y, size_prod_companies_name, size_max_prod_companies_name);
                         production_companies_v(i).production_company_name := y;
                 end case;
                 j := j + 1;
@@ -283,7 +262,7 @@ begin
                         production_countries_v(i).production_country_id := y;
                         movies_production_countries_v(i).production_country_id := y;
                     when 2 then
-                        utils.check_size(y, size_prod_countries_name , size_max_prod_countries_name, null);
+                        utils.check_size(y, size_prod_countries_name, size_max_prod_countries_name, null);
                         production_countries_v(i).production_country_name := y;
                 end case;
                 j := j + 1;
@@ -317,24 +296,24 @@ begin
     end if;
 
     movie_rec.movie_id := raw_data.id;
-    utils.check_size(raw_data.title, size_movies_title , size_max_movies_title);
+    utils.check_size(raw_data.title, size_movies_title, size_max_movies_title);
     movie_rec.movie_title := raw_data.title;
-    utils.check_size(raw_data.original_title, size_movies_original_title , size_max_movies_original_title);
+    utils.check_size(raw_data.original_title, size_movies_original_title, size_max_movies_original_title);
     movie_rec.movie_original_title := raw_data.original_title;
     movie_rec.movie_release_date := raw_data.release_date;
     movie_rec.movie_vote_avg := raw_data.vote_average;
-    utils.check_size(raw_data.vote_count, size_movies_vote_count , size_max_movies_vote_count);
+    utils.check_size(raw_data.vote_count, size_movies_vote_count, size_max_movies_vote_count);
     movie_rec.movie_vote_count := raw_data.vote_count;
-    utils.check_size(raw_data.runtime, size_movies_runtime , size_max_movies_runtime);
+    utils.check_size(raw_data.runtime, size_movies_runtime, size_max_movies_runtime);
     movie_rec.movie_runtime := raw_data.runtime;
     movie_rec.movie_poster_path := raw_data.poster_path;
-    utils.check_size(raw_data.budget, size_movies_budget , size_max_movies_budget);
+    utils.check_size(raw_data.budget, size_movies_budget, size_max_movies_budget);
     movie_rec.movie_budget := raw_data.budget;
-    utils.check_size(raw_data.revenue, size_movies_revenue , size_max_movies_revenue);
+    utils.check_size(raw_data.revenue, size_movies_revenue, size_max_movies_revenue);
     movie_rec.movie_revenue := raw_data.revenue;
-    utils.check_size(raw_data.homepage, size_movies_homepage , size_max_movies_homepage, null);
+    utils.check_size(raw_data.homepage, size_movies_homepage, size_max_movies_homepage, null);
     movie_rec.movie_homepage := raw_data.homepage;
-    utils.check_size(raw_data.tagline, size_movies_tagline , size_max_movies_tagline, null);
+    utils.check_size(raw_data.tagline, size_movies_tagline, size_max_movies_tagline, null);
     movie_rec.movie_tagline := raw_data.tagline;
     movie_rec.movie_overview := raw_data.overview;
     movie_rec.movie_copies := round(abs(sys.dbms_random.normal * 2) + 5);

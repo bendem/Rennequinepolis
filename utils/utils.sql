@@ -2,15 +2,15 @@ create or replace package utils is
 
     procedure check_size(
         var in out varchar2,
-        size_var in number,
-        size_max in number,
+        size_var in pls_integer,
+        size_max in pls_integer,
         remplacement in varchar2 default 'undefined'
     );
 
     procedure check_size(
         var in out number,
-        size_var in number,
-        size_max in number,
+        size_var in pls_integer,
+        size_max in pls_integer,
         remplacement in number default 0
     );
 
@@ -21,8 +21,8 @@ create or replace package body utils is
 
     procedure check_size(
         var in out varchar2,
-        size_var in number,
-        size_max in number,
+        size_var in pls_integer,
+        size_max in pls_integer,
         remplacement in varchar2
     ) is
         v_before varchar2(2000);
@@ -47,8 +47,8 @@ create or replace package body utils is
 
     procedure check_size(
         var in out number,
-        size_var in number,
-        size_max in number,
+        size_var in pls_integer,
+        size_max in pls_integer,
         remplacement in number
     ) is
         v_before number;
