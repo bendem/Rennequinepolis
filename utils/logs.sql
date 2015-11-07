@@ -1,7 +1,7 @@
 create table logs (
     id       number(10, 0) constraint pk_logs primary key,
     severity varchar2(10) not null,
-    message  varchar2(1000) not null,
+    message  varchar2(2000) not null,
     stack    varchar2(2000) not null,
     time     timestamp default current_timestamp not null
 );
@@ -35,7 +35,7 @@ create or replace package body logging is
     ) is
         pragma autonomous_transaction;
     begin
-        insert into logs(severity, message, stack) values ('debug', p_message, dbms_utility.format_call_stack);
+        insert into logs(severity, message, stack) values (p_severity, p_message, dbms_utility.format_call_stack);
         commit;
     end;
 

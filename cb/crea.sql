@@ -53,14 +53,14 @@ end;
 -- --------
 create table spoken_languages (
     spoken_language_id varchar2(2 char) constraint pk_spoken_languages primary key,
-    spoken_language_name varchar2(15 char) not null
+    spoken_language_name varchar2(15 char)
 );
 
 -- production_countries
 -- --------
 create table production_countries (
     production_country_id varchar2(2 char) constraint pk_production_countries primary key,
-    production_country_name varchar2(31 char) not null
+    production_country_name varchar2(31 char)
 );
 
 -- production_companies
@@ -100,7 +100,7 @@ create table movies (
     movie_poster_path varchar2(32 char),
     movie_budget number(8, 0) not null, -- TODO Check
     movie_revenue number(8, 0) not null, -- TODO Check
-    movie_homepage varchar2(112 char),
+    movie_homepage varchar2(122 char),
     movie_tagline varchar2(172 char),
     movie_overview clob,
     movie_copies number(4, 0)
@@ -144,9 +144,10 @@ create table movies_actors_characters (
 -- --------
 create table movies_spoken_languages (
     movie_id number(6, 0) not null,
-    spoken_language_id varchar2(2 char) constraint fk_mov_spo_lan_spo_language_id references spoken_languages(spoken_language_id),
+    spoken_language_id varchar2(2 char) not null,
     constraint pk_movies_spoken_languages primary key (movie_id, spoken_language_id),
-    constraint fk_mov_spo_lan_movie_id foreign key (movie_id) references movies(movie_id)
+    constraint fk_mov_spo_lan_movie_id foreign key (movie_id) references movies(movie_id),
+    constraint fk_mov_spo_lan_spo_language_id foreign key (spoken_language_id) references spoken_languages(spoken_language_id)
 );
 
 -- movies_production_countries
