@@ -66,7 +66,9 @@ create or replace package body cb_management is
         update users set backup_flag = 2 where username = p_username;
         update reviews set backup_flag = 2 where username = p_username;
     exception
-        when others then raise;
+        when others then
+            logging.e('Failed to remove a user: ' || sqlerrm);
+            raise;
     end;
 
     procedure delete_review(

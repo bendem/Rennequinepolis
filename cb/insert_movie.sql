@@ -326,8 +326,6 @@ begin
         exception
             when dup_val_on_index then
                 logging.i('Status ' || raw_data.status || ' already present');
-            when others then
-                raise;
         end;
         select status_id into movie_rec.movie_status_id from statuses where upper(status_name) = upper(raw_data.status);
     else
@@ -341,8 +339,6 @@ begin
         exception
             when dup_val_on_index then
                 logging.i('Certification ' || raw_data.certification || ' already present');
-            when others then
-                raise;
         end;
         select certification_id into movie_rec.movie_certification_id from certifications where upper(certification_name) = upper(raw_data.certification);
     else
@@ -357,8 +353,6 @@ begin
             exception
                 when dup_val_on_index then
                     null;
-                when others then
-                    raise;
             end;
         end loop;
     end if;
@@ -372,8 +366,6 @@ begin
                     if spoken_languages_v(i).spoken_language_name is not null then
                         update spoken_languages set spoken_language_name = spoken_languages_v(i).spoken_language_name where spoken_language_id = spoken_languages_v(i).spoken_language_id;
                     end if;
-                when others then
-                    raise;
             end;
         end loop;
     end if;
@@ -387,8 +379,6 @@ begin
                     if production_countries_v(i).production_country_name is not null then
                         update production_countries set production_country_name = production_countries_v(i).production_country_name where production_country_id = production_countries_v(i).production_country_id;
                     end if;
-                when others then
-                    raise;
             end;
         end loop;
     end if;
@@ -400,8 +390,6 @@ begin
             exception
                 when dup_val_on_index then
                     null;
-                when others then
-                    raise;
             end;
         end loop;
     end if;
@@ -413,8 +401,6 @@ begin
             exception
                 when dup_val_on_index then
                     null;
-                when others then
-                    raise;
             end;
         end loop;
     end if;
@@ -426,8 +412,6 @@ begin
             exception
                 when dup_val_on_index then
                     null;
-                when others then
-                    raise;
             end;
         end loop;
     end if;
@@ -441,8 +425,6 @@ begin
             exception
                 when dup_val_on_index then
                     null;
-                when others then
-                    raise;
             end;
         end loop;
     end if;
