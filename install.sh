@@ -42,7 +42,8 @@ echo "==============="
 cat $ROOT/cb/crea.sql                 \
     $ROOT/utils/logs.sql              \
     $ROOT/utils/types.sql             \
-    $ROOT/utils/utils.sql             \
+    $ROOT/utils/utils_head.sql        \
+    $ROOT/utils/utils_body.sql        \
     $ROOT/utils/timer_head.sql        \
     $ROOT/utils/timer_body.sql        \
     $ROOT/cb/create_ext_table.sql     \
@@ -52,22 +53,22 @@ cat $ROOT/cb/crea.sql                 \
 
 echo "Initializing cbb"
 echo "================"
-cat $ROOT/cb/crea.sql           \
-    $ROOT/utils/logs.sql        \
-    $ROOT/cb/package_head.sql   \
-    $ROOT/cb/package_body.sql   \
-    $ROOT/cb/backup_trigger.sql \
-    $ROOT/cb/backup_head.sql    \
-    $ROOT/cb/backup_body.sql    \
-    $ROOT/cb/create_job.sql     \
+cat $ROOT/cb/crea.sql            \
+    $ROOT/utils/logs.sql         \
+    $ROOT/cb/management_head.sql \
+    $ROOT/cb/management_body.sql \
+    $ROOT/cb/backup_trigger.sql  \
+    $ROOT/cb/backup_head.sql     \
+    $ROOT/cb/backup_body.sql     \
+    $ROOT/cb/create_job.sql      \
         | $SQLPLUS cbb/$CB_PWD@$CB_IP
 
 echo "Setting up cb backup"
 echo "================"
-cat $ROOT/cb/backup_trigger.sql \
-    $ROOT/cb/package_head.sql   \
-    $ROOT/cb/package_body.sql   \
-    $ROOT/cb/backup_head.sql    \
-    $ROOT/cb/backup_body.sql    \
-    $ROOT/cb/create_job.sql     \
+cat $ROOT/cb/backup_trigger.sql  \
+    $ROOT/cb/management_head.sql \
+    $ROOT/cb/management_body.sql \
+    $ROOT/cb/backup_head.sql     \
+    $ROOT/cb/backup_body.sql     \
+    $ROOT/cb/create_job.sql      \
         | $SQLPLUS cb/$CB_PWD@$CB_IP

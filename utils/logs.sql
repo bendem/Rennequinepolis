@@ -18,8 +18,8 @@ create or replace package logging is
 
     procedure log(
         p_severity in logs.severity%type,
-        p_message in logs.message%type
-    );
+        p_message  in logs.message%type);
+
     procedure d(p_message in logs.message%type);
     procedure i(p_message in logs.message%type);
     procedure e(p_message in logs.message%type);
@@ -31,8 +31,8 @@ create or replace package body logging is
 
     procedure log(
         p_severity in logs.severity%type,
-        p_message in logs.message%type
-    ) is
+        p_message  in logs.message%type)
+    is
         pragma autonomous_transaction;
     begin
         insert into logs(severity, message, stack) values (p_severity, p_message, dbms_utility.format_call_stack);

@@ -1,4 +1,4 @@
-create or replace trigger cb_backup_trigger
+create or replace trigger backup_trigger
 before insert or update on reviews
 for each row
 declare

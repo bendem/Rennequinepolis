@@ -1,5 +1,6 @@
 create or replace procedure field_analysis is
     output_file   utl_file.file_type;
+
     type r_result is record (
         name            varchar2(100),
         median          pls_integer,
@@ -28,48 +29,48 @@ create or replace procedure field_analysis is
 
     tab_result t_result := t_result();
 
-    split_request_template varchar2(2000) := 'with split(splitted, field, idx) as (
+    split_request_template constant varchar2(2000) := q'[with split(splitted, field, idx) as (
         select
             substr(
                 :column,
                 3,
-                case instr(:column, ''||'', 3, 1)
+                case instr(:column, '||', 3, 1)
                     when 0 then length(:column) - 4
-                    else instr(:column, ''||'', 3, 1) - 3
+                    else instr(:column, '||', 3, 1) - 3
                 end
             ),
             :column,
-            case instr(:column, ''||'', 3, 1)
+            case instr(:column, '||', 3, 1)
                 when 0 then length(:column)
-                else instr(:column, ''||'', 3, 1) + 2
+                else instr(:column, '||', 3, 1) + 2
             end
         from movies_ext
         where 1 = 1
             and :column is not null
-            and :column <> ''[[]]''
+            and :column <> trim('[[]] ')
             and length(:column) <> 0
         union all
         select
             substr(
                 field,
                 idx,
-                case instr(field, ''||'', idx)
+                case instr(field, '||', idx)
                     when 0 then length(field) - 1
-                    else instr(field, ''||'', idx)
+                    else instr(field, '||', idx)
                 end - idx
             ),
             field,
-            case instr(field, ''||'', idx, 1)
+            case instr(field, '||', idx, 1)
                 when 0 then length(field)
-                else instr(field, ''||'', idx, 1)
+                else instr(field, '||', idx, 1)
             end + 2
         from split
         where idx < length(field)
-    ) select distinct splitted from split';
+    ) select distinct splitted from split]';
 
     split_request varchar2(2000);
 
-    stat_request_template varchar2(2000) := 'select :name,
+    stat_request_template constant varchar2(2000) := 'select :name,
         median(length(:column)),
         stddev(length(:column)),
         max(length(:column)),
@@ -112,26 +113,26 @@ create or replace procedure field_analysis is
         'overview'
     );
 
-    split_request_actor varchar2(2000) := 'with split(splitted, field, idx) as (
+    split_request_actor constant varchar2(2000) := q'[with split(splitted, field, idx) as (
         select
             substr(
                 actors,
                 3,
-                case instr(actors, ''||'', 3, 1)
+                case instr(actors, '||', 3, 1)
                     when 0 then length(actors) - 4
-                    else instr(actors, ''||'', 3, 1) - 3
+                    else instr(actors, '||', 3, 1) - 3
                 end
             ),
             actors,
-            case instr(actors, ''||'', 3, 1)
+            case instr(actors, '||', 3, 1)
                 when 0 then length(actors)
-                else instr(actors, ''||'', 3, 1) + 2
+                else instr(actors, '||', 3, 1) + 2
             end
         from (
             select actors, rownum rnum from movies_ext
             where rownum <= :max
                 and actors is not null
-                and actors <> ''[[]]''
+                and actors <> trim('[[]] ')
                 and length(actors) <> 0
         ) where rnum > :min
         union all
@@ -139,22 +140,22 @@ create or replace procedure field_analysis is
             substr(
                 field,
                 idx,
-                case instr(field, ''||'', idx)
+                case instr(field, '||', idx)
                     when 0 then length(field) - 1
-                    else instr(field, ''||'', idx)
+                    else instr(field, '||', idx)
                 end - idx
             ),
             field,
-            case instr(field, ''||'', idx, 1)
+            case instr(field, '||', idx, 1)
                 when 0 then length(field)
-                else instr(field, ''||'', idx, 1)
+                else instr(field, '||', idx, 1)
             end + 2
         from split
         where idx < length(field)
-    ) select distinct splitted from split';
+    ) select distinct splitted from split]';
 
     c pls_integer := 0;
-    chunk_size pls_integer := 6500;
+    chunk_size constant pls_integer := 5000;
     i_min pls_integer := 0;
     i_max pls_integer := chunk_size;
 begin
@@ -168,7 +169,6 @@ begin
 
     -- Actors
     --------------------------
-
     select count(*) into c from movies_ext
     where actors is not null
         and actors <> '[[]]'
@@ -447,7 +447,7 @@ begin
     end loop;
 
     dbms_output.put_line('Displaying results');
-    output_file := utl_file.fopen ('MOVIES_DIR', 'AnalysisResult.txt', 'W');
+    output_file := utl_file.fopen ('movies_dir', 'AnalysisResult.txt', 'W');
     utl_file.put_line(output_file, 'analysis report for movies_ext');
     utl_file.put_line(output_file, '');
     utl_file.put_line(output_file,
@@ -486,7 +486,7 @@ begin
 exception
     when others then
         if utl_file.is_open(output_file) then
-          utl_file.fclose (output_file);
+            utl_file.fclose (output_file);
         end if;
         dbms_output.put_line(sqlerrm);
         dbms_output.put_line(dbms_utility.format_call_stack);

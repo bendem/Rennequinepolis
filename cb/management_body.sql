@@ -1,11 +1,11 @@
-create or replace package body cb_thing is
+create or replace package body cb_management is
 
     procedure add_user(
-        p_username  users.username%type,
-        p_password  users.password%type,
-        p_lastname  users.lastname%type,
-        p_firstname users.firstname%type
-    ) is
+        p_username  in users.username%type,
+        p_password  in users.password%type,
+        p_lastname  in users.lastname%type,
+        p_firstname in users.firstname%type)
+    is
     begin
         insert into users (
             username,
@@ -30,11 +30,11 @@ create or replace package body cb_thing is
     end;
 
     procedure add_review(
-        p_username reviews.username%type,
-        p_movie_id reviews.movie_id%type,
-        p_rating   reviews.rating%type,
-        p_content  reviews.content%type
-    ) is
+        p_username in reviews.username%type,
+        p_movie_id in reviews.movie_id%type,
+        p_rating   in reviews.rating%type,
+        p_content  in reviews.content%type)
+    is
         fk_exception exception;
         pragma exception_init(fk_exception, -2191);
     begin
@@ -60,8 +60,8 @@ create or replace package body cb_thing is
     end;
 
     procedure delete_user(
-        p_username  users.username%type
-    ) is
+        p_username in users.username%type)
+    is
     begin
         update users set backup_flag = 2 where username = p_username;
         update reviews set backup_flag = 2 where username = p_username;
@@ -70,9 +70,9 @@ create or replace package body cb_thing is
     end;
 
     procedure delete_review(
-        p_username reviews.username%type,
-        p_movie_id reviews.movie_id%type
-    ) is
+        p_username in reviews.username%type,
+        p_movie_id in reviews.movie_id%type)
+    is
     begin
         delete from reviews@link.backup
         where
@@ -91,9 +91,8 @@ create or replace package body cb_thing is
 
     procedure modify_user(
         p_userbefore in users%rowtype,
-        p_userafter  in users%rowtype
-    )
-    AS
+        p_userafter  in users%rowtype)
+    is
         busy_exception      exception;
         not_found_exception exception;
         not_equal_exception exception;
@@ -105,13 +104,12 @@ create or replace package body cb_thing is
         i number;
 
         user users%rowtype;
-    BEGIN
+    begin
         i := 0;
         user.username := NULL;
 
         -- Try to get the ressource needed
-        while (i < 3)
-        loop
+        while (i < 3) loop
             begin
                 select * into user
                 from users
@@ -132,7 +130,6 @@ create or replace package body cb_thing is
             raise busy_exception;
         end if;
 
-
         -- Compare the old record with the one we just read
         if (owa_opt_lock.checksum(p_userbefore.password || p_userbefore.lastname || p_userbefore.firstname || to_char(p_userbefore.creation_date, 'yyyymmdd'))
                 <> owa_opt_lock.checksum(user.password || user.lastname || user.firstname || to_char(user.creation_date, 'yyyymmdd'))) then
@@ -147,7 +144,6 @@ create or replace package body cb_thing is
             backup_flag = 0
         where username = user.username;
         commit;
-
     exception
         when busy_exception then
             logging.e('Busy when modifying user: ' || sqlerrm);
@@ -165,19 +161,17 @@ create or replace package body cb_thing is
         when pkey_null then
             logging.e('Primary key was null: ' || sqlerrm);
             raise_application_error(-20141, 'Primary key can''t be null');
-        when others then raise;
     end modify_user;
 
     procedure modify_review(
         p_reviewbefore in reviews%rowtype,
-        p_reviewafter  in reviews%rowtype
-    )
-    AS
+        p_reviewafter  in reviews%rowtype)
+    is
         busy_exception      exception;
         not_found_exception exception;
         not_equal_exception exception;
         pkey_null           exception;
-        fkey_exception       exception;
+        fkey_exception      exception;
 
         pragma exception_init(busy_exception ,-0054);
         pragma exception_init(pkey_null, -1400);
@@ -186,14 +180,13 @@ create or replace package body cb_thing is
         i number;
 
         review reviews%rowtype;
-    BEGIN
+    begin
         i := 0;
         review.username := null;
         review.movie_id := null;
 
         -- Try to get the ressource needed
-        while (i<3)
-        loop
+        while (i < 3) loop
             begin
                 select * into review
                 from reviews
@@ -217,7 +210,6 @@ create or replace package body cb_thing is
             raise busy_exception;
         end if;
 
-
         -- Compare the old record with the one we just read
         if (owa_opt_lock.checksum(p_reviewbefore.rating || p_reviewbefore.content || to_char(p_reviewbefore.creation_date, 'yyyymmdd'))
                 <> owa_opt_lock.checksum(review.rating || review.content || to_char(review.creation_date, 'yyyymmdd'))) then
@@ -232,7 +224,6 @@ create or replace package body cb_thing is
         where username = review.username
             and movie_id = review.movie_id;
         commit;
-
     exception
         when busy_exception then
             logging.e('Busy when modifying review: ' || sqlerrm);
@@ -253,9 +244,7 @@ create or replace package body cb_thing is
                 when sqlerrm like '%fk_reviews_username%' then
                     raise_application_error(-20142, 'Username referenced wasn''t found. (' || p_reviewafter.username || ')');
             end case;
-        when others then
-            raise;
     end modify_review;
 
-end cb_thing;
+end cb_management;
 /
