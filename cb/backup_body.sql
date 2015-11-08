@@ -1,11 +1,11 @@
 create or replace package body backup is
 
-    procedure do_the_thing is
+    procedure propagate_changes is
     begin
         logging.i('Starting backup job');
-        backup.delete_them_userz;
-        backup.copy_them_userz;
-        backup.copy_them_reviewz;
+        backup.propagate_user_deletions;
+        backup.propagate_user_changes;
+        backup.propagate_review_changes;
         logging.i('Backup job done');
         commit;
     exception
@@ -14,7 +14,7 @@ create or replace package body backup is
             rollback;
     end;
 
-    procedure delete_them_userz is
+    procedure propagate_user_deletions is
     begin
         -- Remove marked users
         delete from reviews@link.backup where username in (
@@ -29,7 +29,7 @@ create or replace package body backup is
         delete from users where backup_flag = 2;
     end;
 
-    procedure copy_them_userz is
+    procedure propagate_user_changes is
     begin
         merge into users@link.backup u using (
             select
@@ -61,7 +61,7 @@ create or replace package body backup is
         update users set backup_flag = 1 where backup_flag = 0;
     end;
 
-    procedure copy_them_reviewz is
+    procedure propagate_review_changes is
     begin
         merge into reviews@link.backup u using (
             select
