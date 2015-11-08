@@ -4,18 +4,11 @@ create or replace package body stats is
         tab_result result_t := result_t();
 
         split_request varchar2(2000);
-        stat_request varchar2(2000);
+        stat_request  varchar2(2000);
+        splitted      varchar2(1000);
+        t             varchar2(1000);
 
-        x varchar2(1000);
-        y varchar2(1000);
-        z varchar2(1000);
-
-        i pls_integer := 0;
         j pls_integer := 0;
-        k pls_integer := 0;
-        l pls_integer := 0;
-        m pls_integer := 0;
-        indx pls_integer := 0;
 
         chars1_v varchar2_t;
         chars2_v varchar2_t := varchar2_t();
@@ -46,29 +39,29 @@ create or replace package body stats is
 
             for i in chars1_v.first..chars1_v.last loop
                 j := 1;
-                y := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
+                splitted := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
 
-                while length(y) <> 0 loop
-                    y := trim(trailing ',' from y);
+                while length(splitted) <> 0 loop
+                    splitted := trim(trailing ',' from splitted);
                     case j
                         when 1 then
                             chars2_v.extend;
-                            chars2_v(chars2_v.count) := y;
+                            chars2_v(chars2_v.count) := splitted;
                         when 2 then
                             chars3_v.extend;
-                            chars3_v(chars3_v.count) := y;
+                            chars3_v(chars3_v.count) := splitted;
                         when 3 then
                             chars4_v.extend;
-                            chars4_v(chars4_v.count) := y;
+                            chars4_v(chars4_v.count) := splitted;
                         when 4 then
                             chars5_v.extend;
-                            chars5_v(chars5_v.count) := y;
+                            chars5_v(chars5_v.count) := splitted;
                         when 5 then
                             chars6_v.extend;
-                            chars6_v(chars6_v.count) := y;
+                            chars6_v(chars6_v.count) := splitted;
                     end case;
                     j := j + 1;
-                    y := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
+                    splitted := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
                 end loop;
             end loop;
         end loop;
@@ -105,20 +98,20 @@ create or replace package body stats is
             chars3_v := varchar2_t();
             for i in chars1_v.first..chars1_v.last loop
                 j := 1;
-                y := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
+                splitted := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
 
-                while length(y) <> 0 loop
-                    y := trim(trailing ',' from y);
+                while length(splitted) <> 0 loop
+                    splitted := trim(trailing ',' from splitted);
                     case j
                         when 1 then
                             chars2_v.extend;
-                            chars2_v(chars2_v.count) := y;
+                            chars2_v(chars2_v.count) := splitted;
                         when 2 then
                             chars3_v.extend;
-                            chars3_v(chars3_v.count) := y;
+                            chars3_v(chars3_v.count) := splitted;
                     end case;
                     j := j + 1;
-                    y := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
+                    splitted := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
                 end loop;
             end loop;
             dbms_output.put_line('Fetched ' || columns_names(l) || ' in ' || timer.lap);
@@ -144,23 +137,23 @@ create or replace package body stats is
         chars4_v := varchar2_t();
         for i in chars1_v.first..chars1_v.last loop
             j := 1;
-            y := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
+            splitted := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
 
-            while length(y) <> 0 loop
-                y := trim(trailing ',' from y);
+            while length(splitted) <> 0 loop
+                splitted := trim(trailing ',' from splitted);
                 case j
                     when 1 then
                         chars2_v.extend;
-                        chars2_v(chars2_v.count) := y;
+                        chars2_v(chars2_v.count) := splitted;
                     when 2 then
                         chars3_v.extend;
-                        chars3_v(chars3_v.count) := y;
+                        chars3_v(chars3_v.count) := splitted;
                     when 3 then
                         chars4_v.extend;
-                        chars4_v(chars4_v.count) := y;
+                        chars4_v(chars4_v.count) := splitted;
                 end case;
                 j := j + 1;
-                y := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
+                splitted := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
             end loop;
         end loop;
         dbms_output.put_line('Fetched directors in ' || timer.lap);
@@ -187,9 +180,9 @@ create or replace package body stats is
             execute immediate 'select count(*) from movies_ext where ' || single_columns(m) || ' is not null' into tab_result(tab_result.count).nbvalue;
             execute immediate 'select count(*) from movies_ext where ' || single_columns(m) || ' is null' into tab_result(tab_result.count).nbnull;
 
-            select data_type into z from USER_TAB_COLUMNS where column_name = upper(single_columns(m)) and lower(table_name) = 'movies_ext';
+            select data_type into t from USER_TAB_COLUMNS where column_name = upper(single_columns(m)) and lower(table_name) = 'movies_ext';
 
-            case z
+            case t
                 when 'NUMBER' then
                     execute immediate 'select count(*) from movies_ext where ' || single_columns(m) || ' = 0' into tab_result(tab_result.count).nbzero;
                 when 'VARCHAR2' then
