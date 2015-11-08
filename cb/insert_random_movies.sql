@@ -1,4 +1,4 @@
-create or replace procedure insert_random_movies (n in number) is
+create or replace procedure insert_random_movies(n in number) is
 
     type table_record_t is table of movies_ext%rowtype index by pls_integer;
 
