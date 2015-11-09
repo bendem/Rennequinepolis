@@ -104,11 +104,11 @@ create table movies (
     movie_status_id number(6, 0) constraint fk_movies_status_id references statuses(status_id),
     movie_certification_id number(6, 0) constraint fk_movies_certification_id references certifications(certification_id),
     movie_vote_avg number(3, 1) not null,
-    movie_vote_count number(4) not null, -- TODO Check
-    movie_runtime number(5), -- TODO Check
+    movie_vote_count number(4) not null,
+    movie_runtime number(5),
     movie_poster_id number(6, 0) constraint fk_movies_image_id references images(image_id),
-    movie_budget number(8, 0) not null, -- TODO Check
-    movie_revenue number(8, 0) not null, -- TODO Check
+    movie_budget number(9, 0) not null,
+    movie_revenue number(10, 0) not null,
     movie_homepage varchar2(122 char),
     movie_tagline varchar2(172 char),
     movie_overview clob,

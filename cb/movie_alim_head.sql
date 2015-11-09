@@ -39,10 +39,10 @@ create or replace package movie_alim is
     size_max_movies_vote_count     constant pls_integer := 4;
     size_movies_runtime            constant pls_integer := 5;
     size_max_movies_runtime        constant pls_integer := 9;
-    size_movies_budget             constant pls_integer := 8;
+    size_movies_budget             constant pls_integer := 9;
     size_max_movies_budget         constant pls_integer := 9;
-    size_movies_revenue            constant pls_integer := 8;
-    size_max_movies_revenue        constant pls_integer := 9;
+    size_movies_revenue            constant pls_integer := 10;
+    size_max_movies_revenue        constant pls_integer := 10;
     size_movies_homepage           constant pls_integer := 122;
     size_max_movies_homepage       constant pls_integer := 359;
     size_movies_tagline            constant pls_integer := 172;
