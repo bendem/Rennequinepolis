@@ -9,12 +9,13 @@ create table users (
     backup_flag number(1, 0) -- 1 = backed up, 0 = to backup, 2 = to delete
 );
 
--- actors
+-- persons
 -- --------
-create table actors (
-    actor_id number(7, 0) constraint pk_actors primary key,
-    actor_name varchar2(22 char) not null,
-    actor_profile_path varchar2(32 char)
+
+create table persons (
+    person_id number(7, 0) constraint pk_persons primary key,
+    person_name varchar2(23 char) not null,
+    person_profile_path varchar2(32 char)
 );
 
 -- certifications
@@ -70,14 +71,6 @@ create table production_companies (
     production_company_name varchar2(45 char) not null
 );
 
--- directors
--- --------
-create table directors (
-    director_id number(7, 0) constraint pk_directors primary key,
-    director_name varchar2(23 char) not null,
-    director_profile_path varchar2(32 char)
-);
-
 -- genres
 -- --------
 create table genres (
@@ -97,13 +90,19 @@ create table movies (
     movie_vote_avg number(3, 1) not null,
     movie_vote_count number(4) not null, -- TODO Check
     movie_runtime number(5), -- TODO Check
-    movie_poster_path varchar2(32 char),
+    movie_poster blob,
     movie_budget number(8, 0) not null, -- TODO Check
     movie_revenue number(8, 0) not null, -- TODO Check
     movie_homepage varchar2(122 char),
     movie_tagline varchar2(172 char),
     movie_overview clob,
-    movie_copies number(4, 0)
+    movie_copies number(4, 0),
+    constraint ck_vote_avg_pos check (movie_vote_avg >= 0),
+    constraint ck_vote_count_pos check (movie_vote_count >= 0),
+    constraint ck_runtime_pos check (movie_runtime >= 0),
+    constraint ck_budget_pos check (movie_budget >= 0),
+    constraint ck_revenue_pos check (movie_revenue >= 0),
+    constraint ck_copies_pos check (movie_copies >= 0)
 );
 
 -- characters
@@ -127,7 +126,8 @@ create table reviews (
     backup_flag number(1, 0),
     constraint pk_reviews primary key (username, movie_id),
     constraint fk_reviews_movie_id foreign key (movie_id) references movies(movie_id),
-    constraint fk_reviews_username foreign key (username) references users(username)
+    constraint fk_reviews_username foreign key (username) references users(username),
+    constraint ck_rating_pos check (rating >= 0)
 );
 
 -- movies_actors_characters
@@ -135,8 +135,8 @@ create table reviews (
 create table movies_actors_characters (
     movie_id number(6, 0) not null,
     character_id number(4, 0) not null,
-    actor_id number(7, 0) constraint fk_mov_act_cha_actor_id references actors(actor_id),
-    constraint pk_movies_actors_characters primary key (movie_id, character_id, actor_id),
+    person_id number(7, 0) constraint fk_mov_act_cha_actor_id references persons(person_id),
+    constraint pk_movies_actors_characters primary key (movie_id, character_id, person_id),
     constraint fk_mov_act_cha_cha_pk foreign key (movie_id, character_id) references characters(movie_id, character_id)
 );
 
@@ -174,10 +174,10 @@ create table movies_production_companies (
 -- --------
 create table movies_directors (
     movie_id number(6, 0) not null,
-    director_id number(7, 0) not null,
-    constraint pk_movies_directors primary key (movie_id, director_id),
+    person_id number(7, 0) not null,
+    constraint pk_movies_directors primary key (movie_id, person_id),
     constraint fk_mov_dir_movie_id foreign key (movie_id) references movies(movie_id),
-    constraint fk_mov_dir_director_id foreign key (director_id) references directors(director_id)
+    constraint fk_mov_dir_person_id foreign key (person_id) references persons(person_id)
 );
 -- movies_genres
 -- --------

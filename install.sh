@@ -47,8 +47,8 @@ cat $ROOT/cb/crea.sql                 \
     $ROOT/utils/timer_head.sql        \
     $ROOT/utils/timer_body.sql        \
     $ROOT/cb/create_ext_table.sql     \
-    $ROOT/cb/insert_movie.sql         \
-    $ROOT/cb/insert_random_movies.sql \
+    $ROOT/cb/movie_alim_head.sql      \
+    $ROOT/cb/movie_alim_body.sql      \
         | $SQLPLUS cb/$CB_PWD@$CB_IP
 
 echo "Initializing cbb"

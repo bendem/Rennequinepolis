@@ -85,11 +85,11 @@ create or replace package body movie_alim is
                     y := trim(both ',' from y);
                     case j
                         when 1 then
-                            actors_v(i).actor_id := y;
-                            movies_actors_characters_v(i).actor_id := y;
+                            actors_v(i).person_id := y;
+                            movies_actors_characters_v(i).person_id := y;
                         when 2 then
                             utils.check_size(y, size_actors_name, size_max_actors_name);
-                            actors_v(i).actor_name := y;
+                            actors_v(i).person_name := y;
                         when 3 then
                             characters_v(i).character_id := y;
                             movies_actors_characters_v(i).character_id := y;
@@ -97,7 +97,7 @@ create or replace package body movie_alim is
                             utils.check_size(y, size_characters_name, size_max_characters_name);
                             characters_v(i).character_name := y;
                         when 5 then
-                            actors_v(i).actor_profile_path := y;
+                            actors_v(i).person_profile_path := y;
                     end case;
                     j := j + 1;
                     y := regexp_substr(chars1_v(i), split_regex, 1, j);
@@ -118,13 +118,13 @@ create or replace package body movie_alim is
                     y := trim(both ',' from y);
                     case j
                         when 1 then
-                            directors_v(i).director_id := y;
-                            movies_directors_v(i).director_id := y;
+                            directors_v(i).person_id := y;
+                            movies_directors_v(i).person_id := y;
                         when 2 then
                             utils.check_size(y, size_directors_name, size_max_directors_name);
-                            directors_v(i).director_name := y;
+                            directors_v(i).person_name := y;
                         when 3 then
-                            directors_v(i).director_profile_path := y;
+                            directors_v(i).person_profile_path := y;
                     end case;
                     j := j + 1;
                     y := regexp_substr(chars1_v(i), split_regex, 1, j);
@@ -247,7 +247,7 @@ create or replace package body movie_alim is
         movie_rec.movie_vote_avg       := raw_data.vote_average;
         movie_rec.movie_vote_count     := raw_data.vote_count;
         movie_rec.movie_runtime        := raw_data.runtime;
-        movie_rec.movie_poster_path    := raw_data.poster_path;
+        -- movie_rec.movie_poster_path    := raw_data.poster_path;
         movie_rec.movie_budget         := raw_data.budget;
         movie_rec.movie_revenue        := raw_data.revenue;
         movie_rec.movie_homepage       := raw_data.homepage;
@@ -287,7 +287,7 @@ create or replace package body movie_alim is
         if actors_v.count <> 0 then
             for i in actors_v.first .. actors_v.last loop
                 begin
-                    insert into actors values actors_v(i);
+                    insert into persons values actors_v(i);
                 exception
                     when dup_val_on_index then
                         null;
@@ -335,7 +335,7 @@ create or replace package body movie_alim is
         if directors_v.count <> 0 then
             for i in directors_v.first .. directors_v.last loop
                 begin
-                    insert into directors values directors_v(i);
+                    insert into persons values directors_v(i);
                 exception
                     when dup_val_on_index then
                         null;
