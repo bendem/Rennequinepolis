@@ -1,3 +1,7 @@
+select sid, serial#, username, osuser from v$session where username <> 'oracle';
+
+
+
 select sum(s) from (
     select regexp_count(actors, '\|\|') + 1 s
     from movies_ext

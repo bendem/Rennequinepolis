@@ -32,8 +32,6 @@ create or replace package body movie_alim is
 
         chars1_v varchar2_t;
 
-        image blob;
-
         actors_v                      persons_t;
         spoken_languages_v            spoken_languages_t;
         production_countries_v        production_countries_t;
@@ -51,7 +49,7 @@ create or replace package body movie_alim is
         movies_directors_v            movies_directors_t;
         movies_genres_v               movies_genres_t;
         director_images_v             images_t;
-        actor_images_v               images_t;
+        actor_images_v                images_t;
         exist number(1, 0);
     begin
         begin
@@ -260,8 +258,15 @@ create or replace package body movie_alim is
 
 
 
-        image := httpuritype('http://image.tmdb.org/t/p/w185' || raw_data.poster_path).getblob();
-        insert into images(image) values (image) returning image_id into i;
+        begin
+            insert into images(image) values (
+                httpuritype('http://image.tmdb.org/t/p/w185' || raw_data.poster_path).getblob()
+            ) returning image_id into i;
+        exception
+            when others then
+                logger.e('Failed to insert ' || raw_data.poster_path || ': ' || utl_http.get_detailed_sqlerrm);
+                raise;
+        end;
 
 
         movie_rec.movie_poster_id := i;
@@ -299,8 +304,14 @@ create or replace package body movie_alim is
             for i in actors_v.first .. actors_v.last loop
                 begin
                     if actor_images_v.exists(i) then
-                        insert into images(image) values (actor_images_v(i)) returning image_id into j;
-                        actors_v(i).person_profile_id := j;
+                        begin
+                            insert into images(image) values (actor_images_v(i)) returning image_id into j;
+                            actors_v(i).person_profile_id := j;
+                        exception
+                            when others then
+                                logger.e('Failed to insert ' || raw_data.poster_path || ': ' || utl_http.get_detailed_sqlerrm);
+                                raise;
+                        end;
                     end if;
                     insert into persons values actors_v(i);
                 exception
@@ -351,8 +362,14 @@ create or replace package body movie_alim is
             for i in directors_v.first .. directors_v.last loop
                 begin
                     if director_images_v.exists(i) then
-                        insert into images(image) values (director_images_v(i)) returning image_id into j;
-                        directors_v(i).person_profile_id := j;
+                        begin
+                            insert into images(image) values (director_images_v(i)) returning image_id into j;
+                            directors_v(i).person_profile_id := j;
+                        exception
+                            when others then
+                                logger.e('Failed to insert ' || raw_data.poster_path || ': ' || utl_http.get_detailed_sqlerrm);
+                                raise;
+                        end;
                     end if;
                     insert into persons values directors_v(i);
                 exception
@@ -426,7 +443,7 @@ create or replace package body movie_alim is
         logging.i('Succesful insertion of movie n°' || raw_data.id);
     exception
         when others then
-            logging.e('Error during the inserting of movie n°' || p_movie.id);
+            logging.e('Error during the inserting of movie n°' || p_movie.id || ': ' || sqlerrm);
             dbms_output.put_line(sqlerrm);
             dbms_output.put_line(dbms_utility.format_call_stack);
             dbms_output.put_line(dbms_utility.format_error_backtrace);

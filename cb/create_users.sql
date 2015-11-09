@@ -31,6 +31,34 @@ grant myrole to cbb;
 
 grant execute on dbms_lock to cb;
 grant execute on utl_file to cb;
+grant execute on utl_http to cb;
 grant execute on dbms_lock to cbb;
 grant execute on sys.owa_opt_lock to cb;
 grant execute on sys.owa_opt_lock to cbb;
+
+begin
+    dbms_network_acl_admin.create_acl(
+        acl => 'http_permissions.xml',
+        description => 'HTTP Access',
+        principal => 'CB',
+        is_grant => true,
+        privilege => 'connect');
+
+    dbms_network_acl_admin.add_privilege(
+        acl => 'http_permissions.xml',
+        principal => 'CB',
+        is_grant => true,
+        privilege => 'resolve');
+
+    dbms_network_acl_admin.add_privilege(
+        acl => 'http_permissions.xml',
+        principal => 'CB',
+        is_grant => true,
+        privilege => 'connect');
+
+    dbms_network_acl_admin.assign_acl(
+        'http_permissions.xml', '*');
+end;
+/
+
+commit;

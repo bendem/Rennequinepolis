@@ -42,7 +42,7 @@ create or replace package body stats is
                 splitted := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
 
                 while length(splitted) <> 0 loop
-                    splitted := trim(trailing ',' from splitted);
+                    splitted := trim(',' from splitted);
                     case j
                         when 1 then
                             chars2_v.extend;
@@ -101,7 +101,7 @@ create or replace package body stats is
                 splitted := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
 
                 while length(splitted) <> 0 loop
-                    splitted := trim(trailing ',' from splitted);
+                    splitted := trim(',' from splitted);
                     case j
                         when 1 then
                             chars2_v.extend;
@@ -140,7 +140,7 @@ create or replace package body stats is
             splitted := regexp_substr(chars1_v(i), '(.*?)(\,{2}|$)', 1, j);
 
             while length(splitted) <> 0 loop
-                splitted := trim(trailing ',' from splitted);
+                splitted := trim(',' from splitted);
                 case j
                     when 1 then
                         chars2_v.extend;
