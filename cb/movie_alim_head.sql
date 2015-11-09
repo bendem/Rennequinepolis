@@ -3,11 +3,10 @@ create or replace package movie_alim is
     -- Types
     -- -----
     type movies_ext_t                  is table of movies_ext%rowtype index by pls_integer;
-    type actors_t                      is table of persons%rowtype index by pls_integer;
+    type persons_t                     is table of persons%rowtype index by pls_integer;
     type spoken_languages_t            is table of spoken_languages%rowtype index by pls_integer;
     type production_countries_t        is table of production_countries%rowtype index by pls_integer;
     type production_companies_t        is table of production_companies%rowtype index by pls_integer;
-    type directors_t                   is table of persons%rowtype index by pls_integer;
     type genres_t                      is table of genres%rowtype index by pls_integer;
     type characters_t                  is table of characters%rowtype index by pls_integer;
     type movies_actors_characters_t    is table of movies_actors_characters%rowtype index by pls_integer;
@@ -16,6 +15,7 @@ create or replace package movie_alim is
     type movies_production_companies_t is table of movies_production_companies%rowtype index by pls_integer;
     type movies_directors_t            is table of movies_directors%rowtype index by pls_integer;
     type movies_genres_t               is table of movies_genres%rowtype index by pls_integer;
+    type images_t                      is table of blob index by pls_integer;
 
 
     -- Inserts a set amount of movies from movies_ext into the main database.

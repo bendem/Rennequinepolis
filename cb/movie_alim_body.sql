@@ -32,11 +32,13 @@ create or replace package body movie_alim is
 
         chars1_v varchar2_t;
 
-        actors_v                      actors_t;
+        image blob;
+
+        actors_v                      persons_t;
         spoken_languages_v            spoken_languages_t;
         production_countries_v        production_countries_t;
         production_companies_v        production_companies_t;
-        directors_v                   directors_t;
+        directors_v                   persons_t;
         genres_v                      genres_t;
         characters_v                  characters_t;
         certification_rec             certifications%rowtype;
@@ -48,6 +50,8 @@ create or replace package body movie_alim is
         movies_production_companies_v movies_production_companies_t;
         movies_directors_v            movies_directors_t;
         movies_genres_v               movies_genres_t;
+        director_images_v             images_t;
+        actor_images_v               images_t;
         exist number(1, 0);
     begin
         begin
@@ -97,7 +101,7 @@ create or replace package body movie_alim is
                             utils.check_size(y, size_characters_name, size_max_characters_name);
                             characters_v(i).character_name := y;
                         when 5 then
-                            actors_v(i).person_profile_path := y;
+                            actor_images_v(i) := httpuritype('http://image.tmdb.org/t/p/w185' || y).getblob();
                     end case;
                     j := j + 1;
                     y := regexp_substr(chars1_v(i), split_regex, 1, j);
@@ -124,7 +128,7 @@ create or replace package body movie_alim is
                             utils.check_size(y, size_directors_name, size_max_directors_name);
                             directors_v(i).person_name := y;
                         when 3 then
-                            directors_v(i).person_profile_path := y;
+                            director_images_v(i) := httpuritype('http://image.tmdb.org/t/p/w185' || y).getblob();
                     end case;
                     j := j + 1;
                     y := regexp_substr(chars1_v(i), split_regex, 1, j);
@@ -247,13 +251,20 @@ create or replace package body movie_alim is
         movie_rec.movie_vote_avg       := raw_data.vote_average;
         movie_rec.movie_vote_count     := raw_data.vote_count;
         movie_rec.movie_runtime        := raw_data.runtime;
-        -- movie_rec.movie_poster_path    := raw_data.poster_path;
         movie_rec.movie_budget         := raw_data.budget;
         movie_rec.movie_revenue        := raw_data.revenue;
         movie_rec.movie_homepage       := raw_data.homepage;
         movie_rec.movie_tagline        := raw_data.tagline;
         movie_rec.movie_overview       := raw_data.overview;
         movie_rec.movie_copies         := round(abs(sys.dbms_random.normal * 2) + 5);
+
+
+
+        image := httpuritype('http://image.tmdb.org/t/p/w185' || raw_data.poster_path).getblob();
+        insert into images(image) values (image) returning image_id into i;
+
+
+        movie_rec.movie_poster_id := i;
 
         if raw_data.status is not null then
             begin
@@ -287,6 +298,10 @@ create or replace package body movie_alim is
         if actors_v.count <> 0 then
             for i in actors_v.first .. actors_v.last loop
                 begin
+                    if actor_images_v.exists(i) then
+                        insert into images(image) values (actor_images_v(i)) returning image_id into j;
+                        actors_v(i).person_profile_id := j;
+                    end if;
                     insert into persons values actors_v(i);
                 exception
                     when dup_val_on_index then
@@ -335,6 +350,10 @@ create or replace package body movie_alim is
         if directors_v.count <> 0 then
             for i in directors_v.first .. directors_v.last loop
                 begin
+                    if director_images_v.exists(i) then
+                        insert into images(image) values (director_images_v(i)) returning image_id into j;
+                        directors_v(i).person_profile_id := j;
+                    end if;
                     insert into persons values directors_v(i);
                 exception
                     when dup_val_on_index then
