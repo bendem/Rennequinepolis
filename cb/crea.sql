@@ -9,13 +9,29 @@ create table users (
     backup_flag number(1, 0) -- 1 = backed up, 0 = to backup, 2 = to delete
 );
 
+-- images
+-- --------
+
+create table images (
+    image_id number(6, 0) constraint pk_images primary key,
+    image blob default empty_blob()
+);
+
+create sequence images_seq;
+create or replace trigger images_autoinc
+before insert on images
+for each row begin
+    select images_seq.nextval into :new.image_id from dual;
+end;
+/
+
 -- persons
 -- --------
 
 create table persons (
     person_id number(7, 0) constraint pk_persons primary key,
     person_name varchar2(23 char) not null,
-    person_profile_path varchar2(32 char)
+    person_profile_id number(6, 0) constraint fk_persons_profile_id references images(image_id)
 );
 
 -- certifications
@@ -90,7 +106,7 @@ create table movies (
     movie_vote_avg number(3, 1) not null,
     movie_vote_count number(4) not null, -- TODO Check
     movie_runtime number(5), -- TODO Check
-    movie_poster blob,
+    movie_poster_id number(6, 0) constraint fk_movies_image_id references images(image_id),
     movie_budget number(8, 0) not null, -- TODO Check
     movie_revenue number(8, 0) not null, -- TODO Check
     movie_homepage varchar2(122 char),
