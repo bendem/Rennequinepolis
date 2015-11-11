@@ -349,16 +349,18 @@ create or replace package body movie_alim is
         end if;
 
         -- Insert image ids into actors
-        for i in actors_v.first..actors_v.last loop
-            if not actor_images_v.exists(i) then
-                actors_v(i).person_profile_id := null;
-            elsif images_by_url_v.exists(actor_images_v(i)) then
-                actors_v(i).person_profile_id := images_by_url_v(actor_images_v(i));
-            else
-                select image_id into actors_v(i).person_profile_id
-                from images where image_path = actor_images_v(i);
-            end if;
-        end loop;
+        if actors_v.count <> 0 then
+            for i in actors_v.first..actors_v.last loop
+                if not actor_images_v.exists(i) then
+                    actors_v(i).person_profile_id := null;
+                elsif images_by_url_v.exists(actor_images_v(i)) then
+                    actors_v(i).person_profile_id := images_by_url_v(actor_images_v(i));
+                else
+                    select image_id into actors_v(i).person_profile_id
+                    from images where image_path = actor_images_v(i);
+                end if;
+            end loop;
+        end if;
 
         -- Actually insert actors
         begin
@@ -410,14 +412,19 @@ create or replace package body movie_alim is
         end;
 
         -- Insert image ids into directors
-        for i in directors_v.first..directors_v.last loop
-            if images_by_url_v.exists(director_images_v(i)) then
-                directors_v(i).person_profile_id := images_by_url_v(director_images_v(i));
-            else
-                select image_id into directors_v(i).person_profile_id
-                from images where image_path = director_images_v(i);
-            end if;
-        end loop;
+        if directors_v.count <> 0 then
+            for i in directors_v.first..directors_v.last loop
+                if not director_images_v.exists(i) then
+                    directors_v(i).person_profile_id := null;
+                elsif images_by_url_v.exists(director_images_v(i)) then
+                    directors_v(i).person_profile_id := images_by_url_v(director_images_v(i));
+                else
+                    select image_id into directors_v(i).person_profile_id
+                    from images where image_path = director_images_v(i);
+                end if;
+            end loop;
+        end if;
+
 
         -- Actually insert the directors
         begin
