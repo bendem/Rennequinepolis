@@ -63,7 +63,6 @@ create or replace package body movie_alim is
         exception
             when no_data_found then
                 exist := 0;
-                dbms_output.put_line('w00000000t');
         end;
 
         if exist = 1 then
@@ -348,10 +347,6 @@ create or replace package body movie_alim is
                 images_by_url_v(image_ids_v(i).path) := image_ids_v(i).id;
             end loop;
         end if;
-        dbms_output.put_line(exist); -- FFS PLZ WORK TODO FIXME
-        dbms_output.put_line(actors_v.count); -- FFS PLZ WORK TODO FIXME
-        dbms_output.put_line(actor_images_v.count); -- FFS PLZ WORK TODO FIXME
-        dbms_output.put_line(images_by_url_v.count); -- FFS PLZ WORK TODO FIXME
 
         -- Insert image ids into actors
         for i in actors_v.first..actors_v.last loop
@@ -364,7 +359,6 @@ create or replace package body movie_alim is
                 from images where image_path = actor_images_v(i);
             end if;
         end loop;
-        dbms_output.put_line(exist); -- FFS PLZ WORK TODO FIXME
 
         -- Actually insert actors
         begin
