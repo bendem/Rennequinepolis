@@ -268,6 +268,9 @@ create or replace package body movie_alim is
                     httpuritype('http://image.tmdb.org/t/p/w185' || raw_data.poster_path).getblob()
                 ) returning image_id into movie_rec.movie_poster_id;
             exception
+                when dup_val_on_index then
+                    select image_id into movie_rec.movie_poster_id from images
+                    where image_path = raw_data.poster_path;
                 when others then
                     logging.e('Failed to insert "' || raw_data.poster_path || '": ' || utl_http.get_detailed_sqlerrm);
                     raise;
