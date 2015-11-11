@@ -24,4 +24,5 @@ SYS_PWD=$1
 echo "drop user cb cascade;
     drop user cbb cascade;
     drop role myrole;
-    execute dbms_network_acl_admin.drop_acl('http.xml');" | sqlplus -S -L sys/$SYS_PWD@$CB_IP as sysdba
+    execute dbms_network_acl_admin.drop_acl('http.xml');
+    " | sqlplus -S -L sys/$SYS_PWD@$CB_IP as sysdba
