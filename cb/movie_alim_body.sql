@@ -261,16 +261,18 @@ create or replace package body movie_alim is
         movie_rec.movie_copies         := round(abs(sys.dbms_random.normal * 2) + 5);
 
         -- INSERTS
-        begin
-            insert into images(image_path, image) values (
-                raw_data.poster_path,
-                httpuritype('http://image.tmdb.org/t/p/w185' || raw_data.poster_path).getblob()
-            ) returning image_id into movie_rec.movie_poster_id;
-        exception
-            when others then
-                logging.e('Failed to insert ' || raw_data.poster_path || ': ' || utl_http.get_detailed_sqlerrm);
-                raise;
-        end;
+        if raw_data.poster_path is not null then
+            begin
+                insert into images(image_path, image) values (
+                    raw_data.poster_path,
+                    httpuritype('http://image.tmdb.org/t/p/w185' || raw_data.poster_path).getblob()
+                ) returning image_id into movie_rec.movie_poster_id;
+            exception
+                when others then
+                    logging.e('Failed to insert "' || raw_data.poster_path || '": ' || utl_http.get_detailed_sqlerrm);
+                    raise;
+            end;
+        end if;
 
 
         if raw_data.status is not null then
@@ -315,6 +317,7 @@ create or replace package body movie_alim is
         exception
             when dml_exception then
                 if exceptions_contains_not(1) then
+                    logging.e('Error fetching http://image.tmdb.org/t/p/w185' || director_images_v(i));
                     raise;
                 end if;
         end;
@@ -337,6 +340,7 @@ create or replace package body movie_alim is
         exception
             when dml_exception then
                 if exceptions_contains_not(1) then
+                    logging.e('Error fetching http://image.tmdb.org/t/p/w185' || actor_images_v(i));
                     raise;
                 end if;
         end;
