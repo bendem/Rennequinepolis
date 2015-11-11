@@ -14,7 +14,9 @@ create table users (
 
 create table images (
     image_id number(6, 0) constraint pk_images primary key,
-    image blob default empty_blob()
+    image_path varchar2(32 char) not null,
+    image blob default empty_blob(),
+    constraint image_path_unique unique (image_path)
 );
 
 create sequence images_seq;
@@ -25,13 +27,12 @@ for each row begin
 end;
 /
 
--- persons
+-- people
 -- --------
-
-create table persons (
-    person_id number(7, 0) constraint pk_persons primary key,
+create table people (
+    person_id number(7, 0) constraint pk_people primary key,
     person_name varchar2(23 char) not null,
-    person_profile_id number(6, 0) constraint fk_persons_profile_id references images(image_id)
+    person_profile_id number(6, 0) constraint fk_people_profile_id references images(image_id)
 );
 
 -- certifications
@@ -151,7 +152,7 @@ create table reviews (
 create table movies_actors_characters (
     movie_id number(6, 0) not null,
     character_id number(4, 0) not null,
-    person_id number(7, 0) constraint fk_mov_act_cha_actor_id references persons(person_id),
+    person_id number(7, 0) constraint fk_mov_act_cha_actor_id references people(person_id),
     constraint pk_movies_actors_characters primary key (movie_id, character_id, person_id),
     constraint fk_mov_act_cha_cha_pk foreign key (movie_id, character_id) references characters(movie_id, character_id)
 );
@@ -193,7 +194,7 @@ create table movies_directors (
     person_id number(7, 0) not null,
     constraint pk_movies_directors primary key (movie_id, person_id),
     constraint fk_mov_dir_movie_id foreign key (movie_id) references movies(movie_id),
-    constraint fk_mov_dir_person_id foreign key (person_id) references persons(person_id)
+    constraint fk_mov_dir_person_id foreign key (person_id) references people(person_id)
 );
 -- movies_genres
 -- --------

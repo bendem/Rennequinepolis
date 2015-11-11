@@ -2,8 +2,13 @@ create or replace package movie_alim is
 
     -- Types
     -- -----
+    type id_path_r is record (
+        id   images.image_id%type,
+        path images.image_path%type
+    );
+
     type movies_ext_t                  is table of movies_ext%rowtype index by pls_integer;
-    type persons_t                     is table of persons%rowtype index by pls_integer;
+    type people_t                      is table of people%rowtype index by pls_integer;
     type spoken_languages_t            is table of spoken_languages%rowtype index by pls_integer;
     type production_countries_t        is table of production_countries%rowtype index by pls_integer;
     type production_companies_t        is table of production_companies%rowtype index by pls_integer;
@@ -15,6 +20,9 @@ create or replace package movie_alim is
     type movies_production_companies_t is table of movies_production_companies%rowtype index by pls_integer;
     type movies_directors_t            is table of movies_directors%rowtype index by pls_integer;
     type movies_genres_t               is table of movies_genres%rowtype index by pls_integer;
+    type image_ids_t                   is table of id_path_r index by pls_integer;
+    type image_paths_t                 is table of images.image_path%type index by pls_integer;
+    type images_by_url_t               is table of images.image_id%type index by images.image_path%type;
     type images_t                      is table of blob index by pls_integer;
 
 
@@ -27,6 +35,10 @@ create or replace package movie_alim is
     -- @param p_movie the rowtype to decompose and insert
     procedure insert_movie(
         p_movie movies_ext%rowtype);
+
+    -- TODO Doc
+    function exceptions_contains_not(
+        p_error pls_integer) return boolean;
 
 
     -- Constants

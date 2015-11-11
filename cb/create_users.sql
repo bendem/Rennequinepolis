@@ -37,28 +37,38 @@ grant execute on sys.owa_opt_lock to cb;
 grant execute on sys.owa_opt_lock to cbb;
 
 begin
+    dbms_output.put_line('Creating acl');
     dbms_network_acl_admin.create_acl(
-        acl => 'http_permissions.xml',
+        acl => 'http.xml',
         description => 'HTTP Access',
-        principal => 'CB',
-        is_grant => true,
-        privilege => 'connect');
-
-    dbms_network_acl_admin.add_privilege(
-        acl => 'http_permissions.xml',
         principal => 'CB',
         is_grant => true,
         privilege => 'resolve');
 
+    dbms_output.put_line('Adding connect privilege');
     dbms_network_acl_admin.add_privilege(
-        acl => 'http_permissions.xml',
+        acl => 'http.xml',
         principal => 'CB',
         is_grant => true,
         privilege => 'connect');
 
+    dbms_output.put_line('Assigning accl');
     dbms_network_acl_admin.assign_acl(
-        'http_permissions.xml', '*');
+        acl => 'http.xml',
+        host => '*',
+        lower_port => 80,
+        upper_port => 80);
+
+    commit;
+exception
+    when others then
+        dbms_output.put_line('*******************************');
+        dbms_output.put_line('*******************************');
+        dbms_output.put_line('*******************************');
+        dbms_output.put_line('** ACL suck, fix it yourself **');
+        dbms_output.put_line('*******************************');
+        dbms_output.put_line('*******************************');
+        dbms_output.put_line('*******************************');
+        dbms_output.put_line(sqlerrm);
 end;
 /
-
-commit;

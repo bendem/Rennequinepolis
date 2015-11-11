@@ -1,5 +1,12 @@
 select sid, serial#, username, osuser from v$session where username <> 'oracle';
 
+declare
+    r movies_ext%rowtype;
+begin
+    select * into r from movies_ext where rownum = 1;
+    movie_alim.insert_movie(r);
+end;
+/
 
 
 select sum(s) from (

@@ -23,6 +23,9 @@ create or replace package body movie_alim is
     procedure insert_movie(
         p_movie in movies_ext%rowtype)
     is
+        dml_exception exception;
+        pragma exception_init(dml_exception, -24381);
+
         raw_data movies_ext%rowtype;
 
         y varchar2(1000);
@@ -32,11 +35,11 @@ create or replace package body movie_alim is
 
         chars1_v varchar2_t;
 
-        actors_v                      persons_t;
+        actors_v                      people_t;
         spoken_languages_v            spoken_languages_t;
         production_countries_v        production_countries_t;
         production_companies_v        production_companies_t;
-        directors_v                   persons_t;
+        directors_v                   people_t;
         genres_v                      genres_t;
         characters_v                  characters_t;
         certification_rec             certifications%rowtype;
@@ -48,8 +51,10 @@ create or replace package body movie_alim is
         movies_production_companies_v movies_production_companies_t;
         movies_directors_v            movies_directors_t;
         movies_genres_v               movies_genres_t;
-        director_images_v             images_t;
-        actor_images_v                images_t;
+        director_images_v             image_paths_t;
+        actor_images_v                image_paths_t;
+        images_by_url_v               images_by_url_t;
+        image_ids_v                   image_ids_t;
         exist number(1, 0);
     begin
         begin
@@ -58,6 +63,7 @@ create or replace package body movie_alim is
         exception
             when no_data_found then
                 exist := 0;
+                dbms_output.put_line('w00000000t');
         end;
 
         if exist = 1 then
@@ -69,7 +75,6 @@ create or replace package body movie_alim is
             logging.i('Update of movie n°' || raw_data.id || ' number of copies done.');
             return;
         end if;
-
 
         raw_data := p_movie;
         logging.i('Start insertion of movie n°' || raw_data.id);
@@ -99,7 +104,7 @@ create or replace package body movie_alim is
                             utils.check_size(y, size_characters_name, size_max_characters_name);
                             characters_v(i).character_name := y;
                         when 5 then
-                            actor_images_v(i) := httpuritype('http://image.tmdb.org/t/p/w185' || y).getblob();
+                            actor_images_v(i) := y;
                     end case;
                     j := j + 1;
                     y := regexp_substr(chars1_v(i), split_regex, 1, j);
@@ -126,7 +131,7 @@ create or replace package body movie_alim is
                             utils.check_size(y, size_directors_name, size_max_directors_name);
                             directors_v(i).person_name := y;
                         when 3 then
-                            director_images_v(i) := httpuritype('http://image.tmdb.org/t/p/w185' || y).getblob();
+                            director_images_v(i) := y;
                     end case;
                     j := j + 1;
                     y := regexp_substr(chars1_v(i), split_regex, 1, j);
@@ -256,31 +261,30 @@ create or replace package body movie_alim is
         movie_rec.movie_overview       := raw_data.overview;
         movie_rec.movie_copies         := round(abs(sys.dbms_random.normal * 2) + 5);
 
-
-
+        -- INSERTS
         begin
-            insert into images(image) values (
+            insert into images(image_path, image) values (
+                raw_data.poster_path,
                 httpuritype('http://image.tmdb.org/t/p/w185' || raw_data.poster_path).getblob()
-            ) returning image_id into i;
+            ) returning image_id into movie_rec.movie_poster_id;
         exception
             when others then
-                logger.e('Failed to insert ' || raw_data.poster_path || ': ' || utl_http.get_detailed_sqlerrm);
+                logging.e('Failed to insert ' || raw_data.poster_path || ': ' || utl_http.get_detailed_sqlerrm);
                 raise;
         end;
 
 
-        movie_rec.movie_poster_id := i;
-
         if raw_data.status is not null then
             begin
                 utils.check_size(raw_data.status, size_statuses_name, size_max_statuses_name);
-                insert into statuses values (null, upper(raw_data.status));
+                insert into statuses(status_name) values (upper(raw_data.status))
+                returning status_id into movie_rec.movie_status_id;
             exception
                 when dup_val_on_index then
                     logging.i('Status ' || raw_data.status || ' already present');
+                    select status_id into movie_rec.movie_status_id
+                    from statuses where upper(status_name) = upper(raw_data.status);
             end;
-            select status_id into movie_rec.movie_status_id
-            from statuses where upper(status_name) = upper(raw_data.status);
         else
             movie_rec.movie_status_id := null;
         end if;
@@ -288,38 +292,90 @@ create or replace package body movie_alim is
         if raw_data.certification is not null then
             begin
                 utils.check_size(raw_data.certification, size_certifications_name, size_max_certifications_name);
-                insert into certifications values (null, upper(raw_data.certification));
+                insert into certifications(certification_name) values (upper(raw_data.certification))
+                returning certification_id into movie_rec.movie_certification_id;
             exception
                 when dup_val_on_index then
                     logging.i('Certification ' || raw_data.certification || ' already present');
+                    select certification_id into movie_rec.movie_certification_id
+                    from certifications where upper(certification_name) = upper(raw_data.certification);
             end;
-            select certification_id into movie_rec.movie_certification_id
-            from certifications where upper(certification_name) = upper(raw_data.certification);
         else
             movie_rec.movie_certification_id := null;
         end if;
 
-        -- INSERTS
-        if actors_v.count <> 0 then
-            for i in actors_v.first .. actors_v.last loop
-                begin
-                    if actor_images_v.exists(i) then
-                        begin
-                            insert into images(image) values (actor_images_v(i)) returning image_id into j;
-                            actors_v(i).person_profile_id := j;
-                        exception
-                            when others then
-                                logger.e('Failed to insert ' || raw_data.poster_path || ': ' || utl_http.get_detailed_sqlerrm);
-                                raise;
-                        end;
-                    end if;
-                    insert into persons values actors_v(i);
-                exception
-                    when dup_val_on_index then
-                        null;
-                end;
+        insert into movies values movie_rec;
+
+        -- Insert director images
+        begin
+            forall i in indices of director_images_v save exceptions
+                insert into images(image_path, image) values (
+                    director_images_v(i),
+                    httpuritype('http://image.tmdb.org/t/p/w185' || director_images_v(i)).getblob()
+                ) returning image_id, image_path bulk collect into image_ids_v;
+        exception
+            when dml_exception then
+                if exceptions_contains_not(1) then
+                    raise;
+                end if;
+        end;
+
+        -- Store path -> id mappings of inserted images
+        if image_ids_v.count <> 0 then
+            for i in image_ids_v.first..image_ids_v.last loop
+                images_by_url_v(image_ids_v(i).path) := image_ids_v(i).id;
             end loop;
         end if;
+
+        image_ids_v.delete;
+        -- Insert actor images
+        begin
+            forall i in indices of actor_images_v save exceptions
+                insert into images(image_path, image) values (
+                    actor_images_v(i),
+                    httpuritype('http://image.tmdb.org/t/p/w185' || actor_images_v(i)).getblob()
+                ) returning image_id, image_path bulk collect into image_ids_v;
+        exception
+            when dml_exception then
+                if exceptions_contains_not(1) then
+                    raise;
+                end if;
+        end;
+
+        -- Store path -> id mappings of inserted images
+        if image_ids_v.count <> 0 then
+            for i in image_ids_v.first..image_ids_v.last loop
+                images_by_url_v(image_ids_v(i).path) := image_ids_v(i).id;
+            end loop;
+        end if;
+        dbms_output.put_line(exist); -- FFS PLZ WORK TODO FIXME
+        dbms_output.put_line(actors_v.count); -- FFS PLZ WORK TODO FIXME
+        dbms_output.put_line(actor_images_v.count); -- FFS PLZ WORK TODO FIXME
+        dbms_output.put_line(images_by_url_v.count); -- FFS PLZ WORK TODO FIXME
+
+        -- Insert image ids into actors
+        for i in actors_v.first..actors_v.last loop
+            if not actor_images_v.exists(i) then
+                actors_v(i).person_profile_id := null;
+            elsif images_by_url_v.exists(actor_images_v(i)) then
+                actors_v(i).person_profile_id := images_by_url_v(actor_images_v(i));
+            else
+                select image_id into actors_v(i).person_profile_id
+                from images where image_path = actor_images_v(i);
+            end if;
+        end loop;
+        dbms_output.put_line(exist); -- FFS PLZ WORK TODO FIXME
+
+        -- Actually insert actors
+        begin
+            forall i in indices of actors_v save exceptions
+                insert into people values actors_v(i);
+        exception
+            when dml_exception then
+                if exceptions_contains_not(1) then
+                    raise;
+                end if;
+        end;
 
         if spoken_languages_v.count <> 0 then
             for i in spoken_languages_v.first .. spoken_languages_v.last loop
@@ -341,103 +397,82 @@ create or replace package body movie_alim is
                 exception
                     when dup_val_on_index then
                         if production_countries_v(i).production_country_name is not null then
-                            update production_countries set production_country_name = production_countries_v(i).production_country_name where production_country_id = production_countries_v(i).production_country_id;
+                            update production_countries
+                            set production_country_name = production_countries_v(i).production_country_name
+                            where production_country_id = production_countries_v(i).production_country_id;
                         end if;
                 end;
             end loop;
         end if;
 
-        if production_companies_v.count <> 0 then
-            for i in production_companies_v.first .. production_companies_v.last loop
-                begin
-                    insert into production_companies values production_companies_v(i);
-                exception
-                    when dup_val_on_index then
-                        null;
-                end;
-            end loop;
-        end if;
+        begin
+            forall i in indices of production_companies_v save exceptions
+                insert into production_companies values production_companies_v(i);
+        exception
+            when dml_exception then
+                if exceptions_contains_not(1) then
+                    raise;
+                end if;
+        end;
 
-        if directors_v.count <> 0 then
-            for i in directors_v.first .. directors_v.last loop
-                begin
-                    if director_images_v.exists(i) then
-                        begin
-                            insert into images(image) values (director_images_v(i)) returning image_id into j;
-                            directors_v(i).person_profile_id := j;
-                        exception
-                            when others then
-                                logger.e('Failed to insert ' || raw_data.poster_path || ': ' || utl_http.get_detailed_sqlerrm);
-                                raise;
-                        end;
-                    end if;
-                    insert into persons values directors_v(i);
-                exception
-                    when dup_val_on_index then
-                        null;
-                end;
-            end loop;
-        end if;
+        -- Insert image ids into directors
+        for i in directors_v.first..directors_v.last loop
+            if images_by_url_v.exists(director_images_v(i)) then
+                directors_v(i).person_profile_id := images_by_url_v(director_images_v(i));
+            else
+                select image_id into directors_v(i).person_profile_id
+                from images where image_path = director_images_v(i);
+            end if;
+        end loop;
 
-        if genres_v.count <> 0 then
-            for i in genres_v.first .. genres_v.last loop
-                begin
-                    insert into genres values genres_v(i);
-                exception
-                    when dup_val_on_index then
-                        null;
-                end;
-            end loop;
-        end if;
+        -- Actually insert the directors
+        begin
+            forall i in indices of directors_v save exceptions
+                insert into people values directors_v(i);
+        exception
+            when dml_exception then
+                if exceptions_contains_not(1) then
+                    raise;
+                end if;
+        end;
 
-        insert into movies values movie_rec;
+        begin
+            forall i in indices of genres_v save exceptions
+                insert into genres values genres_v(i);
+        exception
+            when dml_exception then
+                if exceptions_contains_not(1) then
+                    raise;
+                end if;
+        end;
 
-        if characters_v.count <> 0 then
-            for i in characters_v.first .. characters_v.last loop
-                begin
-                    insert into characters values characters_v(i);
-                exception
-                    when dup_val_on_index then
-                        null;
-                end;
-            end loop;
-        end if;
+        begin
+            forall i in indices of characters_v save exceptions
+                insert into characters values characters_v(i);
+        exception
+            when dml_exception then
+                if exceptions_contains_not(1) then
+                    raise;
+                end if;
+        end;
 
-        if movies_spoken_languages_v.count <> 0 then
-            for i in movies_spoken_languages_v.first .. movies_spoken_languages_v.last loop
-                insert into movies_spoken_languages values movies_spoken_languages_v(i);
-            end loop;
-        end if;
+        forall i in indices of movies_spoken_languages_v
+            insert into movies_spoken_languages values movies_spoken_languages_v(i);
 
-        if movies_production_companies_v.count <> 0 then
-            for i in movies_production_companies_v.first .. movies_production_companies_v.last loop
-                insert into movies_production_companies values movies_production_companies_v(i);
-            end loop;
-        end if;
+        forall i in indices of movies_production_companies_v
+            insert into movies_production_companies values movies_production_companies_v(i);
 
-        if movies_production_countries_v.count <> 0 then
-            for i in movies_production_countries_v.first .. movies_production_countries_v.last loop
-                insert into movies_production_countries values movies_production_countries_v(i);
-            end loop;
-        end if;
+        forall i in indices of movies_production_countries_v
+            insert into movies_production_countries values movies_production_countries_v(i);
 
-        if movies_directors_v.count <> 0 then
-            for i in movies_directors_v.first .. movies_directors_v.last loop
-                insert into movies_directors values movies_directors_v(i);
-            end loop;
-        end if;
+        forall i in indices of movies_directors_v
+            insert into movies_directors values movies_directors_v(i);
 
-        if movies_genres_v.count <> 0 then
-            for i in movies_genres_v.first .. movies_genres_v.last loop
-                insert into movies_genres values movies_genres_v(i);
-            end loop;
-        end if;
+        forall i in indices of movies_genres_v
+            insert into movies_genres values movies_genres_v(i);
 
-        if movies_actors_characters_v.count <> 0 then
-            for i in movies_actors_characters_v.first .. movies_actors_characters_v.last loop
-                insert into movies_actors_characters values movies_actors_characters_v(i);
-            end loop;
-        end if;
+        forall i in indices of movies_actors_characters_v
+            insert into movies_actors_characters values movies_actors_characters_v(i);
 
         commit;
         logging.i('Succesful insertion of movie n°' || raw_data.id);
@@ -446,8 +481,22 @@ create or replace package body movie_alim is
             logging.e('Error during the inserting of movie n°' || p_movie.id || ': ' || sqlerrm);
             dbms_output.put_line(sqlerrm);
             dbms_output.put_line(dbms_utility.format_call_stack);
+            -- Note: vvv This is the usefull one, it points to the line the error happened at.
             dbms_output.put_line(dbms_utility.format_error_backtrace);
             rollback;
+    end;
+
+
+    function exceptions_contains_not(
+        p_error pls_integer) return boolean
+    is
+    begin
+        for i in 1..sql%bulk_exceptions.count loop
+            if sql%bulk_exceptions(i).error_code <> p_error then
+                return true;
+            end if;
+        end loop;
+        return false;
     end;
 
 end movie_alim;
