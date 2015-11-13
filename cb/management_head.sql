@@ -1,4 +1,4 @@
-create or replace package cb_management is
+create or replace package management is
 
     -- Inserts a user into the db
     -- @param p_username  the user's username
@@ -48,5 +48,5 @@ create or replace package cb_management is
         p_reviewbefore in reviews%rowtype,
         p_reviewafter  in reviews%rowtype);
 
-end cb_management;
+end management;
 /

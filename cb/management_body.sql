@@ -1,4 +1,4 @@
-create or replace package body cb_management is
+create or replace package body management is
 
     procedure add_user(
         p_username  in users.username%type,
@@ -248,5 +248,5 @@ create or replace package body cb_management is
             end case;
     end modify_review;
 
-end cb_management;
+end management;
 /
