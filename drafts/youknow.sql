@@ -1,3 +1,24 @@
+declare
+    x sys_refcursor;
+    r movies%rowtype;
+    c number;
+begin
+    x := search.search(
+        p_actors => varchar2_t('Tamasaburo Bando', 'Ai Yasunaga'),
+        p_directors => varchar2_t('Akio Jissoji'),
+        p_title => 'a',
+        p_year => 1987,
+        p_year_comparison => '>='
+    );
+    loop
+        fetch x into r;
+        exit when x%notfound;
+        dbms_output.put_line(lpad(r.movie_id, 5) || ' | ' || r.movie_title || ': ' || r.movie_release_date);
+    end loop;
+    close x;
+end;
+/
+
 select sid, serial#, username, osuser from v$session where username <> 'oracle';
 
 declare
