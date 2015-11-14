@@ -20,5 +20,12 @@ create or replace package utils is
         p_size_max in pls_integer,
         p_replacement in number default 0);
 
+    -- Splits a string.
+    -- @param p_string    the string to split
+    -- @param p_separator the separator to use (result is undefined if empty)
+    function split(
+        p_string in varchar2,
+        p_separator in varchar2) return varchar2_t;
+
 end utils;
 /
