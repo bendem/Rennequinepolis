@@ -10,13 +10,13 @@ create or replace package search is
     function search(
         p_id movies.movie_id%type) return sys_refcursor;
 
-    function getActors(
+    function get_actors(
         p_id movies.movie_id%type) return sys_refcursor;
 
-    function getDirectors(
+    function get_directors(
         p_id movies.movie_id%type) return sys_refcursor;
 
-    function getReviews(
+    function get_reviews(
         p_id movies.movie_id%type) return sys_refcursor;
 
     title_criteria constant varchar2(200) := q'[lower(movie_title) like lower('%:title%')]';

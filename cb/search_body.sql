@@ -74,34 +74,34 @@ create or replace package body search is
     is
         x sys_refcursor;
     begin
-        open x for ('select * from movies left join images on (movie_poster_id = image_id) where movie_id = ' || p_id);
+        open x for select * from movies left join images on (movie_poster_id = image_id) where movie_id = p_id;
         return x;
     end;
 
-    function getActors(
+    function get_actors(
         p_id movies.movie_id%type) return sys_refcursor
     is
         x sys_refcursor;
     begin
-        open x for ('select * from people left join images on (person_profile_id = image_id) where person_id in (select person_id from movies_actors_characters where movie_id = ' || p_id || ')');
+        open x for select * from people left join images on (person_profile_id = image_id) where person_id in (select person_id from movies_actors_characters where movie_id = p_id);
         return x;
     end;
 
-    function getDirectors(
+    function get_directors(
         p_id movies.movie_id%type) return sys_refcursor
     is
         x sys_refcursor;
     begin
-        open x for ('select * from people left join images on (person_profile_id = image_id) where person_id in (select person_id from movies_directors where movie_id = ' || p_id || ')');
+        open x for select * from people left join images on (person_profile_id = image_id) where person_id in (select person_id from movies_directors where movie_id = p_id);
         return x;
     end;
 
-    function getReviews(
+    function get_reviews(
         p_id movies.movie_id%type) return sys_refcursor
     is
         x sys_refcursor;
     begin
-        open x for ('select * from reviews where movie_id = ' || p_id);
+        open x for select * from reviews where movie_id = p_id;
         return x;
     end;
 
