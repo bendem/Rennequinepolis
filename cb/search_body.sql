@@ -8,7 +8,7 @@ create or replace package body search is
         p_year_comparison varchar2 default null) return sys_refcursor
     is
         v_parts varchar2_t;
-        v_query varchar2(2000) := 'select * from movies where 1 = 1';
+        v_query varchar2(2000) := 'select * from movies left join images on (movie_poster_id = image_id) where 1 = 1';
         x sys_refcursor;
     begin
         if p_title is not null then
@@ -68,6 +68,43 @@ create or replace package body search is
         open x for (v_query);
         return x;
     end;
+
+    function search(
+        p_id movies.movie_id%type) return sys_refcursor
+    is
+        x sys_refcursor;
+    begin
+        open x for ('select * from movies left join images on (movie_poster_id = image_id) where movie_id = ' || p_id);
+        return x;
+    end;
+
+    function getActors(
+        p_id movies.movie_id%type) return sys_refcursor
+    is
+        x sys_refcursor;
+    begin
+        open x for ('select * from people left join images on (person_profile_id = image_id) where person_id in (select person_id from movies_actors_characters where movie_id = ' || p_id || ')');
+        return x;
+    end;
+
+    function getDirectors(
+        p_id movies.movie_id%type) return sys_refcursor
+    is
+        x sys_refcursor;
+    begin
+        open x for ('select * from people left join images on (person_profile_id = image_id) where person_id in (select person_id from movies_directors where movie_id = ' || p_id || ')');
+        return x;
+    end;
+
+    function getReviews(
+        p_id movies.movie_id%type) return sys_refcursor
+    is
+        x sys_refcursor;
+    begin
+        open x for ('select * from reviews where movie_id = ' || p_id);
+        return x;
+    end;
+
 
 end search;
 /

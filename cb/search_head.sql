@@ -7,6 +7,18 @@ create or replace package search is
         p_year number default null,
         p_year_comparison varchar2 default null) return sys_refcursor;
 
+    function search(
+        p_id movies.movie_id%type) return sys_refcursor;
+
+    function getActors(
+        p_id movies.movie_id%type) return sys_refcursor;
+
+    function getDirectors(
+        p_id movies.movie_id%type) return sys_refcursor;
+
+    function getReviews(
+        p_id movies.movie_id%type) return sys_refcursor;
+
     title_criteria constant varchar2(200) := q'[lower(movie_title) like lower('%:title%')]';
     date_criteria constant varchar2(200) := q'[extract(year from movie_release_date) :comparator :year]';
     actor_base_criteria constant varchar2(200) := q'[select movie_id from movies natural join movies_actors_characters natural join people where 1 = 1]';
