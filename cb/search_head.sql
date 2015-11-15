@@ -19,11 +19,11 @@ create or replace package search is
     function get_reviews(
         p_id movies.movie_id%type) return sys_refcursor;
 
-    title_criteria constant varchar2(200) := q'[lower(movie_title) like lower('%:title%')]';
-    date_criteria constant varchar2(200) := q'[extract(year from movie_release_date) :comparator :year]';
-    actor_base_criteria constant varchar2(200) := q'[select movie_id from movies natural join movies_actors_characters natural join people where 1 = 1]';
+    title_criteria         constant varchar2(200) := q'[lower(movie_title) like lower('%:title%')]';
+    date_criteria          constant varchar2(200) := q'[extract(year from movie_release_date) :comparator :year]';
+    actor_base_criteria    constant varchar2(200) := q'[select movie_id from movies natural join movies_actors_characters natural join people where 1 = 1]';
     director_base_criteria constant varchar2(200) := q'[select movie_id from movies natural join movies_directors natural join people where 1 = 1]';
-    person_part_criteria constant varchar2(200) := q'[person_name like '%:name%']';
+    person_part_criteria   constant varchar2(200) := q'[person_name like '%:name%']';
 
 end search;
 /
