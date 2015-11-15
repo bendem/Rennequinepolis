@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox minHeight="400.0" minWidth="700.0" spacing="5.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="be.hepl.benbear.oedapp.SearchController">
+    <children>
+        <HBox spacing="5.0" VBox.vgrow="NEVER">
+            <children>
+                <TextField fx:id="searchField" HBox.hgrow="ALWAYS" />
+                <Button fx:id="searchButton" defaultButton="true" mnemonicParsing="false" text="Search" HBox.hgrow="NEVER" />
+                <Button fx:id="searchHelpButton" mnemonicParsing="false" text="?" HBox.hgrow="NEVER">
+               <tooltip>
+                  <Tooltip anchorLocation="CONTENT_TOP_RIGHT" contentDisplay="CENTER" text="Search syntax help">
+                     <font>
+                        <Font size="25.0" />
+                     </font>
+                  </Tooltip>
+               </tooltip></Button>
+            </children>
+        </HBox>
+        <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+            <content>
+                <TableView fx:id="searchResultTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                    <columns>
+                        <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" text="Id" />
+                        <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" sortable="false" text="Image" />
+                        <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" text="Title" />
+                        <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" text="Original Title" />
+                        <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" text="Release Date" />
+                        <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" text="Runtime" />
+                        <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" text="Overview" />
+                    </columns>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                    </columnResizePolicy>
+                </TableView>
+            </content>
+        </ScrollPane>
+    </children>
+    <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+    </padding>
+</VBox>

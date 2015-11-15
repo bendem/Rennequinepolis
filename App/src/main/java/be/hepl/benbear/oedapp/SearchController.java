@@ -1,0 +1,157 @@
+package be.hepl.benbear.oedapp;
+
+import be.hepl.benbear.oedapp.parser.SearchParser;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import oracle.jdbc.OracleTypes;
+
+import java.net.URL;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLTransientException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+public class SearchController implements Initializable {
+
+    private final SearchApplication app;
+    private final SearchParser parser;
+    @FXML private TextField searchField;
+    @FXML private Button searchButton;
+    @FXML private Button searchHelpButton;
+    @FXML private TableView<Movie> searchResultTable;
+
+    public SearchController(SearchApplication app) {
+        this.app = app;
+        parser = new SearchParser("title");
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        //searchField.setOnKeyPressed(e -> {
+        //    if(e.getCode() == KeyCode.ENTER) onSearch();
+        //});
+        searchButton.setOnAction(e -> onSearch());
+        searchHelpButton.setOnAction(e -> onHelp());
+    }
+
+    private void onSearch() {
+        try {
+            onSearchThrowing();
+        } catch(SQLTransientException e) {
+            // TODO Try again with cbb
+            throw new RuntimeException(e);
+        } catch(SQLException e) {
+            // TODO Handle the exception for real
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void onSearchThrowing() throws SQLException {
+        Map<String, List<String>> query = parser.parse(searchField.textProperty().get());
+        CallableStatement cs = buildQuery(app.getConnection(), query);
+        cs.execute();
+        ResultSet rs = (ResultSet) cs.getObject(1);
+        List<Movie> movies = new ArrayList<>();
+
+        while(rs.next()) {
+            byte[] bytes = rs.getBytes("image");
+            if(rs.wasNull()) {
+                // TODO Embed a default image;
+                bytes = null;
+            }
+
+            movies.add(new Movie(
+                ResultSetExtractor.getInt(rs, "movie_id").orElse(0),
+                ResultSetExtractor.getString(rs, "movie_title").orElse(""),
+                ResultSetExtractor.getString(rs, "movie_original_title").orElse(""),
+                ResultSetExtractor.getDate(rs, "movie_release_date").map(Date::toLocalDate).orElse(null),
+                ResultSetExtractor.getDouble(rs, "movie_vote_avg").orElse(0),
+                ResultSetExtractor.getInt(rs, "movie_vote_count").orElse(0),
+                ResultSetExtractor.getInt(rs, "movie_runtime").orElse(0),
+                bytes,
+                rs.getString("movie_overview")
+            ));
+        }
+
+        // FIXME There is more to it to display results
+        searchResultTable.itemsProperty().getValue().setAll(movies);
+    }
+
+    private CallableStatement buildQuery(Connection connection, Map<String, List<String>> query) throws SQLException {
+        StringBuilder sb = new StringBuilder("{ ? = call search.search(");
+
+        if(query.containsKey("title")) {
+            sb.append("p_title => ?, ");
+        }
+
+        if(query.containsKey("actor")) {
+            sb
+                .append("p_actors => varchar2_t(")
+                .append(generatePlaceholders(query.get("actor").size()))
+                .append("), ");
+        }
+
+        if(query.containsKey("director")) {
+            sb
+                .append("p_directors => varchar2_t(")
+                .append(generatePlaceholders(query.get("director").size()))
+                .append("), ");
+        }
+
+        // TODO Date
+        sb.setLength(sb.length() - 2); // Removes trailing ", "
+        sb.append(") }");
+        System.out.println(sb);
+
+        CallableStatement cs = connection.prepareCall(sb.toString());
+
+        int i = 0;
+        cs.registerOutParameter(++i, OracleTypes.CURSOR);
+
+        if(query.containsKey("title")) {
+            cs.setString(++i, query.get("title").get(0));
+        }
+
+        if(query.containsKey("actor")) {
+            for(String actor : query.get("actor")) {
+                cs.setString(++i, actor);
+            }
+        }
+
+        if(query.containsKey("director")) {
+            for(String director : query.get("director")) {
+                cs.setString(++i, director);
+            }
+        }
+
+        // TODO Date binding
+
+        return cs;
+    }
+
+    private String generatePlaceholders(int count) {
+        return IntStream.range(0, count).mapToObj(i -> "?").collect(Collectors.joining(", "));
+    }
+
+    private void onHelp() {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setContentText("Here be the syntax of the query");
+        dialog.setOnCloseRequest(e -> dialog.close());
+        dialog.getDialogPane().getButtonTypes().add(new ButtonType("OK", ButtonBar.ButtonData.OK_DONE));
+        dialog.show();
+    }
+}

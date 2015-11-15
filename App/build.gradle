@@ -16,6 +16,7 @@ configurations {
 }
 
 dependencies {
+    testCompile 'junit:junit:4.12'
     shadow fileTree(dir: '../libs', include: '*.jar') // Also include the oracle driver
 }
 
@@ -35,6 +36,6 @@ jar {
         }
     }
     manifest {
-        attributes 'Main-Class': 'be.hepl.benbear.sgbdapp.Main'
+        attributes 'Main-Class': 'be.hepl.benbear.oedapp.SearchApplication'
     }
 }
