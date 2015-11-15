@@ -55,21 +55,26 @@ create or replace package body movie_alim is
         actor_images_v                image_paths_t;
         images_by_url_v               images_by_url_t;
         image_ids_v                   image_ids_t;
-        exist number(1, 0);
+        exist number(4, 0);
     begin
         begin
-            select 1 into exist
+            select movie_copies into exist
             from movies where movie_id = p_movie.id;
         exception
             when no_data_found then
                 exist := 0;
         end;
 
-        if exist = 1 then
+        if exist <> 0 then
             logging.i('Update of movie n°' || raw_data.id || ' number of copies starting.');
+            j := round(abs(sys.dbms_random.normal * 2) + 5);
             update movies set
-                movie_copies = movie_copies + round(abs(sys.dbms_random.normal * 2) + 5)
+                movie_copies = movie_copies + j
             where movie_id = p_movie.id;
+
+            for i in exist+1..exist+1+j loop
+                insert into copies values (p_movie.id, i);
+            end loop;
             commit;
             logging.i('Update of movie n°' || raw_data.id || ' number of copies done.');
             return;
@@ -309,6 +314,12 @@ create or replace package body movie_alim is
         end if;
 
         insert into movies values movie_rec;
+
+        -- Insert copies
+
+        for i in 1..movie_rec.movie_copies loop
+            insert into copies values (movie_rec.movie_id, i);
+        end loop;
 
         -- Insert director images
         begin

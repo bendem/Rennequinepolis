@@ -122,6 +122,15 @@ create table movies (
     constraint ck_copies_pos check (movie_copies >= 0)
 );
 
+-- copies
+-- --------
+create table copies (
+    movie_id number(6, 0) not null,
+    copy_id number(4, 0) not null,
+    constraint pk_copies primary key (movie_id, copy_id),
+    constraint fk_copies_movies_id foreign key (movie_id) references movies(movie_id)
+);
+
 -- characters
 -- --------
 create table characters (
