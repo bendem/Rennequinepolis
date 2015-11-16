@@ -286,13 +286,13 @@ create or replace package body movie_alim is
         if raw_data.status is not null then
             begin
                 utils.check_size(raw_data.status, size_statuses_name, size_max_statuses_name);
-                insert into statuses(status_name) values (upper(raw_data.status))
+                insert into statuses(status_name) values (initcap(raw_data.status))
                 returning status_id into movie_rec.movie_status_id;
             exception
                 when dup_val_on_index then
                     logging.i('Status ' || raw_data.status || ' already present');
                     select status_id into movie_rec.movie_status_id
-                    from statuses where upper(status_name) = upper(raw_data.status);
+                    from statuses where initcap(status_name) = initcap(raw_data.status);
             end;
         else
             movie_rec.movie_status_id := null;
@@ -301,13 +301,13 @@ create or replace package body movie_alim is
         if raw_data.certification is not null then
             begin
                 utils.check_size(raw_data.certification, size_certifications_name, size_max_certifications_name);
-                insert into certifications(certification_name) values (upper(raw_data.certification))
+                insert into certifications(certification_name) values (initcap(raw_data.certification))
                 returning certification_id into movie_rec.movie_certification_id;
             exception
                 when dup_val_on_index then
                     logging.i('Certification ' || raw_data.certification || ' already present');
                     select certification_id into movie_rec.movie_certification_id
-                    from certifications where upper(certification_name) = upper(raw_data.certification);
+                    from certifications where initcap(certification_name) = initcap(raw_data.certification);
             end;
         else
             movie_rec.movie_certification_id := null;

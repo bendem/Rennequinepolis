@@ -8,7 +8,7 @@ create or replace package body search is
         p_year_comparison varchar2 default null) return sys_refcursor
     is
         v_parts varchar2_t;
-        v_query varchar2(2000) := 'select * from movies left join images on (movie_poster_id = image_id) where 1 = 1';
+        v_query varchar2(2000) := 'select * from movies left join images on (movie_poster_id = image_id) left join statuses on (movie_status_id = status_id) where 1 = 1';
         x sys_refcursor;
     begin
         if p_title is not null then
