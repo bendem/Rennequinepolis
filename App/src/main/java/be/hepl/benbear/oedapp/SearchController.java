@@ -104,8 +104,7 @@ public class SearchController implements Initializable {
         while(rs.next()) {
             byte[] imageBytes = rs.getBytes("image");
             if(rs.wasNull()) {
-                // TODO Embed a default image instead
-                imageBytes = null;
+                imageBytes = app.getEmptyImage();
             }
 
             // FIXME There is more to it to display results

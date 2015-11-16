@@ -52,7 +52,7 @@ public class SearchParser {
                     }
                     break;
                 case '\\':
-                    if(i + 1 < chars.length && (chars[i + 1] == ':' || chars[i + 1] == '"')) { // TODO Check that
+                    if(i + 1 < chars.length && (chars[i + 1] == ':' || chars[i + 1] == '"')) {
                         sb.append(chars[++i]);
                     } else {
                         sb.append(c);

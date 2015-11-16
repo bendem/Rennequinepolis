@@ -6,7 +6,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.sql.Connection;
@@ -14,6 +16,8 @@ import java.sql.DriverManager;
 import java.util.Objects;
 
 public class SearchApplication extends Application {
+
+    private static byte[] EMPTY_IMAGE;
 
     private Connection connection;
 
@@ -63,6 +67,31 @@ public class SearchApplication extends Application {
 
     private URL getResource(String name) {
         return Objects.requireNonNull(getClass().getClassLoader().getResource(name), "Resource not found: " + name);
+    }
+
+    private InputStream getResourceStream(String name) {
+        return Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(name), "Resource not found: " + name);
+    }
+
+    public byte[] getEmptyImage() {
+        if(EMPTY_IMAGE == null) {
+            synchronized(SearchApplication.class) {
+                if(EMPTY_IMAGE == null) {
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    byte[] buffer = new byte[255];
+                    InputStream resource = getResourceStream("empty.jpg");
+                    try {
+                        while(resource.read(buffer) > 0) {
+                            out.write(buffer);
+                        }
+                    } catch(IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    EMPTY_IMAGE = out.toByteArray();
+                }
+            }
+        }
+        return EMPTY_IMAGE;
     }
 
 }
