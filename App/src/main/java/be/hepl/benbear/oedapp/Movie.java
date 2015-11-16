@@ -11,6 +11,7 @@ public class Movie {
     private final String title;
     private final String originalTitle;
     private final LocalDate releaseDate;
+    private final String status;
     private final double voteAvg;
     private final int voteCount;
     private final int runtime;
@@ -22,12 +23,13 @@ public class Movie {
     private final String overview;
 
     public Movie(int id, String title, String originalTitle, LocalDate releaseDate,
-                 double voteAvg, int voteCount, int runtime, byte[] image, int budget,
+                 String status, double voteAvg, int voteCount, int runtime, byte[] image, int budget,
                  int revenue, String homepage, String tagline, String overview) {
         this.id = id;
         this.title = title;
         this.originalTitle = originalTitle;
         this.releaseDate = releaseDate;
+        this.status = status;
         this.voteAvg = voteAvg;
         this.voteCount = voteCount;
         this.runtime = runtime;
@@ -53,6 +55,10 @@ public class Movie {
 
     public LocalDate getReleaseDate() {
         return releaseDate;
+    }
+
+    public String getStatus() {
+        return status;
     }
 
     public double getVoteAvg() {

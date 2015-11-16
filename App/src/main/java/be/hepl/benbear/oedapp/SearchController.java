@@ -3,6 +3,7 @@ package be.hepl.benbear.oedapp;
 import be.hepl.benbear.oedapp.parser.SearchParser;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -22,7 +23,6 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLTransientException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +40,7 @@ public class SearchController implements Initializable {
     @FXML private Button searchHelpButton;
     @FXML private TableView<Movie> searchResultTable;
     private String lastSearch = "";
+    private Task<Movie> task;
 
     public SearchController(SearchApplication app) {
         this.app = app;
@@ -98,55 +99,62 @@ public class SearchController implements Initializable {
         if(text.isEmpty() || text.equals(lastSearch)) {
             return;
         }
-        searchField.setDisable(true);
+        lastSearch = text;
 
-        try {
-            onSearchThrowing(text);
-        } catch(SQLTransientException e) {
-            searchField.setDisable(false);
-            // TODO Try again with cbb
-            throw new RuntimeException(e);
-        } catch(SQLException e) {
-            searchField.setDisable(false);
-            // TODO Handle the exception for real
-            throw new RuntimeException(e);
+        if(task != null && task.isRunning()) {
+            task.cancel();
         }
-    }
 
-    private void onSearchThrowing(String text) throws SQLException {
-        // TODO Thread this, this is horribly slow
         Map<String, List<String>> query = parser.parse(text);
-        CallableStatement cs = buildQuery(app.getConnection(), query);
-        cs.execute();
-        ResultSet rs = (ResultSet) cs.getObject(1);
         ObservableList<Movie> movies = searchResultTable.itemsProperty().getValue();
         movies.clear();
 
-        while(rs.next()) {
-            byte[] imageBytes = rs.getBytes("image");
-            if(rs.wasNull()) {
-                imageBytes = app.getEmptyImage();
+
+        task = new Task<Movie>() {
+            @Override
+            protected Movie call() throws Exception {
+                CallableStatement cs = buildQuery(app.getConnection(), query);
+                cs.execute();
+                ResultSet rs = (ResultSet) cs.getObject(1);
+
+                while(rs.next()) {
+                    if(isCancelled()) {
+                        break;
+                    }
+
+                    byte[] imageBytes = rs.getBytes("image");
+                    if(rs.wasNull()) {
+                        imageBytes = app.getEmptyImage();
+                    }
+
+                    // FIXME There is more to it to display results
+                    updateValue(new Movie(
+                        ResultSetExtractor.getInt(rs, "movie_id").getAsInt(),
+                        ResultSetExtractor.getString(rs, "movie_title").get(),
+                        ResultSetExtractor.getString(rs, "movie_original_title").get(),
+                        ResultSetExtractor.getDate(rs, "movie_release_date").map(Date::toLocalDate).orElse(null),
+                        ResultSetExtractor.getString(rs, "status_name").orElse("(empty)"),
+                        ResultSetExtractor.getDouble(rs, "movie_vote_avg").getAsDouble(),
+                        ResultSetExtractor.getInt(rs, "movie_vote_count").getAsInt(),
+                        ResultSetExtractor.getInt(rs, "movie_runtime").orElse(0),
+                        imageBytes,
+                        ResultSetExtractor.getInt(rs, "movie_budget").getAsInt(),
+                        ResultSetExtractor.getInt(rs, "movie_revenue").getAsInt(),
+                        ResultSetExtractor.getString(rs, "movie_homepage").orElse("(empty)"),
+                        ResultSetExtractor.getString(rs, "movie_tagline").orElse("(empty)"),
+                        ResultSetExtractor.getString(rs, "movie_overview").orElse("(empty)")
+                    ));
+                }
+                return null;
             }
-
-            // FIXME There is more to it to display results
-            movies.add(new Movie(
-                ResultSetExtractor.getInt(rs, "movie_id").getAsInt(),
-                ResultSetExtractor.getString(rs, "movie_title").get(),
-                ResultSetExtractor.getString(rs, "movie_original_title").get(),
-                ResultSetExtractor.getDate(rs, "movie_release_date").map(Date::toLocalDate).orElse(null),
-                ResultSetExtractor.getDouble(rs, "movie_vote_avg").getAsDouble(),
-                ResultSetExtractor.getInt(rs, "movie_vote_count").getAsInt(),
-                ResultSetExtractor.getInt(rs, "movie_runtime").orElse(0),
-                imageBytes,
-                ResultSetExtractor.getInt(rs, "movie_budget").getAsInt(),
-                ResultSetExtractor.getInt(rs, "movie_revenue").getAsInt(),
-                ResultSetExtractor.getString(rs, "movie_homepage").orElse("(empty)"),
-                ResultSetExtractor.getString(rs, "movie_tagline").orElse("(empty)"),
-                ResultSetExtractor.getString(rs, "movie_overview").orElse("(empty)")
-            ));
-        }
-
-        searchField.setDisable(false);
+        };
+        task.valueProperty().addListener((obs, o, n) -> {
+            if(n == null) {
+                return;
+            }
+            movies.add(n);
+        });
+        app.getThreadPool().execute(task);
     }
 
     private CallableStatement buildQuery(Connection connection, Map<String, List<String>> query) throws SQLException {

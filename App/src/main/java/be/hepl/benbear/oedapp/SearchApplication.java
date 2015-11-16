@@ -14,11 +14,15 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class SearchApplication extends Application {
 
     private static byte[] EMPTY_IMAGE;
 
+    private final ExecutorService threadPool = Executors.newFixedThreadPool(1);
     private Connection connection;
 
     public static void main(String[] args) {
@@ -65,6 +69,7 @@ public class SearchApplication extends Application {
             System.out.println("Closing connection");
             connection.close();
         }
+        threadPool.shutdown();
     }
 
     public Connection getConnection() {
@@ -99,4 +104,9 @@ public class SearchApplication extends Application {
         }
         return EMPTY_IMAGE;
     }
+
+    public Executor getThreadPool() {
+        return threadPool;
+    }
+
 }

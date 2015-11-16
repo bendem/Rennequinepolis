@@ -5,9 +5,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.scene.image.ImageView;
 
+import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.util.Locale;
 
 public class MovieDetailsController {
+
+    private static final NumberFormat MONEY = NumberFormat.getCurrencyInstance(Locale.US);
 
     private final SearchApplication app;
     @FXML private ImageView movieImage;
@@ -32,9 +36,9 @@ public class MovieDetailsController {
         movieImage.setImage(movie.getImage());
         originalTitleText.setText(movie.getOriginalTitle());
         runtimeText.setText(String.valueOf(movie.getRuntime()));
-        //statusText.setText(movie.getS);
-        revenueText.setText(String.valueOf(movie.getRevenue()));
-        budgetText.setText(String.valueOf(movie.getBudget()));
+        statusText.setText(movie.getStatus());
+        revenueText.setText(MONEY.format(movie.getRevenue()));
+        budgetText.setText(MONEY.format(movie.getBudget()));
         //languageText.setText(movie.getL);
         LocalDate date = movie.getReleaseDate();
         titleText.setText(movie.getTitle() + " (" + (date == null ? "unknown" : date.getYear()) + ')');
