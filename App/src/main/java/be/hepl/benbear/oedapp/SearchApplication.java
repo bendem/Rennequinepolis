@@ -27,7 +27,11 @@ public class SearchApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getResource("SearchApplication.fxml"));
+        open("SearchApplication.fxml", "RQS - Search");
+    }
+
+    public <T> T open(String fxml, String title) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getResource(fxml));
 
         loader.setControllerFactory(clazz -> {
             try {
@@ -39,10 +43,12 @@ public class SearchApplication extends Application {
         });
 
         Parent app = loader.load();
+        Stage stage = new Stage();
         app.getStylesheets().add(getResource("style.css").toExternalForm());
-        stage.setTitle("RQS Search");
+        stage.setTitle(title);
         stage.setScene(new Scene(app));
         stage.show();
+        return loader.getController();
     }
 
     @Override
@@ -93,5 +99,4 @@ public class SearchApplication extends Application {
         }
         return EMPTY_IMAGE;
     }
-
 }

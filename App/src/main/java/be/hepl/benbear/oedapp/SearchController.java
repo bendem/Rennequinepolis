@@ -8,8 +8,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import oracle.jdbc.OracleTypes;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -47,6 +50,7 @@ public class SearchController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         searchButton.setOnAction(e -> onSearch());
         searchHelpButton.setOnAction(e -> onHelp());
+        searchResultTable.setOnMouseClicked(this::onDetails);
 
         List<Method> getters = Arrays.stream(Movie.class.getDeclaredMethods())
             .filter(m -> Modifier.isPublic(m.getModifiers()))
@@ -69,6 +73,23 @@ public class SearchController implements Initializable {
                 }
             });
             columns.add(col);
+        }
+    }
+
+    private void onDetails(MouseEvent event) {
+        if(event.getButton() != MouseButton.PRIMARY || event.getClickCount() != 2) {
+            return;
+        }
+        Movie selected = searchResultTable.getSelectionModel().getSelectedItem();
+        if(selected == null) {
+            return;
+        }
+
+        try {
+            MovieDetailsController controller = app.open("MovieDetails.fxml", "RQS - Movie details");
+            controller.setMovie(selected);
+        } catch(IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -109,15 +130,19 @@ public class SearchController implements Initializable {
 
             // FIXME There is more to it to display results
             movies.add(new Movie(
-                ResultSetExtractor.getInt(rs, "movie_id").orElse(0),
-                ResultSetExtractor.getString(rs, "movie_title").orElse(""),
-                ResultSetExtractor.getString(rs, "movie_original_title").orElse(""),
+                ResultSetExtractor.getInt(rs, "movie_id").getAsInt(),
+                ResultSetExtractor.getString(rs, "movie_title").get(),
+                ResultSetExtractor.getString(rs, "movie_original_title").get(),
                 ResultSetExtractor.getDate(rs, "movie_release_date").map(Date::toLocalDate).orElse(null),
-                ResultSetExtractor.getDouble(rs, "movie_vote_avg").orElse(0),
-                ResultSetExtractor.getInt(rs, "movie_vote_count").orElse(0),
+                ResultSetExtractor.getDouble(rs, "movie_vote_avg").getAsDouble(),
+                ResultSetExtractor.getInt(rs, "movie_vote_count").getAsInt(),
                 ResultSetExtractor.getInt(rs, "movie_runtime").orElse(0),
                 imageBytes,
-                rs.getString("movie_overview")
+                ResultSetExtractor.getInt(rs, "movie_budget").getAsInt(),
+                ResultSetExtractor.getInt(rs, "movie_revenue").getAsInt(),
+                ResultSetExtractor.getString(rs, "movie_homepage").orElse("(empty)"),
+                ResultSetExtractor.getString(rs, "movie_tagline").orElse("(empty)"),
+                ResultSetExtractor.getString(rs, "movie_overview").orElse("(empty)")
             ));
         }
 

@@ -15,10 +15,15 @@ public class Movie {
     private final int voteCount;
     private final int runtime;
     private final byte[] image;
+    private final int budget;
+    private final int revenue;
+    private final String homepage;
+    private final String tagline;
     private final String overview;
 
     public Movie(int id, String title, String originalTitle, LocalDate releaseDate,
-                 double voteAvg, int voteCount, int runtime, byte[] image, String overview) {
+                 double voteAvg, int voteCount, int runtime, byte[] image, int budget,
+                 int revenue, String homepage, String tagline, String overview) {
         this.id = id;
         this.title = title;
         this.originalTitle = originalTitle;
@@ -27,6 +32,10 @@ public class Movie {
         this.voteCount = voteCount;
         this.runtime = runtime;
         this.image = image;
+        this.budget = budget;
+        this.revenue = revenue;
+        this.homepage = homepage;
+        this.tagline = tagline;
         this.overview = overview;
     }
 
@@ -62,7 +71,24 @@ public class Movie {
         return new Image(new ByteArrayInputStream(image));
     }
 
+    public int getBudget() {
+        return budget;
+    }
+
+    public int getRevenue() {
+        return revenue;
+    }
+
+    public String getHomepage() {
+        return homepage;
+    }
+
+    public String getTagline() {
+        return tagline;
+    }
+
     public String getOverview() {
         return overview;
     }
+
 }
