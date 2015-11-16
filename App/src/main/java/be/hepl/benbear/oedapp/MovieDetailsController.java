@@ -5,6 +5,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.scene.image.ImageView;
 
+import java.time.LocalDate;
+
 public class MovieDetailsController {
 
     private final SearchApplication app;
@@ -34,7 +36,8 @@ public class MovieDetailsController {
         revenueText.setText(String.valueOf(movie.getRevenue()));
         budgetText.setText(String.valueOf(movie.getBudget()));
         //languageText.setText(movie.getL);
-        titleText.setText(movie.getTitle() + " (" + movie.getReleaseDate().getYear() + ')');
+        LocalDate date = movie.getReleaseDate();
+        titleText.setText(movie.getTitle() + " (" + (date == null ? "unknown" : date.getYear()) + ')');
         overviewText.setText(movie.getOverview());
         votesText.setText(String.valueOf(movie.getVoteAvg()) + " / 10 (" + movie.getVoteCount() + ')');
         taglineText.setText(movie.getTagline());
