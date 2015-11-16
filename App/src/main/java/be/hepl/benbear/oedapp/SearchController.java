@@ -20,7 +20,6 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLTransientException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +36,7 @@ public class SearchController implements Initializable {
     @FXML private Button searchButton;
     @FXML private Button searchHelpButton;
     @FXML private TableView<Movie> searchResultTable;
+    private String lastSearch = "";
 
     public SearchController(SearchApplication app) {
         this.app = app;
@@ -73,32 +73,42 @@ public class SearchController implements Initializable {
     }
 
     private void onSearch() {
+        String text = searchField.textProperty().get();
+        if(text.isEmpty() || text.equals(lastSearch)) {
+            return;
+        }
+        searchField.setDisable(true);
+
         try {
-            onSearchThrowing();
+            onSearchThrowing(text);
         } catch(SQLTransientException e) {
+            searchField.setDisable(false);
             // TODO Try again with cbb
             throw new RuntimeException(e);
         } catch(SQLException e) {
+            searchField.setDisable(false);
             // TODO Handle the exception for real
             throw new RuntimeException(e);
         }
     }
 
-    private void onSearchThrowing() throws SQLException {
+    private void onSearchThrowing(String text) throws SQLException {
         // TODO Thread this, this is horribly slow
-        Map<String, List<String>> query = parser.parse(searchField.textProperty().get());
+        Map<String, List<String>> query = parser.parse(text);
         CallableStatement cs = buildQuery(app.getConnection(), query);
         cs.execute();
         ResultSet rs = (ResultSet) cs.getObject(1);
-        List<Movie> movies = new ArrayList<>();
+        ObservableList<Movie> movies = searchResultTable.itemsProperty().getValue();
+        movies.clear();
 
         while(rs.next()) {
-            byte[] bytes = rs.getBytes("image");
+            byte[] imageBytes = rs.getBytes("image");
             if(rs.wasNull()) {
-                // TODO Embed a default image;
-                bytes = null;
+                // TODO Embed a default image instead
+                imageBytes = null;
             }
 
+            // FIXME There is more to it to display results
             movies.add(new Movie(
                 ResultSetExtractor.getInt(rs, "movie_id").orElse(0),
                 ResultSetExtractor.getString(rs, "movie_title").orElse(""),
@@ -107,13 +117,12 @@ public class SearchController implements Initializable {
                 ResultSetExtractor.getDouble(rs, "movie_vote_avg").orElse(0),
                 ResultSetExtractor.getInt(rs, "movie_vote_count").orElse(0),
                 ResultSetExtractor.getInt(rs, "movie_runtime").orElse(0),
-                bytes,
+                imageBytes,
                 rs.getString("movie_overview")
             ));
         }
 
-        // FIXME There is more to it to display results
-        searchResultTable.itemsProperty().getValue().setAll(movies);
+        searchField.setDisable(false);
     }
 
     private CallableStatement buildQuery(Connection connection, Map<String, List<String>> query) throws SQLException {
