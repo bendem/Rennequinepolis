@@ -181,7 +181,7 @@ public class SearchController implements Initializable {
         cs.registerOutParameter(++i, OracleTypes.CURSOR);
 
         if(query.containsKey("title")) {
-            cs.setString(++i, query.get("title").get(0));
+            cs.setString(++i, String.join(" ", query.get("title")));
         }
 
         if(query.containsKey("actor")) {
