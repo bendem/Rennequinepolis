@@ -145,6 +145,9 @@ public class SearchController implements Initializable {
                         ResultSetExtractor.getString(rs, "movie_overview").orElse("(empty)")
                     ));
                 }
+
+                rs.close();
+                cs.close();
                 return null;
             }
         };
