@@ -88,7 +88,9 @@ create or replace package body search is
     is
         x sys_refcursor;
     begin
-        open x for select * from people left join images on (person_profile_id = image_id) where person_id in (select person_id from movies_actors_characters where movie_id = p_id);
+        open x for select * from people
+        left join images on (person_profile_id = image_id)
+        where person_id in (select person_id from movies_actors_characters where movie_id = p_id);
         return x;
     end;
 
@@ -97,7 +99,9 @@ create or replace package body search is
     is
         x sys_refcursor;
     begin
-        open x for select * from people left join images on (person_profile_id = image_id) where person_id in (select person_id from movies_directors where movie_id = p_id);
+        open x for select * from people
+        left join images on (person_profile_id = image_id)
+        where person_id in (select person_id from movies_directors where movie_id = p_id);
         return x;
     end;
 
