@@ -22,7 +22,7 @@ public class SearchApplication extends Application {
 
     private static byte[] EMPTY_IMAGE;
 
-    private final ExecutorService threadPool = Executors.newFixedThreadPool(1);
+    private final ExecutorService threadPool = Executors.newFixedThreadPool(2);
     private Connection connection;
 
     public static void main(String[] args) {

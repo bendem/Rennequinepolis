@@ -2,13 +2,16 @@ package be.hepl.benbear.oedapp;
 
 import be.hepl.benbear.oedapp.jdbc.ResultSetExtractor;
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.image.ImageView;
+import javafx.util.Callback;
 import oracle.jdbc.OracleTypes;
 
 import java.net.URL;
@@ -51,6 +54,9 @@ public class MovieDetailsController implements Initializable {
     @FXML private TableColumn<Review, Integer> reviewRatingColumn;
     @FXML private TableColumn<Review, LocalDate> reviewDateColumn;
     @FXML private TableColumn<Review, String> reviewContentColumn;
+    @FXML private Button previousReviewsButton;
+    @FXML private Button nextReviewsButton;
+    private int reviewsPage = 1;
 
     public MovieDetailsController(SearchApplication app) {
         this.app = app;
@@ -58,13 +64,18 @@ public class MovieDetailsController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        actorImageColumn.setCellValueFactory(feature ->
-            new ReadOnlyObjectWrapper<>(new ImageView(feature.getValue().getImage())));
+        Callback<TableColumn.CellDataFeatures<Person, ImageView>, ObservableValue<ImageView>> imageCellValueFactory = feature -> {
+            ImageView view = new ImageView(feature.getValue().getImage());
+            view.setPreserveRatio(true);
+            view.setFitHeight(150);
+            return new ReadOnlyObjectWrapper<>(view);
+        };
+
+        actorImageColumn.setCellValueFactory(imageCellValueFactory);
         actorNameColumn.setCellValueFactory(feature ->
             new ReadOnlyObjectWrapper<>(feature.getValue().getName()));
 
-        directorImageColumn.setCellValueFactory(feature ->
-            new ReadOnlyObjectWrapper<>(new ImageView(feature.getValue().getImage())));
+        directorImageColumn.setCellValueFactory(imageCellValueFactory);
         directorNameColumn.setCellValueFactory(feature ->
             new ReadOnlyObjectWrapper<>(feature.getValue().getName()));
 
