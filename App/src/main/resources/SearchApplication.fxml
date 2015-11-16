@@ -7,7 +7,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox minHeight="400.0" minWidth="700.0" spacing="5.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="be.hepl.benbear.oedapp.SearchController">
+<VBox minHeight="400.0" minWidth="900.0" spacing="5.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="be.hepl.benbear.oedapp.SearchController">
     <children>
         <HBox spacing="5.0" VBox.vgrow="NEVER">
             <children>
@@ -27,20 +27,17 @@
             <content>
                 <TableView fx:id="searchResultTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
                     <columns>
-                        <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" text="Id" />
-                        <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" sortable="false" text="Image" />
-                        <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" text="Title" />
-                        <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" text="Original Title" />
-                        <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" text="Release Date" />
-                        <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" text="Runtime" />
-                        <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" text="Overview" />
+                        <TableColumn fx:id="idColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="100.0" text="Id" />
+                        <TableColumn fx:id="imageColumn" editable="false" maxWidth="-1.0" minWidth="185.0" prefWidth="185.0" resizable="false" sortable="false" text="Image" />
+                        <TableColumn fx:id="titleColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="200.0" prefWidth="-1.0" text="Title" />
+                        <TableColumn fx:id="statusColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" text="Status" />
+                        <TableColumn fx:id="releaseDateColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="110.0" prefWidth="-1.0" text="Release Date" />
+                        <TableColumn fx:id="taglineColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" text="Tagline" />
                     </columns>
-                    <columnResizePolicy>
-                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                    </columnResizePolicy>
                 </TableView>
             </content>
         </ScrollPane>
+      <Label fx:id="countText" alignment="CENTER_RIGHT" contentDisplay="RIGHT" maxWidth="1.7976931348623157E308" text="0 result" VBox.vgrow="NEVER" />
     </children>
     <padding>
         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

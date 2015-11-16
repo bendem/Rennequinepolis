@@ -7,24 +7,19 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import oracle.jdbc.OracleTypes;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collections;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -39,8 +34,16 @@ public class SearchController implements Initializable {
     @FXML private Button searchButton;
     @FXML private Button searchHelpButton;
     @FXML private TableView<Movie> searchResultTable;
+    @FXML private Label countText;
+    @FXML private TableColumn<Movie, Integer> idColumn;
+    @FXML private TableColumn<Movie, ImageView> imageColumn;
+    @FXML private TableColumn<Movie, String> titleColumn;
+    @FXML private TableColumn<Movie, String> statusColumn;
+    @FXML private TableColumn<Movie, LocalDate> releaseDateColumn;
+    @FXML private TableColumn<Movie, String> taglineColumn;
     private String lastSearch = "";
     private Task<Movie> task;
+    private int count = 0;
 
     public SearchController(SearchApplication app) {
         this.app = app;
@@ -64,28 +67,12 @@ public class SearchController implements Initializable {
             showDetails();
         });
 
-        List<Method> getters = Arrays.stream(Movie.class.getDeclaredMethods())
-            .filter(m -> Modifier.isPublic(m.getModifiers()))
-            .filter(m -> m.getName().startsWith("get"))
-            .collect(Collectors.toList());
-
-        ObservableList<TableColumn<Movie, ?>> columns = searchResultTable.getColumns();
-        columns.clear();
-        Collections.reverse(getters);
-        for(Method method : getters) {
-            TableColumn<Movie, Object> col = new TableColumn<>(method.getName().substring(3));
-            col.setCellValueFactory(features -> {
-                try {
-                    if(col.getText().equals("Image")) {
-                        return new ReadOnlyObjectWrapper<>(new ImageView((Image) method.invoke(features.getValue())));
-                    }
-                    return new ReadOnlyObjectWrapper<>(method.invoke(features.getValue()));
-                } catch(IllegalAccessException | InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-            columns.add(col);
-        }
+        idColumn.setCellValueFactory(feature -> new ReadOnlyObjectWrapper<>(feature.getValue().getId()));
+        imageColumn.setCellValueFactory(feature -> new ReadOnlyObjectWrapper<>(new ImageView(feature.getValue().getImage())));
+        titleColumn.setCellValueFactory(feature -> new ReadOnlyObjectWrapper<>(feature.getValue().getTitle()));
+        statusColumn.setCellValueFactory(feature -> new ReadOnlyObjectWrapper<>(feature.getValue().getStatus()));
+        releaseDateColumn.setCellValueFactory(feature -> new ReadOnlyObjectWrapper<>(feature.getValue().getReleaseDate()));
+        taglineColumn.setCellValueFactory(feature -> new ReadOnlyObjectWrapper<>(feature.getValue().getTagline()));
     }
 
     private void showDetails() {
@@ -115,7 +102,8 @@ public class SearchController implements Initializable {
         Map<String, List<String>> query = parser.parse(text);
         ObservableList<Movie> movies = searchResultTable.itemsProperty().getValue();
         movies.clear();
-
+        count = 0;
+        updateCount();
 
         task = new Task<Movie>() {
             @Override
@@ -146,6 +134,7 @@ public class SearchController implements Initializable {
                         ResultSetExtractor.getString(rs, "movie_tagline").orElse("(empty)"),
                         ResultSetExtractor.getString(rs, "movie_overview").orElse("(empty)")
                     ));
+                    ++count;
                 }
 
                 rs.close();
@@ -158,8 +147,13 @@ public class SearchController implements Initializable {
                 return;
             }
             movies.add(n);
+            updateCount();
         });
         app.getThreadPool().execute(task);
+    }
+
+    private void updateCount() {
+        countText.setText(String.valueOf(count) + " result" + (count > 1 ? 's' : ""));
     }
 
     private CallableStatement buildQuery(Connection connection, Map<String, List<String>> query) throws SQLException {
