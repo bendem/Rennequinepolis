@@ -108,7 +108,7 @@ public class SearchController implements Initializable {
         }
 
         Map<String, List<String>> query = parser.parse(text);
-        ObservableList<Movie> movies = searchResultTable.itemsProperty().getValue();
+        ObservableList<Movie> movies = searchResultTable.getItems();
         movies.clear();
         count = 0;
         updateCount();

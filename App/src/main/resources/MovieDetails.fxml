@@ -140,8 +140,8 @@
                       </Label>
                       <TableView fx:id="actorsTable" focusTraversable="false" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1">
                           <columns>
-                              <TableColumn editable="false" maxWidth="185.0" minWidth="185.0" prefWidth="185.0" resizable="false" text="Image" />
-                              <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="-1.0" prefWidth="-1.0" text="Name" />
+                              <TableColumn fx:id="actorImageColumn" editable="false" maxWidth="185.0" minWidth="185.0" prefWidth="185.0" resizable="false" text="Image" />
+                              <TableColumn fx:id="actorNameColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="-1.0" prefWidth="-1.0" text="Name" />
                           </columns>
                           <columnResizePolicy>
                               <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -149,8 +149,8 @@
                       </TableView>
                       <TableView fx:id="directorsTable" focusTraversable="false" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                           <columns>
-                              <TableColumn maxWidth="185.0" minWidth="185.0" prefWidth="185.0" resizable="false" text="Image" />
-                              <TableColumn maxWidth="1.7976931348623157E308" minWidth="-1.0" prefWidth="-1.0" text="Name" />
+                              <TableColumn fx:id="directorImageColumn" maxWidth="185.0" minWidth="185.0" prefWidth="185.0" resizable="false" text="Image" />
+                              <TableColumn fx:id="directorNameColumn" maxWidth="1.7976931348623157E308" minWidth="-1.0" prefWidth="-1.0" text="Name" />
                           </columns>
                           <columnResizePolicy>
                               <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -169,12 +169,12 @@
                   <Insets top="10.0" />
                </VBox.margin>
             </Label>
-            <TableView focusTraversable="false" minWidth="-1.0" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+            <TableView fx:id="reviewsTable" focusTraversable="false" minWidth="-1.0" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
               <columns>
-                <TableColumn editable="false" prefWidth="100.0" sortable="false" text="Username" />
-                <TableColumn editable="false" prefWidth="75.0" sortable="false" text="Rating" />
-                  <TableColumn editable="false" prefWidth="100.0" sortable="false" text="Date" />
-                  <TableColumn editable="false" prefWidth="100.0" sortable="false" text="Content" />
+                <TableColumn fx:id="reviewUsernameColumn" editable="false" prefWidth="100.0" sortable="false" text="Username" />
+                <TableColumn fx:id="reviewRatingColumn" editable="false" prefWidth="75.0" sortable="false" text="Rating" />
+                  <TableColumn fx:id="reviewDateColumn" editable="false" prefWidth="100.0" sortable="false" text="Date" />
+                  <TableColumn fx:id="reviewContentColumn" editable="false" prefWidth="100.0" sortable="false" text="Content" />
               </columns>
                <columnResizePolicy>
                   <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
