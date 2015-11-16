@@ -11,7 +11,12 @@ import java.util.Locale;
 
 public class MovieDetailsController {
 
-    private static final NumberFormat MONEY = NumberFormat.getCurrencyInstance(Locale.US);
+    private static final NumberFormat MONEY;
+    static {
+        NumberFormat money = NumberFormat.getCurrencyInstance(Locale.US);
+        money.setMaximumFractionDigits(0);
+        MONEY = money;
+    }
 
     private final SearchApplication app;
     @FXML private ImageView movieImage;

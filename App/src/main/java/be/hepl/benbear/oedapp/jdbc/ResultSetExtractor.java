@@ -1,4 +1,4 @@
-package be.hepl.benbear.oedapp;
+package be.hepl.benbear.oedapp.jdbc;
 
 import java.sql.Date;
 import java.sql.ResultSet;
