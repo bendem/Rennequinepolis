@@ -4,8 +4,8 @@ create or replace package search is
         p_actors varchar2_t default null,
         p_title movies.movie_title%type default null,
         p_directors varchar2_t default null,
-        p_year number default null,
-        p_year_comparison varchar2 default null) return sys_refcursor;
+        p_years number_t default null,
+        p_years_comparisons varchar2_t default null) return sys_refcursor;
 
     function search(
         p_id movies.movie_id%type) return sys_refcursor;

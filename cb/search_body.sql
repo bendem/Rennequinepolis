@@ -1,11 +1,11 @@
 create or replace package body search is
 
     function search(
-        p_actors varchar2_t default null,
-        p_title movies.movie_title%type default null,
-        p_directors varchar2_t default null,
-        p_year number default null,
-        p_year_comparison varchar2 default null) return sys_refcursor
+        p_actors varchar2_t,
+        p_title movies.movie_title%type,
+        p_directors varchar2_t,
+        p_years number_t,
+        p_years_comparisons varchar2_t) return sys_refcursor
     is
         v_parts varchar2_t;
         v_query varchar2(2000) := 'select * from movies left join images on (movie_poster_id = image_id) left join statuses on (movie_status_id = status_id) where 1 = 1';
@@ -15,8 +15,10 @@ create or replace package body search is
             v_query := v_query || ' and ' || replace(title_criteria, ':title', p_title);
         end if;
 
-        if p_year is not null then
-            v_query := v_query || ' and ' || replace(replace(date_criteria, ':year', p_year), ':comparator', coalesce(p_year_comparison, '='));
+        if p_years is not null then
+            for i in p_years.first..p_years.last loop
+                v_query := v_query || ' and ' || replace(replace(date_criteria, ':year', p_years(i)), ':comparator', coalesce(p_years_comparisons(i), '='));
+            end loop;
         end if;
 
         if p_actors is not null or p_directors is not null then
@@ -74,7 +76,10 @@ create or replace package body search is
     is
         x sys_refcursor;
     begin
-        open x for select * from movies left join images on (movie_poster_id = image_id) where movie_id = p_id;
+        open x for select * from movies
+        left join images on (movie_poster_id = image_id)
+        left join statuses on (movie_status_id = status_id)
+        where movie_id = p_id;
         return x;
     end;
 
@@ -104,7 +109,6 @@ create or replace package body search is
         open x for select * from reviews where movie_id = p_id;
         return x;
     end;
-
 
 end search;
 /
