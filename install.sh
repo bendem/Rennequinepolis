@@ -49,6 +49,8 @@ cat $ROOT/cb/crea.sql                 \
     $ROOT/cb/create_ext_table.sql     \
     $ROOT/cb/movie_alim_head.sql      \
     $ROOT/cb/movie_alim_body.sql      \
+    $ROOT/cb/search_head.sql          \
+    $ROOT/cb/search_body.sql          \
         | $SQLPLUS cb/$CB_PWD@$CB_IP
 
 echo "Initializing cbb"
@@ -61,6 +63,8 @@ cat $ROOT/cb/crea.sql            \
     $ROOT/cb/backup_head.sql     \
     $ROOT/cb/backup_body.sql     \
     $ROOT/cb/create_job.sql      \
+    $ROOT/cb/search_head.sql     \
+    $ROOT/cb/search_body.sql     \
         | $SQLPLUS cbb/$CB_PWD@$CB_IP
 
 echo "Setting up cb backup"
