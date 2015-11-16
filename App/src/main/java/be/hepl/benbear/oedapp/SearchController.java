@@ -9,8 +9,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import oracle.jdbc.OracleTypes;
 
 import java.io.IOException;
@@ -51,7 +51,18 @@ public class SearchController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         searchButton.setOnAction(e -> onSearch());
         searchHelpButton.setOnAction(e -> onHelp());
-        searchResultTable.setOnMouseClicked(this::onDetails);
+        searchResultTable.setOnMouseClicked(e -> {
+            if(e.getButton() != MouseButton.PRIMARY || e.getClickCount() != 2) {
+                return;
+            }
+            showDetails();
+        });
+        searchResultTable.setOnKeyPressed(e -> {
+            if(e.getCode() != KeyCode.ENTER) {
+                return;
+            }
+            showDetails();
+        });
 
         List<Method> getters = Arrays.stream(Movie.class.getDeclaredMethods())
             .filter(m -> Modifier.isPublic(m.getModifiers()))
@@ -77,15 +88,11 @@ public class SearchController implements Initializable {
         }
     }
 
-    private void onDetails(MouseEvent event) {
-        if(event.getButton() != MouseButton.PRIMARY || event.getClickCount() != 2) {
-            return;
-        }
+    private void showDetails() {
         Movie selected = searchResultTable.getSelectionModel().getSelectedItem();
         if(selected == null) {
             return;
         }
-
         try {
             MovieDetailsController controller = app.open("MovieDetails.fxml", "RQS - Movie details");
             controller.setMovie(selected);
@@ -122,11 +129,6 @@ public class SearchController implements Initializable {
                         break;
                     }
 
-                    byte[] imageBytes = rs.getBytes("image");
-                    if(rs.wasNull()) {
-                        imageBytes = app.getEmptyImage();
-                    }
-
                     // FIXME There is more to it to display results
                     updateValue(new Movie(
                         ResultSetExtractor.getInt(rs, "movie_id").getAsInt(),
@@ -137,7 +139,7 @@ public class SearchController implements Initializable {
                         ResultSetExtractor.getDouble(rs, "movie_vote_avg").getAsDouble(),
                         ResultSetExtractor.getInt(rs, "movie_vote_count").getAsInt(),
                         ResultSetExtractor.getInt(rs, "movie_runtime").orElse(0),
-                        imageBytes,
+                        ResultSetExtractor.getBytes(rs, "image").orElseGet(app::getEmptyImage),
                         ResultSetExtractor.getInt(rs, "movie_budget").getAsInt(),
                         ResultSetExtractor.getInt(rs, "movie_revenue").getAsInt(),
                         ResultSetExtractor.getString(rs, "movie_homepage").orElse("(empty)"),

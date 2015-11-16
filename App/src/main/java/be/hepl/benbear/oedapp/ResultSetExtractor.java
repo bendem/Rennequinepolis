@@ -29,4 +29,9 @@ public class ResultSetExtractor {
         return rs.wasNull() ? Optional.empty() : Optional.of(d);
     }
 
+    public static Optional<byte[]> getBytes(ResultSet rs, String name) throws SQLException {
+        byte[] bytes = rs.getBytes(name);
+        return rs.wasNull() ? Optional.empty() : Optional.of(bytes);
+    }
+
 }
