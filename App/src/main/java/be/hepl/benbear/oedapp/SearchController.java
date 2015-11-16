@@ -1,16 +1,18 @@
 package be.hepl.benbear.oedapp;
 
 import be.hepl.benbear.oedapp.parser.SearchParser;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import oracle.jdbc.OracleTypes;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -19,6 +21,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLTransientException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -41,11 +45,31 @@ public class SearchController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        //searchField.setOnKeyPressed(e -> {
-        //    if(e.getCode() == KeyCode.ENTER) onSearch();
-        //});
         searchButton.setOnAction(e -> onSearch());
         searchHelpButton.setOnAction(e -> onHelp());
+
+        List<Method> getters = Arrays.stream(Movie.class.getDeclaredMethods())
+            .filter(m -> Modifier.isPublic(m.getModifiers()))
+            .filter(m -> m.getName().startsWith("get"))
+            .collect(Collectors.toList());
+
+        ObservableList<TableColumn<Movie, ?>> columns = searchResultTable.getColumns();
+        columns.clear();
+        Collections.reverse(getters);
+        for(Method method : getters) {
+            TableColumn<Movie, Object> col = new TableColumn<>(method.getName().substring(3));
+            col.setCellValueFactory(features -> {
+                try {
+                    if(col.getText().equals("Image")) {
+                        return new ReadOnlyObjectWrapper<>(new ImageView((Image) method.invoke(features.getValue())));
+                    }
+                    return new ReadOnlyObjectWrapper<>(method.invoke(features.getValue()));
+                } catch(IllegalAccessException | InvocationTargetException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            columns.add(col);
+        }
     }
 
     private void onSearch() {
@@ -61,6 +85,7 @@ public class SearchController implements Initializable {
     }
 
     private void onSearchThrowing() throws SQLException {
+        // TODO Thread this, this is horribly slow
         Map<String, List<String>> query = parser.parse(searchField.textProperty().get());
         CallableStatement cs = buildQuery(app.getConnection(), query);
         cs.execute();
