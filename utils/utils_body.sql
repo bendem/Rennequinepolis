@@ -65,10 +65,10 @@ create or replace package body utils is
         last_index    pls_integer := 1;
         current_index pls_integer;
     begin
-        while last_index < len loop
+        while last_index < len_str loop
             current_index := instr(p_string, p_separator, last_index);
             if current_index = 0 then
-                current_index := len + 1;
+                current_index := len_str + 1;
             end if;
 
             r.extend;
