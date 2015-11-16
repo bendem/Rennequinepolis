@@ -114,5 +114,14 @@ create or replace package body search is
         return x;
     end;
 
+    function get_languages(
+        p_id movies.movie_id%type) return sys_refcursor
+    is
+        x sys_refcursor;
+    begin
+        open x for select * from movies_spoken_languages natural join spoken_languages where movie_id = p_id;
+        return x;
+    end;
+
 end search;
 /
