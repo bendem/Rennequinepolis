@@ -1,12 +1,14 @@
 package be.hepl.benbear.oedapp;
 
 import be.hepl.benbear.oedapp.jdbc.ResultSetExtractor;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -19,8 +21,10 @@ import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 public class MovieDetailsController implements Initializable {
 
@@ -32,6 +36,7 @@ public class MovieDetailsController implements Initializable {
     }
 
     private final SearchApplication app;
+    private Movie movie;
     @FXML private ImageView movieImage;
     @FXML private Label originalTitleText;
     @FXML private Label runtimeText;
@@ -43,13 +48,14 @@ public class MovieDetailsController implements Initializable {
     @FXML private Label overviewText;
     @FXML private Label votesText;
     @FXML private Label taglineText;
+    @FXML private Hyperlink homepageLink;
     @FXML private TableView<Person> actorsTable;
     @FXML private TableColumn<Person, ImageView> actorImageColumn;
     @FXML private TableColumn<Person, String> actorNameColumn;
     @FXML private TableView<Person> directorsTable;
     @FXML private TableColumn<Person, ImageView> directorImageColumn;
     @FXML private TableColumn<Person, String> directorNameColumn;
-    @FXML private TableView reviewsTable;
+    @FXML private TableView<Review> reviewsTable;
     @FXML private TableColumn<Review, String> reviewUsernameColumn;
     @FXML private TableColumn<Review, Integer> reviewRatingColumn;
     @FXML private TableColumn<Review, LocalDate> reviewDateColumn;
@@ -87,23 +93,56 @@ public class MovieDetailsController implements Initializable {
             new ReadOnlyObjectWrapper<>(feature.getValue().getDate()));
         reviewContentColumn.setCellValueFactory(feature ->
             new ReadOnlyObjectWrapper<>(feature.getValue().getContent()));
+
+        previousReviewsButton.setOnAction(e -> {
+            if(reviewsPage != 1) {
+                loadReviews(--reviewsPage);
+            }
+        });
+        nextReviewsButton.setOnAction(e -> loadReviews(++reviewsPage));
+    }
+
+    private void loadReviews(int page) {
+        if(page != 1) {
+            previousReviewsButton.setDisable(false);
+        }
+        reviewsTable.getItems().clear();
+        Task<Review> task = new ReviewTask(page);
+        task.valueProperty().addListener((obs, o, n) -> {
+            if(n != null) {
+                reviewsTable.getItems().add(n);
+            }
+        });
+        task.setOnFailed(e -> e.getSource().getException().printStackTrace());
+        app.getThreadPool().execute(task);
     }
 
     public void setMovie(Movie movie) {
+        this.movie = movie;
         movieImage.setImage(movie.getImage());
         originalTitleText.setText(movie.getOriginalTitle());
         runtimeText.setText(String.valueOf(movie.getRuntime()));
         statusText.setText(movie.getStatus());
         revenueText.setText(MONEY.format(movie.getRevenue()));
         budgetText.setText(MONEY.format(movie.getBudget()));
-        //languageText.setText(movie.getL); TODO Languages
+        Task<Set<String>> task = new LanguageTask();
+        task.valueProperty().addListener((obs, o, n) -> {
+            if(!n.isEmpty()) {
+                languageText.setText(String.join(", ", n));
+            }
+        });
+        app.getThreadPool().execute(task);
         LocalDate date = movie.getReleaseDate();
         titleText.setText(movie.getTitle() + " (" + (date == null ? "unknown" : date.getYear()) + ')');
-        overviewText.setText(movie.getOverview());
         votesText.setText(String.valueOf(movie.getVoteAvg()) + " / 10 (" + movie.getVoteCount() + ')');
+        overviewText.setText(movie.getOverview());
         taglineText.setText(movie.getTagline());
+        homepageLink.setText(movie.getHomepage());
+        if(!movie.getHomepage().equals("(empty)")) {
+            homepageLink.setOnAction(e -> app.getHostServices().showDocument(movie.getHomepage()));
+        }
 
-        Task<Person> actorsTask = new PeopleTask(movie.getId(), "actors");
+        Task<Person> actorsTask = new PeopleTask("actors");
         actorsTask.valueProperty().addListener((obs, o, n) -> {
             if(n != null) {
                 actorsTable.getItems().add(n);
@@ -112,7 +151,7 @@ public class MovieDetailsController implements Initializable {
         actorsTask.setOnFailed(e -> e.getSource().getException().printStackTrace());
         app.getThreadPool().execute(actorsTask);
 
-        Task<Person> directorsTask = new PeopleTask(movie.getId(), "directors");
+        Task<Person> directorsTask = new PeopleTask("directors");
         directorsTask.valueProperty().addListener((obs, o, n) -> {
             if(n != null) {
                 directorsTable.getItems().add(n);
@@ -120,16 +159,34 @@ public class MovieDetailsController implements Initializable {
         });
         directorsTask.setOnFailed(e -> e.getSource().getException().printStackTrace());
         app.getThreadPool().execute(directorsTask);
-        // TODO reviews
+
+        loadReviews(1);
+    }
+
+    private class LanguageTask extends Task<Set<String>> {
+
+        @Override
+        protected Set<String> call() throws Exception {
+            Set<String> set = new HashSet<>();
+            try(CallableStatement cs = app.getConnection().prepareCall("{ ? = call search.get_languages(?) }")) {
+                cs.registerOutParameter(1, OracleTypes.CURSOR);
+                cs.setInt(2, movie.getId());
+                cs.execute();
+                try(ResultSet rs = (ResultSet) cs.getObject(1)) {
+                    while(rs.next()) {
+                        set.add(rs.getString("spoken_language_name"));
+                    }
+                }
+            }
+            return set;
+        }
     }
 
     private class PeopleTask extends Task<Person> {
 
-        private final int movieId;
         private final String kind;
 
-        public PeopleTask(int movieId, String kind) {
-            this.movieId = movieId;
+        public PeopleTask(String kind) {
             this.kind = kind;
         }
 
@@ -137,14 +194,58 @@ public class MovieDetailsController implements Initializable {
         protected Person call() throws Exception {
             try(CallableStatement cs = app.getConnection().prepareCall("{ ? = call search.get_" + kind + "(?) }")) {
                 cs.registerOutParameter(1, OracleTypes.CURSOR);
-                cs.setInt(2, movieId);
+                cs.setInt(2, movie.getId());
                 cs.execute();
+                int count = 0;
                 try(ResultSet rs = (ResultSet) cs.getObject(1)) {
                     while(rs.next()) {
+                        if(isCancelled()) {
+                            break;
+                        }
+
                         updateValue(new Person(
                             rs.getInt("person_id"),
                             rs.getString("person_name"),
                             ResultSetExtractor.getBytes(rs, "image").orElseGet(app::getEmptyImage)
+                        ));
+                        ++count;
+                    }
+                }
+
+                int countFinal = count;
+                Platform.runLater(() -> nextReviewsButton.setDisable(countFinal < 5));
+            }
+            return null;
+        }
+
+    }
+
+    private class ReviewTask extends Task<Review> {
+
+        private final int page;
+
+        public ReviewTask(int page) {
+            this.page = page;
+        }
+
+        @Override
+        protected Review call() throws Exception {
+            try(CallableStatement cs = app.getConnection().prepareCall("{ ? = call search.get_reviews(?, ?) }")) {
+                cs.registerOutParameter(1, OracleTypes.CURSOR);
+                cs.setInt(2, movie.getId());
+                cs.setInt(3, page);
+                cs.execute();
+                try(ResultSet rs = (ResultSet) cs.getObject(1)) {
+                    while(rs.next()) {
+                        if(isCancelled()) {
+                            break;
+                        }
+
+                        updateValue(new Review(
+                            rs.getString("username"),
+                            rs.getInt("rating"),
+                            rs.getDate("creation_date").toLocalDate(),
+                            rs.getString("content")
                         ));
                     }
                 }

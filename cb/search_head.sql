@@ -17,7 +17,8 @@ create or replace package search is
         p_id movies.movie_id%type) return sys_refcursor;
 
     function get_reviews(
-        p_id movies.movie_id%type) return sys_refcursor;
+        p_id movies.movie_id%type,
+        p_page pls_integer) return sys_refcursor;
 
     function get_languages(
         p_id movies.movie_id%type) return sys_refcursor;

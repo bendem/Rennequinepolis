@@ -106,11 +106,20 @@ create or replace package body search is
     end;
 
     function get_reviews(
-        p_id movies.movie_id%type) return sys_refcursor
+        p_id movies.movie_id%type,
+        p_page pls_integer) return sys_refcursor
     is
         x sys_refcursor;
     begin
-        open x for select * from reviews where movie_id = p_id;
+        open x for select * from (
+            select
+                username,
+                rating,
+                creation_date,
+                content,
+                row_number() over (order by username) rnum
+            from reviews where movie_id = p_id
+        ) where rnum between (p_page - 1) * 5 + 1 and p_page * 5;
         return x;
     end;
 

@@ -70,7 +70,7 @@
                         <Label fx:id="statusText" text="Label" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP" />
                         <Label fx:id="revenueText" text="Label" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.valignment="TOP" />
                         <Label fx:id="budgetText" text="Label" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.valignment="TOP" />
-                        <Label fx:id="languageText" text="Label" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.valignment="TOP" />
+                        <Label fx:id="languageText" text="n/a" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.valignment="TOP" />
                     </children>
                <VBox.margin>
                   <Insets top="20.0" />
@@ -105,8 +105,8 @@
                         <Font name="System Bold" size="13.0" />
                     </font>
                 </Label>
-                <Label fx:id="overviewText" maxHeight="1.7976931348623157E308" minHeight="-Infinity" text="Climb a tree, wait for a fireman jump to fireman then scratch his face i like big cats and i can not lie find empty spot in cupboard and sleep all day damn that dog kitty power! yet peer out window, chatter at birds, lure them to mouth. Intently sniff hand stare out the window for intently stare at the same spot run in circles, so immediately regret falling into bathtub ignore the squirrels, you'll never catch them anyway so i am the best." wrapText="true" VBox.vgrow="SOMETIMES" />
-                <Label text="Tagline">
+                <Label fx:id="overviewText" maxHeight="1.7976931348623157E308" minHeight="-Infinity" text="Climb a tree, wait for a fireman jump to fireman then scratch his face i like big cats and i can not lie find empty spot in cupboard and sleep all day damn that dog kitty power! yet peer out window, chatter at birds, lure them to mouth. Intently sniff hand stare out the window for intently stare at the same spot run in circles, so immediately regret falling into bathtub ignore the squirrels, you'll never catch them anyway so i am the best." wrapText="true" VBox.vgrow="NEVER" />
+                <Label text="Tagline" VBox.vgrow="NEVER">
                     <font>
                         <Font name="System Bold" size="13.0" />
                     </font>
@@ -115,6 +115,15 @@
                     </VBox.margin>
                 </Label>
                 <Label fx:id="taglineText" minHeight="-Infinity" text="very line, much tag" />
+            <Label text="Homepage" VBox.vgrow="NEVER">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </Label>
+            <Hyperlink fx:id="homepageLink" text="Hyperlink" VBox.vgrow="NEVER" />
             <GridPane hgap="5.0" vgap="10.0" VBox.vgrow="ALWAYS">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
