@@ -18,7 +18,6 @@ import java.net.URL;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Date;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -45,7 +44,7 @@ public class SearchController implements Initializable {
     @FXML private TableColumn<Movie, LocalDate> releaseDateColumn;
     @FXML private TableColumn<Movie, String> taglineColumn;
     private String lastSearch = "";
-    private Task<Movie> task;
+    private FetchTask<Movie> task;
     private int count = 0;
 
     public SearchController(SearchApplication app) {
@@ -109,17 +108,13 @@ public class SearchController implements Initializable {
 
         Map<String, List<String>> query = parser.parse(text);
         ObservableList<Movie> movies = searchResultTable.getItems();
-        movies.clear();
-        count = 0;
-        updateCount();
+        //movies.clear();
+        updateCount(0);
 
-        task = new SearchTask(query);
+        task = new SearchTask(app, query);
+        searchResultTable.itemsProperty().bind(task.fetchedValuesProperty());
         task.valueProperty().addListener((obs, o, n) -> {
-            if(n == null) {
-                return;
-            }
-            movies.add(n);
-            updateCount();
+            updateCount(n);
         });
         task.setOnFailed(e -> {
             Throwable throwable = e.getSource().getException();
@@ -140,65 +135,45 @@ public class SearchController implements Initializable {
         app.getThreadPool().execute(task);
     }
 
-    private void updateCount() {
+    private void updateCount(int count) {
         countText.setText(String.valueOf(count) + " result" + (count > 1 ? 's' : ""));
     }
 
-    private String generatePlaceholders(int count) {
+    private static String generatePlaceholders(int count) {
         return IntStream.range(0, count).mapToObj(i -> "?").collect(Collectors.joining(", "));
     }
 
     private void onHelp() {
         Dialog<Void> dialog = new Dialog<>();
-        dialog.setContentText("Here be the syntax of the query");
+        // TODO Check this displays correctly
+        dialog.setContentText("Search syntax:\n(id:<id>|([title:]<title> actor:<actor> director:<director> before:<year> during:<year> after:year)\nYou can use quotes to insert any multi words like actor:\"Bob Marley\"");
         dialog.setOnCloseRequest(e -> dialog.close());
         dialog.getDialogPane().getButtonTypes().add(new ButtonType("OK", ButtonBar.ButtonData.OK_DONE));
         dialog.show();
     }
 
-    private class SearchTask extends Task<Movie> {
+    private static class SearchTask extends FetchTask<Movie> {
 
-        private final Map<String, List<String>> query;
-
-        public SearchTask(Map<String, List<String>> query) {
-            this.query = query;
+        public SearchTask(SearchApplication app, Map<String, List<String>> query) {
+            super(() -> buildQuery(app.getConnection(), query), rs -> new Movie(
+                ResultSetExtractor.getInt(rs, "movie_id").getAsInt(),
+                ResultSetExtractor.getString(rs, "movie_title").get(),
+                ResultSetExtractor.getString(rs, "movie_original_title").get(),
+                ResultSetExtractor.getDate(rs, "movie_release_date").map(Date::toLocalDate).orElse(null),
+                ResultSetExtractor.getString(rs, "status_name").orElse("(empty)"),
+                ResultSetExtractor.getDouble(rs, "movie_vote_avg").getAsDouble(),
+                ResultSetExtractor.getInt(rs, "movie_vote_count").getAsInt(),
+                ResultSetExtractor.getInt(rs, "movie_runtime").orElse(0),
+                ResultSetExtractor.getBytes(rs, "image").orElseGet(app::getEmptyImage),
+                ResultSetExtractor.getInt(rs, "movie_budget").getAsInt(),
+                ResultSetExtractor.getInt(rs, "movie_revenue").getAsInt(),
+                ResultSetExtractor.getString(rs, "movie_homepage").orElse("(empty)"),
+                ResultSetExtractor.getString(rs, "movie_tagline").orElse("(empty)"),
+                ResultSetExtractor.getString(rs, "movie_overview").orElse("(empty)")
+            ));
         }
 
-        @Override
-        protected Movie call() throws Exception {
-            try(CallableStatement cs = buildQuery(app.getConnection(), query)) {
-                cs.execute();
-
-                try(ResultSet rs = (ResultSet) cs.getObject(1)) {
-                    while(rs.next()) {
-                        if(isCancelled()) {
-                            break;
-                        }
-
-                        updateValue(new Movie(
-                            ResultSetExtractor.getInt(rs, "movie_id").getAsInt(),
-                            ResultSetExtractor.getString(rs, "movie_title").get(),
-                            ResultSetExtractor.getString(rs, "movie_original_title").get(),
-                            ResultSetExtractor.getDate(rs, "movie_release_date").map(Date::toLocalDate).orElse(null),
-                            ResultSetExtractor.getString(rs, "status_name").orElse("(empty)"),
-                            ResultSetExtractor.getDouble(rs, "movie_vote_avg").getAsDouble(),
-                            ResultSetExtractor.getInt(rs, "movie_vote_count").getAsInt(),
-                            ResultSetExtractor.getInt(rs, "movie_runtime").orElse(0),
-                            ResultSetExtractor.getBytes(rs, "image").orElseGet(app::getEmptyImage),
-                            ResultSetExtractor.getInt(rs, "movie_budget").getAsInt(),
-                            ResultSetExtractor.getInt(rs, "movie_revenue").getAsInt(),
-                            ResultSetExtractor.getString(rs, "movie_homepage").orElse("(empty)"),
-                            ResultSetExtractor.getString(rs, "movie_tagline").orElse("(empty)"),
-                            ResultSetExtractor.getString(rs, "movie_overview").orElse("(empty)")
-                        ));
-                        ++count;
-                    }
-                    return null;
-                }
-            }
-        }
-
-        private CallableStatement buildQuery(Connection connection, Map<String, List<String>> query) throws SQLException {
+        private static CallableStatement buildQuery(Connection connection, Map<String, List<String>> query) throws SQLException {
             if(query.containsKey("id")) {
                 CallableStatement stmt = connection.prepareCall("{ ? = call search.search(p_id => ?) }");
                 stmt.registerOutParameter(1, OracleTypes.CURSOR);

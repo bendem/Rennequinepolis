@@ -1,10 +1,11 @@
 package be.hepl.benbear.oedapp;
 
 import be.hepl.benbear.oedapp.jdbc.ResultSetExtractor;
-import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -28,6 +29,7 @@ import java.util.Set;
 
 public class MovieDetailsController implements Initializable {
 
+    private static final EventHandler<WorkerStateEvent> FAILURE_HANDLER = e -> e.getSource().getException().printStackTrace();
     private static final NumberFormat MONEY;
     static {
         NumberFormat money = NumberFormat.getCurrencyInstance(Locale.US);
@@ -102,36 +104,15 @@ public class MovieDetailsController implements Initializable {
         nextReviewsButton.setOnAction(e -> loadReviews(++reviewsPage));
     }
 
-    private void loadReviews(int page) {
-        if(page != 1) {
-            previousReviewsButton.setDisable(false);
-        }
-        reviewsTable.getItems().clear();
-        Task<Review> task = new ReviewTask(page);
-        task.valueProperty().addListener((obs, o, n) -> {
-            if(n != null) {
-                reviewsTable.getItems().add(n);
-            }
-        });
-        task.setOnFailed(e -> e.getSource().getException().printStackTrace());
-        app.getThreadPool().execute(task);
-    }
-
     public void setMovie(Movie movie) {
         this.movie = movie;
+
         movieImage.setImage(movie.getImage());
         originalTitleText.setText(movie.getOriginalTitle());
         runtimeText.setText(String.valueOf(movie.getRuntime()));
         statusText.setText(movie.getStatus());
         revenueText.setText(MONEY.format(movie.getRevenue()));
         budgetText.setText(MONEY.format(movie.getBudget()));
-        Task<Set<String>> task = new LanguageTask();
-        task.valueProperty().addListener((obs, o, n) -> {
-            if(!n.isEmpty()) {
-                languageText.setText(String.join(", ", n));
-            }
-        });
-        app.getThreadPool().execute(task);
         LocalDate date = movie.getReleaseDate();
         titleText.setText(movie.getTitle() + " (" + (date == null ? "unknown" : date.getYear()) + ')');
         votesText.setText(String.valueOf(movie.getVoteAvg()) + " / 10 (" + movie.getVoteCount() + ')');
@@ -139,32 +120,45 @@ public class MovieDetailsController implements Initializable {
         taglineText.setText(movie.getTagline());
         homepageLink.setText(movie.getHomepage());
         if(!movie.getHomepage().equals("(empty)")) {
+            // FIXME This doesn't seem to open the default browser (at least not accurately)
             homepageLink.setOnAction(e -> app.getHostServices().showDocument(movie.getHomepage()));
         }
 
-        Task<Person> actorsTask = new PeopleTask("actors");
-        actorsTask.valueProperty().addListener((obs, o, n) -> {
-            if(n != null) {
-                actorsTable.getItems().add(n);
+        Task<Set<String>> languagesTask = new LanguageTask();
+        languagesTask.valueProperty().addListener((obs, o, n) -> {
+            if(!n.isEmpty()) {
+                languageText.setText(String.join(", ", n));
             }
         });
-        actorsTask.setOnFailed(e -> e.getSource().getException().printStackTrace());
+        languagesTask.setOnFailed(FAILURE_HANDLER);
+        app.getThreadPool().execute(languagesTask);
+
+        FetchTask<Person> actorsTask = new PeopleTask(app, movie, "actors");
+        actorsTable.itemsProperty().bind(actorsTask.fetchedValuesProperty());
+        actorsTask.setOnFailed(FAILURE_HANDLER);
         app.getThreadPool().execute(actorsTask);
 
-        Task<Person> directorsTask = new PeopleTask("directors");
-        directorsTask.valueProperty().addListener((obs, o, n) -> {
-            if(n != null) {
-                directorsTable.getItems().add(n);
-            }
-        });
-        directorsTask.setOnFailed(e -> e.getSource().getException().printStackTrace());
+        FetchTask<Person> directorsTask = new PeopleTask(app, movie, "directors");
+        directorsTable.itemsProperty().bind(directorsTask.fetchedValuesProperty());
+        directorsTask.setOnFailed(FAILURE_HANDLER);
         app.getThreadPool().execute(directorsTask);
 
         loadReviews(1);
     }
 
-    private class LanguageTask extends Task<Set<String>> {
+    private void loadReviews(int page) {
+        previousReviewsButton.setDisable(page == 1);
 
+        FetchTask<Review> task = new ReviewTask(app, movie, page);
+        reviewsTable.itemsProperty().bind(task.fetchedValuesProperty());
+        task.setOnFailed(FAILURE_HANDLER);
+        task.valueProperty().addListener((obs, o, n) -> {
+            nextReviewsButton.setDisable(n != 5);
+        });
+        app.getThreadPool().execute(task);
+    }
+
+    private class LanguageTask extends Task<Set<String>> {
         @Override
         protected Set<String> call() throws Exception {
             Set<String> set = new HashSet<>();
@@ -182,75 +176,39 @@ public class MovieDetailsController implements Initializable {
         }
     }
 
-    private class PeopleTask extends Task<Person> {
+    private static class PeopleTask extends FetchTask<Person> {
 
-        private final String kind;
-
-        public PeopleTask(String kind) {
-            this.kind = kind;
-        }
-
-        @Override
-        protected Person call() throws Exception {
-            try(CallableStatement cs = app.getConnection().prepareCall("{ ? = call search.get_" + kind + "(?) }")) {
+        public PeopleTask(SearchApplication app, Movie movie, String kind) {
+            super(() -> {
+                CallableStatement cs = app.getConnection().prepareCall("{ ? = call search.get_" + kind + "(?) }");
                 cs.registerOutParameter(1, OracleTypes.CURSOR);
                 cs.setInt(2, movie.getId());
                 cs.execute();
-                int count = 0;
-                try(ResultSet rs = (ResultSet) cs.getObject(1)) {
-                    while(rs.next()) {
-                        if(isCancelled()) {
-                            break;
-                        }
-
-                        updateValue(new Person(
-                            rs.getInt("person_id"),
-                            rs.getString("person_name"),
-                            ResultSetExtractor.getBytes(rs, "image").orElseGet(app::getEmptyImage)
-                        ));
-                        ++count;
-                    }
-                }
-
-                int countFinal = count;
-                Platform.runLater(() -> nextReviewsButton.setDisable(countFinal < 5));
-            }
-            return null;
+                return cs;
+            }, rs -> new Person(
+                rs.getInt("person_id"),
+                rs.getString("person_name"),
+                ResultSetExtractor.getBytes(rs, "image").orElseGet(app::getEmptyImage)
+            ));
         }
 
     }
 
-    private class ReviewTask extends Task<Review> {
+    private static class ReviewTask extends FetchTask<Review> {
 
-        private final int page;
-
-        public ReviewTask(int page) {
-            this.page = page;
-        }
-
-        @Override
-        protected Review call() throws Exception {
-            try(CallableStatement cs = app.getConnection().prepareCall("{ ? = call search.get_reviews(?, ?) }")) {
+        public ReviewTask(SearchApplication app, Movie movie, int page) {
+            super(() -> {
+                CallableStatement cs = app.getConnection().prepareCall("{ ? = call search.get_reviews(?, ?) }");
                 cs.registerOutParameter(1, OracleTypes.CURSOR);
                 cs.setInt(2, movie.getId());
                 cs.setInt(3, page);
-                cs.execute();
-                try(ResultSet rs = (ResultSet) cs.getObject(1)) {
-                    while(rs.next()) {
-                        if(isCancelled()) {
-                            break;
-                        }
-
-                        updateValue(new Review(
-                            rs.getString("username"),
-                            rs.getInt("rating"),
-                            rs.getDate("creation_date").toLocalDate(),
-                            rs.getString("content")
-                        ));
-                    }
-                }
-            }
-            return null;
+                return cs;
+            }, rs -> new Review(
+                rs.getString("username"),
+                rs.getInt("rating"),
+                rs.getDate("creation_date").toLocalDate(),
+                rs.getString("content")
+            ));
         }
 
     }
