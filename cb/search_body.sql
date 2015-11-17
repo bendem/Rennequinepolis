@@ -11,6 +11,7 @@ create or replace package body search is
         v_query varchar2(2000) := 'select * from movies left join images on (movie_poster_id = image_id) left join statuses on (movie_status_id = status_id) where 1 = 1';
         x sys_refcursor;
     begin
+        -- TODO Build a worst case static sql query and short circuit the predicate
         if p_title is not null then
             v_query := v_query || ' and ' || replace(title_criteria, ':title', p_title);
         end if;
