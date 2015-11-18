@@ -3,7 +3,6 @@ package be.hepl.benbear.oedapp;
 import be.hepl.benbear.oedapp.jdbc.ResultSetExtractor;
 import be.hepl.benbear.oedapp.parser.SearchParser;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -107,12 +106,10 @@ public class SearchController implements Initializable {
         }
 
         Map<String, List<String>> query = parser.parse(text);
-        ObservableList<Movie> movies = searchResultTable.getItems();
-        //movies.clear();
         updateCount(0);
 
         task = new SearchTask(app, query);
-        searchResultTable.itemsProperty().bind(task.fetchedValuesProperty());
+        searchResultTable.setItems(task.fetchedValuesProperty());
         task.valueProperty().addListener((obs, o, n) -> {
             updateCount(n);
         });

@@ -134,12 +134,12 @@ public class MovieDetailsController implements Initializable {
         app.getThreadPool().execute(languagesTask);
 
         FetchTask<Person> actorsTask = new PeopleTask(app, movie, "actors");
-        actorsTable.itemsProperty().bind(actorsTask.fetchedValuesProperty());
+        actorsTable.setItems(actorsTask.fetchedValuesProperty());
         actorsTask.setOnFailed(FAILURE_HANDLER);
         app.getThreadPool().execute(actorsTask);
 
         FetchTask<Person> directorsTask = new PeopleTask(app, movie, "directors");
-        directorsTable.itemsProperty().bind(directorsTask.fetchedValuesProperty());
+        directorsTable.setItems(directorsTask.fetchedValuesProperty());
         directorsTask.setOnFailed(FAILURE_HANDLER);
         app.getThreadPool().execute(directorsTask);
 
@@ -150,7 +150,7 @@ public class MovieDetailsController implements Initializable {
         previousReviewsButton.setDisable(page == 1);
 
         FetchTask<Review> task = new ReviewTask(app, movie, page);
-        reviewsTable.itemsProperty().bind(task.fetchedValuesProperty());
+        reviewsTable.setItems(task.fetchedValuesProperty());
         task.setOnFailed(FAILURE_HANDLER);
         task.valueProperty().addListener((obs, o, n) -> {
             nextReviewsButton.setDisable(n != 5);
