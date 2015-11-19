@@ -11,7 +11,7 @@
     <children>
         <HBox spacing="5.0" VBox.vgrow="NEVER">
             <children>
-                <TextField fx:id="searchField" HBox.hgrow="ALWAYS" />
+                <TextField fx:id="searchField" HBox.hgrow="ALWAYS" promptText="Enter your search query here." />
                 <Button fx:id="searchButton" defaultButton="true" mnemonicParsing="false" text="Search" HBox.hgrow="NEVER" />
                 <Button fx:id="searchHelpButton" mnemonicParsing="false" text="?" HBox.hgrow="NEVER">
                <tooltip>
