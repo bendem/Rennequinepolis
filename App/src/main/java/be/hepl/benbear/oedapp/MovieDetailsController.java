@@ -133,12 +133,12 @@ public class MovieDetailsController implements Initializable {
         languagesTask.setOnFailed(FAILURE_HANDLER);
         app.getThreadPool().execute(languagesTask);
 
-        FetchTask<Person> actorsTask = new PeopleTask(app, movie, "actors");
+        FetchTask<Person> actorsTask = getPersonFetchTask("actors");
         actorsTable.setItems(actorsTask.fetchedValuesProperty());
         actorsTask.setOnFailed(FAILURE_HANDLER);
         app.getThreadPool().execute(actorsTask);
 
-        FetchTask<Person> directorsTask = new PeopleTask(app, movie, "directors");
+        FetchTask<Person> directorsTask = getPersonFetchTask("directors");
         directorsTable.setItems(directorsTask.fetchedValuesProperty());
         directorsTask.setOnFailed(FAILURE_HANDLER);
         app.getThreadPool().execute(directorsTask);
@@ -146,16 +146,45 @@ public class MovieDetailsController implements Initializable {
         loadReviews(1);
     }
 
+    private FetchTask<Person> getPersonFetchTask(String kind) {
+        return new FetchTask<>(() -> {
+            CallableStatement cs = app.getConnection().prepareCall("{ ? = call search.get_" + kind + "(?) }");
+            cs.registerOutParameter(1, OracleTypes.CURSOR);
+            cs.setInt(2, movie.getId());
+            cs.execute();
+            return cs;
+        }, rs -> new Person(
+            rs.getInt("person_id"),
+            rs.getString("person_name"),
+            ResultSetExtractor.getBytes(rs, "image").orElseGet(app::getEmptyImage)
+        ));
+    }
+
     private void loadReviews(int page) {
         previousReviewsButton.setDisable(page == 1);
 
-        FetchTask<Review> task = new ReviewTask(app, movie, page);
+        FetchTask<Review> task = getReviewFetchTask(page);
         reviewsTable.setItems(task.fetchedValuesProperty());
         task.setOnFailed(FAILURE_HANDLER);
         task.valueProperty().addListener((obs, o, n) -> {
             nextReviewsButton.setDisable(n != 5);
         });
         app.getThreadPool().execute(task);
+    }
+
+    private FetchTask<Review> getReviewFetchTask(int page) {
+        return new FetchTask<>(() -> {
+            CallableStatement cs = app.getConnection().prepareCall("{ ? = call search.get_reviews(?, ?) }");
+            cs.registerOutParameter(1, OracleTypes.CURSOR);
+            cs.setInt(2, movie.getId());
+            cs.setInt(3, page);
+            return cs;
+        }, rs -> new Review(
+            rs.getString("username"),
+            rs.getInt("rating"),
+            rs.getDate("creation_date").toLocalDate(),
+            rs.getString("content")
+        ));
     }
 
     private class LanguageTask extends Task<Set<String>> {
@@ -174,43 +203,6 @@ public class MovieDetailsController implements Initializable {
             }
             return set;
         }
-    }
-
-    private static class PeopleTask extends FetchTask<Person> {
-
-        public PeopleTask(SearchApplication app, Movie movie, String kind) {
-            super(() -> {
-                CallableStatement cs = app.getConnection().prepareCall("{ ? = call search.get_" + kind + "(?) }");
-                cs.registerOutParameter(1, OracleTypes.CURSOR);
-                cs.setInt(2, movie.getId());
-                cs.execute();
-                return cs;
-            }, rs -> new Person(
-                rs.getInt("person_id"),
-                rs.getString("person_name"),
-                ResultSetExtractor.getBytes(rs, "image").orElseGet(app::getEmptyImage)
-            ));
-        }
-
-    }
-
-    private static class ReviewTask extends FetchTask<Review> {
-
-        public ReviewTask(SearchApplication app, Movie movie, int page) {
-            super(() -> {
-                CallableStatement cs = app.getConnection().prepareCall("{ ? = call search.get_reviews(?, ?) }");
-                cs.registerOutParameter(1, OracleTypes.CURSOR);
-                cs.setInt(2, movie.getId());
-                cs.setInt(3, page);
-                return cs;
-            }, rs -> new Review(
-                rs.getString("username"),
-                rs.getInt("rating"),
-                rs.getDate("creation_date").toLocalDate(),
-                rs.getString("content")
-            ));
-        }
-
     }
 
 }
