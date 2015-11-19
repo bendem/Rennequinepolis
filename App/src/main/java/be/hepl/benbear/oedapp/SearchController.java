@@ -7,11 +7,13 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import oracle.jdbc.OracleTypes;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.CallableStatement;
@@ -42,9 +44,9 @@ public class SearchController implements Initializable {
     @FXML private TableColumn<Movie, String> statusColumn;
     @FXML private TableColumn<Movie, LocalDate> releaseDateColumn;
     @FXML private TableColumn<Movie, String> taglineColumn;
+    @FXML private ImageView loadingImage;
     private String lastSearch = "";
     private FetchTask<Movie> task;
-    private int count = 0;
 
     public SearchController(SearchApplication app) {
         this.app = app;
@@ -74,6 +76,9 @@ public class SearchController implements Initializable {
         statusColumn.setCellValueFactory(feature -> new ReadOnlyObjectWrapper<>(feature.getValue().getStatus()));
         releaseDateColumn.setCellValueFactory(feature -> new ReadOnlyObjectWrapper<>(feature.getValue().getReleaseDate()));
         taglineColumn.setCellValueFactory(feature -> new ReadOnlyObjectWrapper<>(feature.getValue().getTagline()));
+
+        loadingImage.setImage(new Image(new ByteArrayInputStream(app.getLoadingImage())));
+        loadingImage.setVisible(false);
     }
 
     private void showDetails() {
@@ -103,6 +108,7 @@ public class SearchController implements Initializable {
                     TimeUnit.MILLISECONDS.sleep(10);
                 } catch(InterruptedException e) {}
             }
+            loadingImage.setVisible(false);
         }
 
         Map<String, List<String>> query = parser.parse(text);
@@ -111,11 +117,13 @@ public class SearchController implements Initializable {
         task = new SearchTask(app, query);
         searchResultTable.setItems(task.fetchedValuesProperty());
         task.valueProperty().addListener((obs, o, n) -> updateCount(n));
+        task.setOnSucceeded(e -> loadingImage.setVisible(false));
         task.setOnFailed(e -> {
             Throwable throwable = e.getSource().getException();
             throwable.printStackTrace();
 
             // Flash the input box red so they know without bothering them too much
+            loadingImage.setVisible(false);
             searchField.getStyleClass().add("error");
             Task<Void> task = new Task<Void>() {
                 @Override
@@ -127,6 +135,7 @@ public class SearchController implements Initializable {
             task.setOnSucceeded(bleh -> searchField.getStyleClass().remove("error"));
             app.getThreadPool().execute(task);
         });
+        loadingImage.setVisible(true);
         app.getThreadPool().execute(task);
     }
 

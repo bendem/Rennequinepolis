@@ -21,6 +21,7 @@ import java.util.concurrent.Executors;
 public class SearchApplication extends Application {
 
     private static byte[] EMPTY_IMAGE;
+    private static byte[] LOADING_IMAGE;
 
     public static void main(String[] args) {
         launch(args);
@@ -98,29 +99,43 @@ public class SearchApplication extends Application {
         return Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(name), "Resource not found: " + name);
     }
 
+    private byte[] getResourceBytes(String name) {
+        byte[] buffer = new byte[255];
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        int read;
+        try(InputStream resource = getResourceStream(name)) {
+            while((read = resource.read(buffer)) > 0) {
+                out.write(buffer, 0, read);
+            }
+        } catch(IOException e) {
+            throw new RuntimeException(e);
+        }
+        return out.toByteArray();
+    }
+
     public byte[] getEmptyImage() {
         if(EMPTY_IMAGE == null) {
             synchronized(SearchApplication.class) {
                 if(EMPTY_IMAGE == null) {
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    byte[] buffer = new byte[255];
-                    InputStream resource = getResourceStream("empty.jpg");
-                    try {
-                        while(resource.read(buffer) > 0) {
-                            out.write(buffer);
-                        }
-                    } catch(IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    EMPTY_IMAGE = out.toByteArray();
+                    EMPTY_IMAGE = getResourceBytes("empty.jpg");
                 }
             }
         }
         return EMPTY_IMAGE;
     }
 
+    public byte[] getLoadingImage() {
+        if(LOADING_IMAGE == null) {
+            synchronized(SearchApplication.class) {
+                if(LOADING_IMAGE == null) {
+                    LOADING_IMAGE = getResourceBytes("loading.png");
+                }
+            }
+        }
+        return LOADING_IMAGE;
+    }
+
     public Executor getThreadPool() {
         return threadPool;
     }
-
 }

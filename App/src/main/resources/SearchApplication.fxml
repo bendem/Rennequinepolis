@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.image.*?>
 <?import javafx.scene.text.*?>
 <?import java.lang.*?>
 <?import javafx.geometry.*?>
@@ -11,7 +12,7 @@
     <children>
         <HBox spacing="5.0" VBox.vgrow="NEVER">
             <children>
-                <TextField fx:id="searchField" HBox.hgrow="ALWAYS" promptText="Enter your search query here." />
+                <TextField fx:id="searchField" promptText="Enter your search query here." HBox.hgrow="ALWAYS" />
                 <Button fx:id="searchButton" defaultButton="true" mnemonicParsing="false" text="Search" HBox.hgrow="NEVER" />
                 <Button fx:id="searchHelpButton" mnemonicParsing="false" text="?" HBox.hgrow="NEVER">
                     <tooltip>
@@ -37,7 +38,18 @@
                 </TableView>
             </content>
         </ScrollPane>
-        <Label fx:id="countText" alignment="CENTER_RIGHT" contentDisplay="RIGHT" maxWidth="1.7976931348623157E308" text="0 result" VBox.vgrow="NEVER" />
+      <BorderPane maxWidth="1.7976931348623157E308" VBox.vgrow="NEVER">
+         <right>
+              <Label fx:id="countText" alignment="CENTER_RIGHT" contentDisplay="RIGHT" maxWidth="1.7976931348623157E308" text="0 result" BorderPane.alignment="CENTER" />
+         </right>
+         <left>
+            <ImageView fx:id="loadingImage" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
+               <BorderPane.margin>
+                  <Insets left="5.0" />
+               </BorderPane.margin>
+            </ImageView>
+         </left>
+      </BorderPane>
     </children>
     <padding>
         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
