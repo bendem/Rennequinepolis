@@ -110,14 +110,12 @@ public class SearchController implements Initializable {
 
         task = new SearchTask(app, query);
         searchResultTable.setItems(task.fetchedValuesProperty());
-        task.valueProperty().addListener((obs, o, n) -> {
-            updateCount(n);
-        });
+        task.valueProperty().addListener((obs, o, n) -> updateCount(n));
         task.setOnFailed(e -> {
             Throwable throwable = e.getSource().getException();
             throwable.printStackTrace();
 
-            // Flash the input box read so they know without bothering them too much
+            // Flash the input box red so they know without bothering them too much
             searchField.getStyleClass().add("error");
             Task<Void> task = new Task<Void>() {
                 @Override
