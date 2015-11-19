@@ -149,7 +149,7 @@
                       </Label>
                       <TableView fx:id="actorsTable" focusTraversable="false" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1">
                           <columns>
-                              <TableColumn fx:id="actorImageColumn" editable="false" maxWidth="185.0" minWidth="185.0" prefWidth="185.0" resizable="false" text="Image" />
+                              <TableColumn fx:id="actorImageColumn" editable="false" maxWidth="120.0" minWidth="120.0" prefWidth="120.0" resizable="false" text="Image" />
                               <TableColumn fx:id="actorNameColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="-1.0" prefWidth="-1.0" text="Name" />
                           </columns>
                           <columnResizePolicy>
@@ -158,7 +158,7 @@
                       </TableView>
                       <TableView fx:id="directorsTable" focusTraversable="false" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                           <columns>
-                              <TableColumn fx:id="directorImageColumn" maxWidth="185.0" minWidth="185.0" prefWidth="185.0" resizable="false" text="Image" />
+                              <TableColumn fx:id="directorImageColumn" maxWidth="120.0" minWidth="120.0" prefWidth="120.0" resizable="false" text="Image" />
                               <TableColumn fx:id="directorNameColumn" maxWidth="1.7976931348623157E308" minWidth="-1.0" prefWidth="-1.0" text="Name" />
                           </columns>
                           <columnResizePolicy>

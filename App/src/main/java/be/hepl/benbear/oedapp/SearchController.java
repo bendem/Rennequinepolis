@@ -143,6 +143,9 @@ public class SearchController implements Initializable {
     private void onHelp() {
         Dialog<Void> dialog = new Dialog<>();
         // TODO Check this displays correctly
+        dialog.initOwner(app.getMainStage());
+        dialog.setTitle("Search query syntax");
+        dialog.setHeaderText("Search query syntax");
         dialog.setContentText("Search syntax:\n(id:<id>|([title:]<title> actor:<actor> director:<director> before:<year> during:<year> after:year)\nYou can use quotes to insert any multi words like actor:\"Bob Marley\"");
         dialog.setOnCloseRequest(e -> dialog.close());
         dialog.getDialogPane().getButtonTypes().add(new ButtonType("OK", ButtonBar.ButtonData.OK_DONE));

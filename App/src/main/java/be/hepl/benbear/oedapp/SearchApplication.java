@@ -22,19 +22,24 @@ public class SearchApplication extends Application {
 
     private static byte[] EMPTY_IMAGE;
 
-    private final ExecutorService threadPool = Executors.newFixedThreadPool(2);
-    private Connection connection;
-
     public static void main(String[] args) {
         launch(args);
     }
 
+    private final ExecutorService threadPool = Executors.newFixedThreadPool(2);
+    private Stage mainStage;
+    private Connection connection;
+
     @Override
     public void start(Stage stage) throws IOException {
-        open("SearchApplication.fxml", "RQS - Search");
+        open("SearchApplication.fxml", "RQS - Search", true);
     }
 
     public <T> T open(String fxml, String title) throws IOException {
+        return open(fxml, title, false);
+    }
+
+    private <T> T open(String fxml, String title, boolean main) throws IOException {
         FXMLLoader loader = new FXMLLoader(getResource(fxml));
 
         loader.setControllerFactory(clazz -> {
@@ -48,6 +53,11 @@ public class SearchApplication extends Application {
 
         Parent app = loader.load();
         Stage stage = new Stage();
+        if(main) {
+            this.mainStage = stage;
+        } else {
+            stage.initOwner(mainStage);
+        }
         app.getStylesheets().add(getResource("style.css").toExternalForm());
         stage.setTitle(title);
         stage.setScene(new Scene(app));
@@ -70,6 +80,10 @@ public class SearchApplication extends Application {
             connection.close();
         }
         threadPool.shutdown();
+    }
+
+    public Stage getMainStage() {
+        return mainStage;
     }
 
     public Connection getConnection() {

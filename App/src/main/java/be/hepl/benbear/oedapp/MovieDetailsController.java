@@ -75,7 +75,7 @@ public class MovieDetailsController implements Initializable {
         Callback<TableColumn.CellDataFeatures<Person, ImageView>, ObservableValue<ImageView>> imageCellValueFactory = feature -> {
             ImageView view = new ImageView(feature.getValue().getImage());
             view.setPreserveRatio(true);
-            view.setFitHeight(150);
+            view.setFitWidth(120);
             return new ReadOnlyObjectWrapper<>(view);
         };
 
