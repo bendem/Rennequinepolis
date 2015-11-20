@@ -136,9 +136,11 @@ create table copies (
 create table characters (
     movie_id number(6, 0) not null,
     character_id number(4, 0) not null,
+    person_id number(7, 0) not null,
     character_name varchar2(111 char) not null,
     constraint pk_characters primary key (movie_id, character_id),
-    constraint fk_characters_movie_id foreign key (movie_id) references movies(movie_id)
+    constraint fk_characters_movie_id foreign key (movie_id) references movies(movie_id),
+    constraint fk_characters_person_id foreign key (person_id) references people(person_id)
 );
 
 -- reviews
@@ -154,16 +156,6 @@ create table reviews (
     constraint fk_reviews_movie_id foreign key (movie_id) references movies(movie_id),
     constraint fk_reviews_username foreign key (username) references users(username),
     constraint ck_rating_pos check (rating >= 0)
-);
-
--- movies_actors_characters
--- --------
-create table movies_actors_characters (
-    movie_id number(6, 0) not null,
-    character_id number(4, 0) not null,
-    person_id number(7, 0) constraint fk_mov_act_cha_actor_id references people(person_id),
-    constraint pk_movies_actors_characters primary key (movie_id, character_id, person_id),
-    constraint fk_mov_act_cha_cha_pk foreign key (movie_id, character_id) references characters(movie_id, character_id)
 );
 
 -- movies_spoken_languages
