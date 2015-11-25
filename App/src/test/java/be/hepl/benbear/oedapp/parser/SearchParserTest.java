@@ -33,6 +33,14 @@ public class SearchParserTest {
     }
 
     @Test
+    public void testParseEmpty() {
+        SearchParser parser = new SearchParser("");
+
+        Assert.assertTrue(parser.parse("").isEmpty());
+        Assert.assertTrue(parser.parse("\"").isEmpty());
+    }
+
+    @Test
     public void testParseComplex() {
         SearchParser parser = new SearchParser("default");
         Map<String, List<String>> result = parser.parse("def default:default test:\"multi words\" test:test");
