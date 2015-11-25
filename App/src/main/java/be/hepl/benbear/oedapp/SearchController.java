@@ -112,6 +112,10 @@ public class SearchController implements Initializable {
         }
 
         Map<String, List<String>> query = parser.parse(text);
+        if(query.isEmpty()) {
+            return;
+        }
+
         updateCount(0);
 
         task = new SearchTask(app, query);
@@ -194,6 +198,7 @@ public class SearchController implements Initializable {
             List<String> before = query.getOrDefault("before", Collections.emptyList());
             List<String> after = query.getOrDefault("after", Collections.emptyList());
             List<String> during = query.getOrDefault("during", Collections.emptyList());
+            int min = -1, max = -1, exact = -1;
 
             // Generate query
             StringBuilder sb = new StringBuilder("{ ? = call search.search(");
@@ -212,15 +217,29 @@ public class SearchController implements Initializable {
                     .append(generatePlaceholders(query.get("director").size()))
                     .append("), ");
             }
-            if(!before.isEmpty() || !after.isEmpty() || !during.isEmpty()) {
-                int count = before.size() + after.size() + during.size();
-                sb
-                    .append("p_years => number_t(")
-                    .append(generatePlaceholders(count))
-                    .append("), ")
-                    .append("p_years_comparisons => varchar2_t(")
-                    .append(generatePlaceholders(count))
-                    .append("), ");
+            if(!during.isEmpty()) {
+                if(during.size() != 1) {
+                    throw new IllegalArgumentException("More than one value for during is dumb");
+                }
+                sb.append("p_during => ?, ");
+                exact = Integer.parseInt(during.get(0));
+            }
+            if(!before.isEmpty()) {
+                min = before.stream().mapToInt(Integer::parseInt).min().getAsInt();
+                if(exact > min) {
+                    throw new IllegalArgumentException("Exact year after before condition");
+                }
+                sb.append("p_before => ?, ");
+            }
+            if(!after.isEmpty()) {
+                max = after.stream().mapToInt(Integer::parseInt).max().getAsInt();
+                if(exact != -1 && max > exact) {
+                    throw new IllegalArgumentException("Exact year before after condition");
+                }
+                if(min != -1 && max > min) {
+                    throw new IllegalArgumentException("Can't have year before " + min + "and after " + max);
+                }
+                sb.append("p_after => ?, ");
             }
             sb.setLength(sb.length() - 2); // Removes trailing ", "
             sb.append(") }");
@@ -244,26 +263,14 @@ public class SearchController implements Initializable {
                     cs.setString(++i, director);
                 }
             }
-            if(!before.isEmpty() || !after.isEmpty() || !during.isEmpty()) {
-                for(String bef : before) {
-                    cs.setInt(++i, Integer.parseInt(bef));
-                }
-                for(String aft : after) {
-                    cs.setInt(++i, Integer.parseInt(aft));
-                }
-                for(String dur : during) {
-                    cs.setInt(++i, Integer.parseInt(dur));
-                }
-
-                for(String s : before) {
-                    cs.setString(++i, "<");
-                }
-                for(String s : after) {
-                    cs.setString(++i, ">");
-                }
-                for(String s : during) {
-                    cs.setString(++i, "=");
-                }
+            if(!before.isEmpty()) {
+                cs.setInt(++i, min);
+            }
+            if(!after.isEmpty()) {
+                cs.setInt(++i, max);
+            }
+            if(!during.isEmpty()) {
+                cs.setInt(++i, Integer.parseInt(during.get(0)));
             }
 
             return cs;

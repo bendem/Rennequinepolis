@@ -1,16 +1,10 @@
 package be.hepl.benbear.oedapp;
 
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Objects;
@@ -18,7 +12,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class SearchApplication extends Application {
+public class SearchApplication extends BaseApplication {
 
     private static byte[] EMPTY_IMAGE;
     private static byte[] LOADING_IMAGE;
@@ -28,42 +22,16 @@ public class SearchApplication extends Application {
     }
 
     private final ExecutorService threadPool = Executors.newFixedThreadPool(2);
-    private Stage mainStage;
     private Connection connection;
+    private String user;
+
+    public SearchApplication() {
+        super(getResource("style.css"));
+    }
 
     @Override
     public void start(Stage stage) throws IOException {
-        open("SearchApplication.fxml", "RQS - Search", true);
-    }
-
-    public <T> T open(String fxml, String title) throws IOException {
-        return open(fxml, title, false);
-    }
-
-    private <T> T open(String fxml, String title, boolean main) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getResource(fxml));
-
-        loader.setControllerFactory(clazz -> {
-            try {
-                return clazz.getConstructor(SearchApplication.class).newInstance(this);
-            } catch(InstantiationException | IllegalAccessException
-                | NoSuchMethodException | InvocationTargetException e) {
-                throw new RuntimeException("Could not instantiate controller for " + clazz, e);
-            }
-        });
-
-        Parent app = loader.load();
-        Stage stage = new Stage();
-        if(main) {
-            this.mainStage = stage;
-        } else {
-            stage.initOwner(mainStage);
-        }
-        app.getStylesheets().add(getResource("style.css").toExternalForm());
-        stage.setTitle(title);
-        stage.setScene(new Scene(app));
-        stage.show();
-        return loader.getController();
+        open("SearchApplication.fxml", "RQS - Search", stage, true);
     }
 
     @Override
@@ -83,16 +51,8 @@ public class SearchApplication extends Application {
         threadPool.shutdown();
     }
 
-    public Stage getMainStage() {
-        return mainStage;
-    }
-
     public Connection getConnection() {
         return connection;
-    }
-
-    private URL getResource(String name) {
-        return Objects.requireNonNull(getClass().getClassLoader().getResource(name), "Resource not found: " + name);
     }
 
     private InputStream getResourceStream(String name) {
@@ -138,4 +98,19 @@ public class SearchApplication extends Application {
     public Executor getThreadPool() {
         return threadPool;
     }
+
+    public SearchApplication connectUser(String user) {
+        this.user = user;
+        return this;
+    }
+
+    public SearchApplication disconnectUser() {
+        user = null;
+        return this;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
 }

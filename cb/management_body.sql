@@ -38,19 +38,25 @@ create or replace package body management is
         fk_exception exception;
         pragma exception_init(fk_exception, -2191);
     begin
-        insert into reviews (
-            username,
-            movie_id,
-            rating,
-            content,
-            backup_flag
-        ) values (
-            p_username,
-            p_movie_id,
-            p_rating,
-            p_content,
-            0
-        );
+        merge into reviews r using (
+            select username, movie_id
+            from reviews
+        ) p on (r.username = p_username and r.movie_id = p_movie_id)
+        when matched then
+            update set
+                r.rating = p_rating,
+                r.creation_date = current_date,
+                r.content = p_content,
+                r.backup_flag = 0
+        when not matched then
+            insert values (
+                p_username,
+                p_movie_id,
+                p_rating,
+                current_date,
+                p_content,
+                0
+            );
     exception
         when fk_exception then
             raise_application_error(20001, '');

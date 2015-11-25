@@ -17,6 +17,7 @@ import javafx.scene.image.ImageView;
 import javafx.util.Callback;
 import oracle.jdbc.OracleTypes;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
@@ -103,6 +104,15 @@ public class MovieDetailsController implements Initializable {
             }
         });
         nextReviewsButton.setOnAction(e -> loadReviews(++reviewsPage));
+
+        reviewButton.setOnAction(e -> {
+            try {
+                ReviewController ctrl = app.open("Review.fxml", "RQS - Add review", app.getStage(this));
+                ctrl.setMovieDetailsController(this);
+            } catch(IOException exc) {
+                throw new RuntimeException(exc);
+            }
+        });
     }
 
     public void setMovie(Movie movie) {
@@ -161,7 +171,7 @@ public class MovieDetailsController implements Initializable {
         ));
     }
 
-    private void loadReviews(int page) {
+    public void loadReviews(int page) {
         previousReviewsButton.setDisable(page == 1);
 
         FetchTask<Review> task = getReviewFetchTask(page);
@@ -186,6 +196,10 @@ public class MovieDetailsController implements Initializable {
             rs.getDate("creation_date").toLocalDate(),
             rs.getString("content")
         ));
+    }
+
+    public Movie getMovie() {
+        return movie;
     }
 
     private class LanguageTask extends Task<Set<String>> {
