@@ -5,9 +5,9 @@ import java.time.LocalDate;
 public class Review {
 
     private final String username;
-    private final int rating;
-    private final LocalDate date;
-    private final String content;
+    private int rating;
+    private LocalDate date;
+    private String content;
 
     public Review(String username, int rating, LocalDate date, String content) {
         this.username = username;
@@ -30,6 +30,18 @@ public class Review {
 
     public String getContent() {
         return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public void setRating(int rating) {
+        this.rating = rating;
     }
 
 }

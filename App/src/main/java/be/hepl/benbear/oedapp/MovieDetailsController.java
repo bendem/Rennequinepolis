@@ -64,6 +64,7 @@ public class MovieDetailsController implements Initializable {
     @FXML private TableColumn<Review, String> reviewContentColumn;
     @FXML private Button previousReviewsButton;
     @FXML private Button nextReviewsButton;
+    @FXML private Button reviewButton;
     private int reviewsPage = 1;
 
     public MovieDetailsController(SearchApplication app) {
