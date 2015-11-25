@@ -14,7 +14,6 @@ create or replace package movie_alim is
     type production_companies_t        is table of production_companies%rowtype index by pls_integer;
     type genres_t                      is table of genres%rowtype index by pls_integer;
     type characters_t                  is table of characters%rowtype index by pls_integer;
-    type movies_actors_characters_t    is table of movies_actors_characters%rowtype index by pls_integer;
     type movies_spoken_languages_t     is table of movies_spoken_languages%rowtype index by pls_integer;
     type movies_production_countries_t is table of movies_production_countries%rowtype index by pls_integer;
     type movies_production_companies_t is table of movies_production_companies%rowtype index by pls_integer;

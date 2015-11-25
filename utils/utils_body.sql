@@ -1,7 +1,7 @@
 create or replace package body utils is
 
     procedure check_size(
-        p_var         in out varchar2,
+        p_var         in out nocopy varchar2,
         p_size_var    in pls_integer,
         p_size_max    in pls_integer,
         p_replacement in varchar2)
@@ -28,7 +28,7 @@ create or replace package body utils is
     end;
 
     procedure check_size(
-        p_var         in out number,
+        p_var         in out nocopy number,
         p_size_var    in pls_integer,
         p_size_max    in pls_integer,
         p_replacement in number)
@@ -76,6 +76,30 @@ create or replace package body utils is
             last_index := current_index + len_sep;
         end loop;
         return r;
+    end;
+
+    procedure debug(
+        p_table in out nocopy varchar2_t)
+    is
+    begin
+        if p_table.count = 0 then
+            return;
+        end if;
+        for i in p_table.first..p_table.last loop
+            dbms_output.put_line(p_table(i));
+        end loop;
+    end;
+
+    procedure debug(
+        p_table in out nocopy number_t)
+    is
+    begin
+        if p_table.count = 0 then
+            return;
+        end if;
+        for i in p_table.first..p_table.last loop
+            dbms_output.put_line(p_table(i));
+        end loop;
     end;
 
 end utils;

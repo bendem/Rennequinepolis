@@ -45,7 +45,6 @@ create or replace package body movie_alim is
         certification_rec             certifications%rowtype;
         status_rec                    statuses%rowtype;
         movie_rec                     movies%rowtype;
-        movies_actors_characters_v    movies_actors_characters_t;
         movies_spoken_languages_v     movies_spoken_languages_t;
         movies_production_countries_v movies_production_countries_t;
         movies_production_companies_v movies_production_companies_t;
@@ -88,7 +87,6 @@ create or replace package body movie_alim is
 
             for i in chars1_v.first..chars1_v.last loop
                 characters_v(i).movie_id := raw_data.id;
-                movies_actors_characters_v(i).movie_id := raw_data.id;
 
                 j := 1;
                 y := regexp_substr(chars1_v(i), split_regex, 1, j);
@@ -97,13 +95,12 @@ create or replace package body movie_alim is
                     case j
                         when 1 then
                             actors_v(i).person_id := y;
-                            movies_actors_characters_v(i).person_id := y;
+                            characters_v(i).person_id := y;
                         when 2 then
                             utils.check_size(y, size_actors_name, size_max_actors_name);
                             actors_v(i).person_name := y;
                         when 3 then
                             characters_v(i).character_id := y;
-                            movies_actors_characters_v(i).character_id := y;
                         when 4 then
                             utils.check_size(y, size_characters_name, size_max_characters_name);
                             characters_v(i).character_name := y;
@@ -489,9 +486,6 @@ create or replace package body movie_alim is
 
         forall i in indices of movies_genres_v
             insert into movies_genres values movies_genres_v(i);
-
-        forall i in indices of movies_actors_characters_v
-            insert into movies_actors_characters values movies_actors_characters_v(i);
 
         commit;
         logging.i('Succesful insertion of movie n°' || raw_data.id);

@@ -57,6 +57,9 @@ echo "Initializing cbb"
 echo "================"
 cat $ROOT/cb/crea.sql            \
     $ROOT/utils/logs.sql         \
+    $ROOT/utils/types.sql        \
+    $ROOT/utils/utils_head.sql   \
+    $ROOT/utils/utils_body.sql   \
     $ROOT/cb/management_head.sql \
     $ROOT/cb/management_body.sql \
     $ROOT/cb/backup_trigger.sql  \
