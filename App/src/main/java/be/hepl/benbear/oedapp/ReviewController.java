@@ -4,13 +4,11 @@ import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputControl;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.StackPane;
@@ -23,7 +21,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
-import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 
 public class ReviewController implements Initializable {
@@ -61,51 +58,22 @@ public class ReviewController implements Initializable {
         loginButton.setOnAction(this::onLogin);
         reviewButton.setOnAction(this::onReview);
 
-        error(usernameField, HAS_SPACES_ONLY);
-        error(passwordField, String::isEmpty);
+        Inputs.error(usernameField, HAS_SPACES_ONLY);
+        Inputs.error(passwordField, String::isEmpty);
 
-        error(ratingField, s -> !s.matches("[0-9]+"));
-        error(reviewField, HAS_SPACES_ONLY);
+        Inputs.error(ratingField, s -> !s.matches("[0-9]+"));
 
-        ChangeListener<String> loginDisable = disable(loginButton,
+        ChangeListener<String> loginDisable = Inputs.disable(loginButton,
             () -> HAS_SPACES_ONLY.test(usernameField.getText()),
             () -> passwordField.getText().isEmpty());
         usernameField.textProperty().addListener(loginDisable);
         passwordField.textProperty().addListener(loginDisable);
 
-        ChangeListener<String> reviewDisable = disable(reviewButton,
-            () -> !ratingField.getText().matches("[0-9]+"),
-            () -> HAS_SPACES_ONLY.test(reviewField.getText()));
+        ChangeListener<String> reviewDisable = Inputs.disable(reviewButton,
+            () -> !ratingField.getText().matches("[0-9]+"));
         ratingField.textProperty().addListener(reviewDisable);
-        reviewField.textProperty().addListener(reviewDisable);
-    }
 
-    /**
-     * Sets an error state of an text input based on the provided predicate.
-     */
-    private void error(TextInputControl element, Predicate<String> hasError) {
-        element.textProperty().addListener((obs, o, n) -> {
-            if(hasError.test(n)) {
-                element.getStyleClass().add("error");
-            } else {
-                element.getStyleClass().removeAll("error");
-            }
-        });
-    }
-
-    /**
-     * Disables a node if any of the provide suppliers returns true when called.
-     */
-    private <T> ChangeListener<T> disable(Node toDisable, BooleanSupplier... errorSuppliers) {
-        return (obs, o, n) -> {
-            for(BooleanSupplier supplier : errorSuppliers) {
-                if(supplier.getAsBoolean()) {
-                    toDisable.setDisable(true);
-                    return;
-                }
-            }
-            toDisable.setDisable(false);
-        };
+        Inputs.integer(ratingField, 0, 10);
     }
 
     private void swapPanes(boolean loginAbove) {
@@ -161,7 +129,7 @@ public class ReviewController implements Initializable {
 
             app.getStage(this).close();
             movieDetailsController.loadReviews(1);
-            app.alert(Alert.AlertType.CONFIRMATION, "Review added", movieDetailsController).show();
+            app.alert(Alert.AlertType.INFORMATION, "Review added", movieDetailsController).show();
         } catch(SQLException e) {
             e.printStackTrace();
             app.alert(Alert.AlertType.ERROR, "An error happened: " + e.getMessage(), this).showAndWait();
