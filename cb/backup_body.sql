@@ -49,6 +49,7 @@ create or replace package body backup is
                 u.firstname = p.firstname,
                 u.creation_date = p.creation_date,
                 u.backup_flag = 1
+            where u.creation_date < p.creation_date
         when not matched then
             insert values (
                 p.username,
@@ -80,6 +81,7 @@ create or replace package body backup is
                 u.creation_date = p.creation_date,
                 u.content = p.content,
                 u.backup_flag = 1
+            where u.creation_date < p.creation_date
         when not matched then
             insert values (
                 p.username,
