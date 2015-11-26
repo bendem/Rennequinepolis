@@ -1,74 +1,58 @@
 create or replace package body search is
 
     function search(
-        p_actors varchar2_t,
-        p_title movies.movie_title%type,
+        p_actors    varchar2_t,
+        p_title     movies.movie_title%type,
         p_directors varchar2_t,
-        p_years number_t,
-        p_years_comparisons varchar2_t) return sys_refcursor
+        p_before    number,
+        p_after     number,
+        p_during    number) return cur
     is
-        v_parts varchar2_t;
-        v_query varchar2(2000) := 'select * from movies left join images on (movie_poster_id = image_id) left join statuses on (movie_status_id = status_id) where 1 = 1';
-        x sys_refcursor;
+        actors_count    number(2, 0) := 0;
+        directors_count number(2, 0) := 0;
+        x cur;
     begin
-        -- TODO Build a worst case static sql query and short circuit the predicate
-        if p_title is not null then
-            v_query := v_query || ' and ' || replace(title_criteria, ':title', p_title);
+        if p_actors is not null then
+            actors_count := p_actors.count;
+        end if;
+        if p_directors is not null then
+            directors_count := p_directors.count;
         end if;
 
-        if p_years is not null then
-            for i in p_years.first..p_years.last loop
-                v_query := v_query || ' and ' || replace(replace(date_criteria, ':year', p_years(i)), ':comparator', coalesce(p_years_comparisons(i), '='));
-            end loop;
-        end if;
+        open x for
+            with actor_search(person_name) as (
+                select '%' || column_value || '%' from table(p_actors)
+            ), director_search(person_name) as (
+                select '%' || column_value || '%' from table(p_directors)
+            )
+            select *
+            from movies
+            left join images   on (movie_poster_id = image_id)
+            left join statuses on (movie_status_id = status_id)
+            where 1 = 1
+                and (movie_title is null or lower(movie_title) like lower('%' || p_title || '%'))
+                -- TODO This is not right
+                and (p_actors is null or movie_id in (
+                    select movie_id
+                    from characters
+                    natural join people
+                    left join actor_search on (people.person_name like actor_search.person_name)
+                    group by movie_id
+                    having count(distinct actor_search.person_name) = actors_count
+                ))
+                and (p_directors is null or movie_id in (
+                    select movie_id
+                    from movies_directors
+                    natural join people
+                    inner join director_search on (people.person_name like director_search.person_name)
+                    group by movie_id
+                    having count(distinct director_search.person_name) = directors_count
+                ))
+                and (p_during is null or extract(year from movie_release_date) = p_during)
+                and (p_before is null or extract(year from movie_release_date) < p_before)
+                and (p_after  is null or extract(year from movie_release_date) > p_after)
+        ;
 
-        if p_actors is not null or p_directors is not null then
-            v_query := v_query || ' and movie_id in (';
-
-            if p_actors is not null then
-                for i in p_actors.first..p_actors.last loop
-                    v_query := v_query || actor_base_criteria;
-
-                    v_parts := varchar2_t();
-                    v_parts := utils.split(p_actors(i), ' ');
-
-                    for j in v_parts.first..v_parts.last loop
-                        v_query := v_query || ' and ' || replace(person_part_criteria, ':name', v_parts(j));
-                    end loop;
-
-                    if i <> p_actors.last then
-                        v_query := v_query || ' intersect ';
-                    end if;
-                end loop;
-
-                if p_directors is not null then
-                    v_query := v_query || ' intersect ';
-                end if;
-            end if;
-
-            if p_directors is not null then
-                for i in p_directors.first..p_directors.last loop
-                    v_query := v_query || director_base_criteria;
-
-                    v_parts := varchar2_t();
-                    v_parts := utils.split(p_directors(i), ' ');
-
-                    for j in v_parts.first..v_parts.last loop
-                        v_query := v_query || ' and ' || replace(person_part_criteria, ':name', v_parts(j));
-                    end loop;
-
-                    if i <> p_directors.last then
-                        v_query := v_query || ' intersect ';
-                    end if;
-                end loop;
-            end if;
-
-            v_query := v_query || ' )';
-        end if;
-
-        dbms_output.put_line(v_query);
-
-        open x for (v_query);
         return x;
     end;
 
@@ -91,7 +75,7 @@ create or replace package body search is
     begin
         open x for select * from people
         left join images on (person_profile_id = image_id)
-        where person_id in (select person_id from movies_actors_characters where movie_id = p_id);
+        where person_id in (select person_id from characters where movie_id = p_id);
         return x;
     end;
 
