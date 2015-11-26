@@ -1,12 +1,11 @@
 package be.hepl.benbear.oedapp;
 
+import be.hepl.benbear.oedapp.jdbc.SwappableConnection;
 import javafx.stage.Stage;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -22,7 +21,7 @@ public class SearchApplication extends BaseApplication {
     }
 
     private final ExecutorService threadPool = Executors.newFixedThreadPool(2);
-    private Connection connection;
+    private SwappableConnection connection;
     private String user;
 
     public SearchApplication() {
@@ -39,7 +38,10 @@ public class SearchApplication extends BaseApplication {
         Class.forName("oracle.jdbc.driver.OracleDriver");
         // FIXME Once again, pwd in code :/
         // TODO The connection is supposed to switch to cbb when cb dies
-        connection = DriverManager.getConnection("jdbc:oracle:thin:@178.32.41.4:8080:xe", "cb", "cb_bendemiscrazy");
+        connection = new SwappableConnection()
+            .registerConnection("jdbc:oracle:thin:@178.32.41.4:8080:xe", "cb", "cb_bendemiscrazy")
+            .registerConnection("jdbc:oracle:thin:@178.32.41.4:8080:xe", "cbb", "cb_bendemiscrazy")
+            .connect();
     }
 
     @Override
@@ -51,7 +53,7 @@ public class SearchApplication extends BaseApplication {
         threadPool.shutdown();
     }
 
-    public Connection getConnection() {
+    public SwappableConnection getConnection() {
         return connection;
     }
 

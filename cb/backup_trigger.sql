@@ -8,7 +8,7 @@ declare
     backup_flag users.backup_flag%type;
 begin
     if :new.backup_flag = 0 then
-        -- Prevent a network request
+        -- Prevent a network request through the db link
         select backup_flag into backup_flag from users where username = :new.username;
         if backup_flag = 1 then
             if inserting then

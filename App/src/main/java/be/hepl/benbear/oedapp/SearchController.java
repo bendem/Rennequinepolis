@@ -1,6 +1,7 @@
 package be.hepl.benbear.oedapp;
 
 import be.hepl.benbear.oedapp.jdbc.ResultSetExtractor;
+import be.hepl.benbear.oedapp.jdbc.SwappableConnection;
 import be.hepl.benbear.oedapp.parser.SearchParser;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.concurrent.Task;
@@ -17,7 +18,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.CallableStatement;
-import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -166,7 +166,7 @@ public class SearchController implements Initializable {
     private static class SearchTask extends FetchTask<Movie> {
 
         public SearchTask(SearchApplication app, Map<String, List<String>> query) {
-            super(() -> buildQuery(app.getConnection(), query), rs -> new Movie(
+            super(app.getConnection(), () -> buildQuery(app.getConnection(), query), rs -> new Movie(
                 ResultSetExtractor.getInt(rs, "movie_id").getAsInt(),
                 ResultSetExtractor.getString(rs, "movie_title").get(),
                 ResultSetExtractor.getString(rs, "movie_original_title").get(),
@@ -184,7 +184,7 @@ public class SearchController implements Initializable {
             ));
         }
 
-        private static CallableStatement buildQuery(Connection connection, Map<String, List<String>> query) throws SQLException {
+        private static CallableStatement buildQuery(SwappableConnection connection, Map<String, List<String>> query) throws SQLException {
             if(query.containsKey("id")) {
                 CallableStatement stmt = connection.prepareCall("{ ? = call search.search(p_id => ?) }");
                 stmt.registerOutParameter(1, OracleTypes.CURSOR);

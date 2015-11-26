@@ -16,10 +16,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 import java.net.URL;
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
 
@@ -96,9 +92,9 @@ public class ReviewController implements Initializable {
     private void onLogin(ActionEvent actionEvent) {
         String username = usernameField.getText().trim();
 
-        try(PreparedStatement stmt = app.getConnection().prepareStatement("select * from users where username = ?")) {
-            stmt.setString(1, username);
-            try(ResultSet rs = stmt.executeQuery()) {
+        app.getConnection().preparedStatement("select * from users where username = ?",
+            stmt -> stmt.setString(1, username),
+            rs -> {
                 if(rs.next()) {
                     String dbPassword = rs.getString("password");
                     if(passwordField.getText().equals(dbPassword)) {
@@ -108,32 +104,35 @@ public class ReviewController implements Initializable {
                     }
                 }
                 app.alert(Alert.AlertType.ERROR, "Invalid username or password", this).showAndWait();
-            }
-        } catch(SQLException e) {
-            e.printStackTrace();
-            app.alert(
-                Alert.AlertType.ERROR,
-                "An error happened: " + e.getMessage(),
-                movieDetailsController
-            ).showAndWait();
-        }
+            },
+            e -> {
+                e.printStackTrace();
+                app.alert(
+                    Alert.AlertType.ERROR,
+                    "An error happened: " + e.getMessage(),
+                    movieDetailsController
+                ).showAndWait();
+            });
     }
 
     private void onReview(ActionEvent actionEvent) {
-        try(CallableStatement stmt = app.getConnection().prepareCall("{ call management.add_review(?, ?, ?, ?) }")) {
-            stmt.setString(1, app.getUser());
-            stmt.setInt(2, movieDetailsController.getMovie().getId());
-            stmt.setInt(3, Integer.parseInt(ratingField.getText().trim()));
-            stmt.setString(4, reviewField.getText().trim());
-            stmt.execute();
+        app.getConnection().preparedCall("{ call management.add_review(?, ?, ?, ?) }",
+            stmt -> {
+                stmt.setString(1, app.getUser());
+                stmt.setInt(2, movieDetailsController.getMovie().getId());
+                stmt.setInt(3, Integer.parseInt(ratingField.getText().trim()));
+                stmt.setString(4, reviewField.getText().trim());
+                stmt.execute();
+                app.getConnection().commit();
 
-            app.getStage(this).close();
-            movieDetailsController.loadReviews(1);
-            app.alert(Alert.AlertType.INFORMATION, "Review added", movieDetailsController).show();
-        } catch(SQLException e) {
-            e.printStackTrace();
-            app.alert(Alert.AlertType.ERROR, "An error happened: " + e.getMessage(), this).showAndWait();
-        }
+                app.getStage(this).close();
+                movieDetailsController.loadReviews(1);
+                app.alert(Alert.AlertType.INFORMATION, "Review added", movieDetailsController).show();
+            },
+            e -> {
+                e.printStackTrace();
+                app.alert(Alert.AlertType.ERROR, "An error happened: " + e.getMessage(), this).showAndWait();
+            });
     }
 
     public void setMovieDetailsController(MovieDetailsController movieDetailsController) {

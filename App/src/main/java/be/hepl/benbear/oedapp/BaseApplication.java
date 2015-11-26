@@ -20,10 +20,6 @@ public abstract class BaseApplication extends Application {
     private final Set<URL> stylesheets;
     private Stage mainStage;
 
-    protected BaseApplication() {
-        this(Collections.emptySet());
-    }
-
     protected BaseApplication(URL... stylesheets) {
         this(Arrays.asList(stylesheets));
     }

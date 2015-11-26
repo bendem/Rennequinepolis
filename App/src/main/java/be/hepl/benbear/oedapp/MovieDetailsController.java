@@ -158,7 +158,7 @@ public class MovieDetailsController implements Initializable {
     }
 
     private FetchTask<Person> getPersonFetchTask(String kind) {
-        return new FetchTask<>(() -> {
+        return new FetchTask<>(app.getConnection(), () -> {
             CallableStatement cs = app.getConnection().prepareCall("{ ? = call search.get_" + kind + "(?) }");
             cs.registerOutParameter(1, OracleTypes.CURSOR);
             cs.setInt(2, movie.getId());
@@ -184,7 +184,7 @@ public class MovieDetailsController implements Initializable {
     }
 
     private FetchTask<Review> getReviewFetchTask(int page) {
-        return new FetchTask<>(() -> {
+        return new FetchTask<>(app.getConnection(), () -> {
             CallableStatement cs = app.getConnection().prepareCall("{ ? = call search.get_reviews(?, ?) }");
             cs.registerOutParameter(1, OracleTypes.CURSOR);
             cs.setInt(2, movie.getId());
@@ -205,18 +205,20 @@ public class MovieDetailsController implements Initializable {
     private class LanguageTask extends Task<Set<String>> {
         @Override
         protected Set<String> call() throws Exception {
-            Set<String> set = new HashSet<>();
-            try(CallableStatement cs = app.getConnection().prepareCall("{ ? = call search.get_languages(?) }")) {
-                cs.registerOutParameter(1, OracleTypes.CURSOR);
-                cs.setInt(2, movie.getId());
-                cs.execute();
-                try(ResultSet rs = (ResultSet) cs.getObject(1)) {
-                    while(rs.next()) {
-                        set.add(rs.getString("spoken_language_name"));
+            return app.getConnection().execute(() -> {
+                Set<String> set = new HashSet<>();
+                try(CallableStatement cs = app.getConnection().prepareCall("{ ? = call search.get_languages(?) }")) {
+                    cs.registerOutParameter(1, OracleTypes.CURSOR);
+                    cs.setInt(2, movie.getId());
+                    cs.execute();
+                    try(ResultSet rs = (ResultSet) cs.getObject(1)) {
+                        while(rs.next()) {
+                            set.add(rs.getString("spoken_language_name"));
+                        }
                     }
                 }
-            }
-            return set;
+                return set;
+            });
         }
     }
 
