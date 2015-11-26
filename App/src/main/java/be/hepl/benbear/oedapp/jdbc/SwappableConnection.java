@@ -1,8 +1,8 @@
 package be.hepl.benbear.oedapp.jdbc;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 public class SwappableConnection {
@@ -27,7 +27,7 @@ public class SwappableConnection {
     private int current = 0;
 
     public SwappableConnection() {
-        connections = new CopyOnWriteArrayList<>();
+        connections = new ArrayList<>();
     }
 
     public SwappableConnection registerConnection(String jdbc, String username, String password) {
