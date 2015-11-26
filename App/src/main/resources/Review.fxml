@@ -10,7 +10,7 @@
    <children>
       <StackPane fx:id="stackPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <VBox fx:id="loginVBox" opacity="0.0" spacing="5.0">
+            <VBox fx:id="loginVBox" opacity="0.0" spacing="10.0">
                <children>
                   <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Login">
                      <font>
@@ -23,27 +23,27 @@
                         <Insets bottom="10.0" top="15.0" />
                      </padding>
                   </Label>
-                  <GridPane hgap="5.0" vgap="5.0" VBox.vgrow="ALWAYS">
+                  <GridPane hgap="10.0" vgap="10.0" VBox.vgrow="ALWAYS">
                      <columnConstraints>
                         <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
                         <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
                      </columnConstraints>
                      <rowConstraints>
-                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="-Infinity" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="-Infinity" vgrow="SOMETIMES" />
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
                      </rowConstraints>
                      <children>
                         <TextField fx:id="usernameField" GridPane.columnIndex="1" />
                         <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <Label text="Username" />
-                        <Label text="Password" GridPane.rowIndex="1" />
-                        <Button fx:id="loginButton" mnemonicParsing="false" text="Login" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <Label maxHeight="1.7976931348623157E308" text="Username" />
+                        <Label maxHeight="1.7976931348623157E308" text="Password" GridPane.rowIndex="1" />
+                        <Button fx:id="loginButton" disable="true" mnemonicParsing="false" text="Login" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                      </children>
                   </GridPane>
                </children>
             </VBox>
-            <VBox fx:id="reviewVBox" spacing="5.0">
+            <VBox fx:id="reviewVBox" spacing="10.0">
                <children>
                   <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Add review">
                      <font>
@@ -53,13 +53,13 @@
                         <Insets bottom="10.0" top="15.0" />
                      </VBox.margin>
                   </Label>
-                  <HBox spacing="5.0">
+                  <HBox spacing="10.0">
                      <children>
-                        <Label text="Rating" />
+                        <Label maxHeight="1.7976931348623157E308" text="Rating" />
                         <TextField fx:id="ratingField" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" HBox.hgrow="ALWAYS" />
                      </children>
                   </HBox>
-                  <Label text="Review" />
+                  <Label maxHeight="1.7976931348623157E308" text="Review" />
                   <TextArea fx:id="reviewField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                   <Button fx:id="reviewButton" defaultButton="true" mnemonicParsing="false" text="Add review" />
                </children>
@@ -71,6 +71,6 @@
       </StackPane>
    </children>
    <padding>
-      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
    </padding>
 </AnchorPane>
