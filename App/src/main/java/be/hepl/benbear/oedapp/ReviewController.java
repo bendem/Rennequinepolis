@@ -16,6 +16,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
 
@@ -130,6 +131,9 @@ public class ReviewController implements Initializable {
                 app.alert(Alert.AlertType.INFORMATION, "Review added", movieDetailsController).show();
             },
             e -> {
+                try {
+                    app.getConnection().rollback();
+                } catch(SQLException ignored) {}
                 e.printStackTrace();
                 app.alert(Alert.AlertType.ERROR, "An error happened: " + e.getMessage(), this).showAndWait();
             });

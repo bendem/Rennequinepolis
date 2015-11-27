@@ -38,9 +38,8 @@ public class SearchApplication extends BaseApplication {
         Class.forName("oracle.jdbc.driver.OracleDriver");
         // FIXME Once again, pwd in code :/
         // TODO The connection is supposed to switch to cbb when cb dies
-        connection = new SwappableConnection()
-            .registerConnection("jdbc:oracle:thin:@178.32.41.4:8080:xe", "cb", "cb_bendemiscrazy")
-            .registerConnection("jdbc:oracle:thin:@178.32.41.4:8080:xe", "cbb", "cb_bendemiscrazy")
+        connection = new SwappableConnection("jdbc:oracle:thin:@178.32.41.4:8080:xe", "cb", "cb_bendemiscrazy")
+            .registerSlave("jdbc:oracle:thin:@178.32.41.4:8080:xe", "cbb", "cb_bendemiscrazy")
             .connect();
     }
 
