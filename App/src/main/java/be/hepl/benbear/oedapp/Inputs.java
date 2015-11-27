@@ -12,6 +12,10 @@ public final class Inputs {
 
     private Inputs() {}
 
+    private static int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
     /**
      * Setups listeners on a text input so that only integers between the provided
      * bounds can be entered. Also adds keyboard shortcuts to increase / decrease
@@ -19,11 +23,13 @@ public final class Inputs {
      */
     public static void integer(TextInputControl input, int min, int max) {
         if(input.getText().isEmpty()) {
-            input.setText("0");
+            input.setText(String.valueOf(min));
         }
         input.textProperty().addListener((obs, o, n) -> {
             if(n.isEmpty()) {
-                input.setText("0");
+                input.setText(String.valueOf(min));
+            } else {
+                input.setText(String.valueOf(clamp(Integer.parseInt(n), min, max)));
             }
         });
 
@@ -42,7 +48,7 @@ public final class Inputs {
             int current = input.getText().isEmpty() ? 0 : Integer.parseInt(input.getText());
             int newCount = (e.getCode() == KeyCode.UP ? 1 : -1) * (e.isControlDown() ? 10 : 1) + current;
 
-            input.setText(String.valueOf(Math.max(min, Math.min(max, newCount))));
+            input.setText(String.valueOf(clamp(newCount, min, max)));
             e.consume();
         });
     }
