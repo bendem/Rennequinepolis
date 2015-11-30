@@ -39,9 +39,9 @@ create or replace package body management is
         pragma exception_init(fk_exception, -2191);
     begin
         merge into reviews r using (
-            select username, movie_id
-            from reviews
-        ) p on (r.username = p_username and r.movie_id = p_movie_id)
+            select p_username username, p_movie_id movie_id
+            from dual
+        ) p on (r.username = p.username and r.movie_id = p.movie_id)
         when matched then
             update set
                 r.rating = p_rating,
@@ -255,4 +255,3 @@ create or replace package body management is
     end modify_review;
 
 end management;
-/
