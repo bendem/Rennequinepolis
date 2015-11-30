@@ -1,5 +1,6 @@
 package be.hepl.benbear.oedapp;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -126,16 +127,20 @@ public class ReviewController implements Initializable {
                 stmt.execute();
                 app.getConnection().commit();
 
-                app.getStage(this).close();
-                movieDetailsController.loadReviews(1);
-                app.alert(Alert.AlertType.INFORMATION, "Review added", movieDetailsController).show();
+                Platform.runLater(() -> {
+                    app.getStage(this).close();
+                    movieDetailsController.loadReviews(1);
+                    app.alert(Alert.AlertType.INFORMATION, "Review added", movieDetailsController).show();
+                });
             },
             e -> {
                 try {
                     app.getConnection().rollback();
                 } catch(SQLException ignored) {}
                 e.printStackTrace();
-                app.alert(Alert.AlertType.ERROR, "An error happened: " + e.getMessage(), this).showAndWait();
+                Platform.runLater(() -> {
+                    app.alert(Alert.AlertType.ERROR, "An error happened: " + e.getMessage(), this).showAndWait();
+                });
             });
     }
 

@@ -80,6 +80,7 @@ public class SwappableConnection {
     }
 
     public void preparedStatement(String sql, SQLConsumer<PreparedStatement> binder, SQLConsumer<ResultSet> consumer, Consumer<SQLException> errorHandler) {
+        System.err.println(sql);
         while(true) {
             try(PreparedStatement stmt = connection.prepareStatement(sql)) {
                 binder.accept(stmt);
@@ -101,6 +102,7 @@ public class SwappableConnection {
     }
 
     public void preparedCall(String sql, SQLConsumer<PreparedStatement> action, Consumer<SQLException> errorHandler) {
+        System.err.println(sql);
         while(true) {
             try(CallableStatement stmt = connection.prepareCall(sql)) {
                 action.accept(stmt);
