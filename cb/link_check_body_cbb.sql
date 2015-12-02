@@ -8,7 +8,11 @@ create or replace package body link_check is
         raise_application_error(20100, 'DB link is up');
     exception
         when others then
-            null;
+            if sqlcode = 20100 then
+                backup.propagate_review_changes();
+                backup.propagate_copy_changes();
+                raise;
+            end if;
     end;
 
 end link_check;

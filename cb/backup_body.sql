@@ -352,5 +352,20 @@ create or replace package body backup is
         update copies set backup_flag = 1 where backup_flag = 0;
     end;
 
+    procedure propagate_copy_changes is
+    begin
+        merge into copies@link.backup there using (
+            select * from copies
+            where backup_flag = 0
+        ) here on (there.movie_id = here.movie_id)
+        when not matched then
+            insert values (
+                here.movie_id,
+                here.copy_id,
+                1
+            );
+        update copies set backup_flag = 1 where backup_flag = 0;
+    end;
+
 end backup;
 /
