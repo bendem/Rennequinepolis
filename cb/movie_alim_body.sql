@@ -72,7 +72,7 @@ create or replace package body movie_alim is
             where movie_id = p_movie.id;
 
             for i in exist+1..exist+1+j loop
-                insert into copies values (p_movie.id, i);
+                insert into copies values (p_movie.id, i, 0);
             end loop;
             commit;
             logging.i('Update of movie n°' || raw_data.id || ' number of copies done.');
@@ -310,12 +310,13 @@ create or replace package body movie_alim is
             movie_rec.movie_certification_id := null;
         end if;
 
+        movie_rec.backup_flag := 0;
         insert into movies values movie_rec;
 
         -- Insert copies
 
         for i in 1..movie_rec.movie_copies loop
-            insert into copies values (movie_rec.movie_id, i);
+            insert into copies values (movie_rec.movie_id, i, 0);
         end loop;
 
         -- Insert director images

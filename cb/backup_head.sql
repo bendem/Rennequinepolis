@@ -5,6 +5,7 @@ create or replace package backup is
     procedure propagate_user_deletions;
     procedure propagate_user_changes;
     procedure propagate_review_changes;
+    procedure propagate_movie_changes;
 
 end backup;
 /

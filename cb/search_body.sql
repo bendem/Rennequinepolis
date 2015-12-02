@@ -91,7 +91,7 @@ create or replace package body search is
     begin
         open x for select * from people
         left join images on (person_profile_id = image_id)
-        where person_id in (select person_id from movies_actors_characters where movie_id = p_id);
+        where person_id in (select person_id from characters where movie_id = p_id);
         return x;
     end;
 

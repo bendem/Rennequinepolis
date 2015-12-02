@@ -114,6 +114,7 @@ create table movies (
     movie_tagline varchar2(172 char),
     movie_overview clob,
     movie_copies number(4, 0),
+    backup_flag number(1, 0),
     constraint ck_vote_avg_pos check (movie_vote_avg >= 0),
     constraint ck_vote_count_pos check (movie_vote_count >= 0),
     constraint ck_runtime_pos check (movie_runtime >= 0),
@@ -127,6 +128,7 @@ create table movies (
 create table copies (
     movie_id number(6, 0) not null,
     copy_id number(4, 0) not null,
+    backup_flag number(1, 0),
     constraint pk_copies primary key (movie_id, copy_id),
     constraint fk_copies_movies_id foreign key (movie_id) references movies(movie_id)
 );
