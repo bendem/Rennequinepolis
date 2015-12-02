@@ -49,25 +49,29 @@ cat $ROOT/cb/crea.sql                 \
     $ROOT/cb/create_ext_table.sql     \
     $ROOT/cb/movie_alim_head.sql      \
     $ROOT/cb/movie_alim_body.sql      \
+    $ROOT/cb/link_check_head.sql      \
+    $ROOT/cb/link_check_body_cb.sql   \
     $ROOT/cb/search_head.sql          \
     $ROOT/cb/search_body.sql          \
         | $SQLPLUS cb/$CB_PWD@$CB_IP
 
 echo "Initializing cbb"
 echo "================"
-cat $ROOT/cb/crea.sql            \
-    $ROOT/utils/logs.sql         \
-    $ROOT/utils/types.sql        \
-    $ROOT/utils/utils_head.sql   \
-    $ROOT/utils/utils_body.sql   \
-    $ROOT/cb/management_head.sql \
-    $ROOT/cb/management_body.sql \
-    $ROOT/cb/backup_trigger.sql  \
-    $ROOT/cb/backup_head.sql     \
-    $ROOT/cb/backup_body.sql     \
-    $ROOT/cb/create_job.sql      \
-    $ROOT/cb/search_head.sql     \
-    $ROOT/cb/search_body.sql     \
+cat $ROOT/cb/crea.sql                \
+    $ROOT/utils/logs.sql             \
+    $ROOT/utils/types.sql            \
+    $ROOT/utils/utils_head.sql       \
+    $ROOT/utils/utils_body.sql       \
+    $ROOT/cb/link_check_head.sql     \
+    $ROOT/cb/link_check_body_cbb.sql \
+    $ROOT/cb/management_head.sql     \
+    $ROOT/cb/management_body.sql     \
+    $ROOT/cb/backup_trigger.sql      \
+    $ROOT/cb/backup_head.sql         \
+    $ROOT/cb/backup_body.sql         \
+    $ROOT/cb/create_job.sql          \
+    $ROOT/cb/search_head.sql         \
+    $ROOT/cb/search_body.sql         \
         | $SQLPLUS cbb/$CB_PWD@$CB_IP
 
 echo "Setting up cb backup"

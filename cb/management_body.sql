@@ -38,6 +38,8 @@ create or replace package body management is
         fk_exception exception;
         pragma exception_init(fk_exception, -2191);
     begin
+        link_check.check_link_available;
+
         merge into reviews r using (
             select p_username username, p_movie_id movie_id
             from dual
