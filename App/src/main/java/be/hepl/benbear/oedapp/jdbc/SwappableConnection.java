@@ -73,6 +73,7 @@ public class SwappableConnection {
      */
     private boolean handleError(SQLException e) {
         if(e instanceof SQLRecoverableException || e.getErrorCode() == 20100) {
+            System.err.println("Reconnecting");
             connect();
             return true;
         }

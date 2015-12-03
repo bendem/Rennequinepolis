@@ -24,10 +24,14 @@ alter system disconnect session '65,253' immediate;
 alter user cb account lock;
 
 declare
-    r movies_ext%rowtype;
+    type t is table of movies_ext%rowtype;
+    r t;
 begin
-    select * into r from movies_ext where rownum = 1;
-    movie_alim.insert_movie(r);
+    select * bulk collect into r from movies_ext where rownum < 10;
+    for i in r.first..r.last loop
+        movie_alim.insert_movie(r(i));
+    end loop;
+    execute backup.propagate_changes;
 end;
 /
 

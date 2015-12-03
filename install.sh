@@ -40,6 +40,7 @@ cat $ROOT/cb/create_db_link_cb.sql | sed "$INSERT_CB_PWD" | $SQLPLUS cb/$CB_PWD@
 echo "Initializing cb"
 echo "==============="
 cat $ROOT/cb/crea.sql                 \
+    $ROOT/cb/movie_sequences.sql      \
     $ROOT/utils/logs.sql              \
     $ROOT/utils/types.sql             \
     $ROOT/utils/utils_head.sql        \
@@ -62,13 +63,12 @@ cat $ROOT/cb/crea.sql                \
     $ROOT/utils/types.sql            \
     $ROOT/utils/utils_head.sql       \
     $ROOT/utils/utils_body.sql       \
+    $ROOT/cb/backup_head.sql         \
+    $ROOT/cb/backup_body.sql         \
     $ROOT/cb/link_check_head.sql     \
     $ROOT/cb/link_check_body_cbb.sql \
     $ROOT/cb/management_head.sql     \
     $ROOT/cb/management_body.sql     \
-    $ROOT/cb/backup_trigger.sql      \
-    $ROOT/cb/backup_head.sql         \
-    $ROOT/cb/backup_body.sql         \
     $ROOT/cb/create_job.sql          \
     $ROOT/cb/search_head.sql         \
     $ROOT/cb/search_body.sql         \

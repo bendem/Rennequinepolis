@@ -8,5 +8,7 @@ create or replace package backup is
     procedure propagate_copy_changes;
     procedure propagate_movie_changes;
 
+    procedure sync_propagation;
+
 end backup;
 /

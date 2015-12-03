@@ -6,6 +6,7 @@ create or replace package body backup is
         backup.propagate_user_deletions;
         backup.propagate_user_changes;
         backup.propagate_movie_changes;
+        backup.propagate_copy_changes;
         backup.propagate_review_changes;
         logging.i('Backup job done');
         commit;
@@ -365,6 +366,14 @@ create or replace package body backup is
                 1
             );
         update copies set backup_flag = 1 where backup_flag = 0;
+    end;
+
+    procedure sync_propagation is
+        pragma autonomous_transaction;
+    begin
+        backup.propagate_review_changes();
+        backup.propagate_copy_changes();
+        commit;
     end;
 
 end backup;
