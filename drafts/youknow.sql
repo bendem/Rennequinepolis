@@ -21,7 +21,7 @@ end;
 
 select sid, serial#, username, osuser from v$session where username <> 'oracle';
 alter system disconnect session '65,253' immediate;
-alter user cb lock account;
+alter user cb account lock;
 
 declare
     r movies_ext%rowtype;

@@ -65,12 +65,28 @@ public class SwappableConnection {
         throw new RuntimeException("Could not contact master and slaves");
     }
 
+    /**
+     * Possibly handles a sql error by switching connection.
+     *
+     * @param e the exception to handle
+     * @return true if the exception was handled, false if it still needs handling
+     */
+    private boolean handleError(SQLException e) {
+        if(e instanceof SQLRecoverableException || e.getErrorCode() == 20100) {
+            connect();
+            return true;
+        }
+        return false;
+    }
+
     public <T> T execute(SQLCallable<T> operation) throws SQLException {
         while(true) {
             try {
                 return operation.execute();
-            } catch(SQLRecoverableException e) {
-                connect();
+            } catch(SQLException e) {
+                if(!handleError(e)) {
+                    throw e;
+                }
             }
         }
     }
@@ -88,11 +104,11 @@ public class SwappableConnection {
                     consumer.accept(rs);
                     return;
                 }
-            } catch(SQLRecoverableException e) {
-                connect();
             } catch(SQLException e) {
-                errorHandler.accept(e);
-                return;
+                if(!handleError(e)) {
+                    errorHandler.accept(e);
+                    return;
+                }
             }
         }
     }
@@ -107,11 +123,11 @@ public class SwappableConnection {
             try(CallableStatement stmt = connection.prepareCall(sql)) {
                 action.accept(stmt);
                 return;
-            } catch(SQLRecoverableException e) {
-                connect();
             } catch(SQLException e) {
-                errorHandler.accept(e);
-                return;
+                if(!handleError(e)) {
+                    errorHandler.accept(e);
+                    return;
+                }
             }
         }
     }

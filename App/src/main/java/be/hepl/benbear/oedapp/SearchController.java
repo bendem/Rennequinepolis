@@ -106,7 +106,9 @@ public class SearchController implements Initializable {
             while(task.isRunning()) {
                 try {
                     TimeUnit.MILLISECONDS.sleep(10);
-                } catch(InterruptedException e) {}
+                } catch(InterruptedException e) {
+                    break;
+                }
             }
             loadingImage.setVisible(false);
         }
