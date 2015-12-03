@@ -11,35 +11,32 @@ begin
         -- Prevent a network request through the db link
         select backup_flag into backup_flag from users where username = :new.username;
         if backup_flag = 1 then
-            if inserting then
-                insert into reviews@link.backup (
-                    username,
-                    movie_id,
-                    rating,
-                    creation_date,
-                    content,
-                    backup_flag
-                ) values (
-                    :new.username,
-                    :new.movie_id,
-                    :new.rating,
-                    :new.creation_date,
-                    :new.content,
+            merge into reviews@link.backup u using (
+            select
+                :new.username username,
+                :new.movie_id movie_id,
+                :new.rating rating,
+                :new.creation_date creation_date,
+                :new.content content,
+                :new.backup_flag backup_flag
+            from dual
+            ) p on (u.username = p.username and u.movie_id = p.movie_id)
+            when matched then
+                update set
+                    u.rating = p.rating,
+                    u.creation_date = p.creation_date,
+                    u.content = p.content,
+                    u.backup_flag = 1
+                --where u.creation_date < p.creation_date
+            when not matched then
+                insert values (
+                    p.username,
+                    p.movie_id,
+                    p.rating,
+                    p.creation_date,
+                    p.content,
                     1
                 );
-            end if;
-
-            if updating then
-                update reviews@link.backup set
-                    username = :new.username,
-                    movie_id = :new.movie_id,
-                    rating = :new.rating,
-                    creation_date = :new.creation_date,
-                    content = :new.content,
-                    backup_flag = 1
-                where username = :new.username and movie_id = :new.movie_id;
-            end if;
-
             :new.backup_flag := 1;
         end if;
     end if;
