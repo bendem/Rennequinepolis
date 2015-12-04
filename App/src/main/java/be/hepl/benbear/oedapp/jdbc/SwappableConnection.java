@@ -4,6 +4,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class SwappableConnection {
 
@@ -24,10 +25,12 @@ public class SwappableConnection {
 
     private final String[] master;
     private final List<String[]> slaves;
+    private Predicate<SQLException> switchPredicate;
     private Connection connection;
     private boolean disconnected = false;
 
-    public SwappableConnection(String jdbc, String username, String password) {
+    public SwappableConnection(Predicate<SQLException> predicate, String jdbc, String username, String password) {
+        switchPredicate = predicate;
         master = new String[] { jdbc, username, password };
         slaves = new ArrayList<>();
     }
@@ -72,7 +75,7 @@ public class SwappableConnection {
      * @return true if the exception was handled, false if it still needs handling
      */
     private boolean handleError(SQLException e) {
-        if(e instanceof SQLRecoverableException || e.getErrorCode() == 20100) {
+        if(switchPredicate.test(e)) {
             System.err.println("Reconnecting");
             connect();
             return true;

@@ -6,6 +6,7 @@ import javafx.stage.Stage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.SQLRecoverableException;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -37,7 +38,9 @@ public class SearchApplication extends BaseApplication {
     public void init() throws Exception {
         Class.forName("oracle.jdbc.driver.OracleDriver");
         // FIXME Once again, pwd in code :/
-        connection = new SwappableConnection("jdbc:oracle:thin:@178.32.41.4:8080:xe", "cb", "cb_bendemiscrazy")
+        connection = new SwappableConnection(
+            e -> e instanceof SQLRecoverableException || e.getErrorCode() == 20100,
+            "jdbc:oracle:thin:@178.32.41.4:8080:xe", "cb", "cb_bendemiscrazy")
             .registerSlave("jdbc:oracle:thin:@178.32.41.4:8080:xe", "cbb", "cb_bendemiscrazy")
             .connect();
     }
