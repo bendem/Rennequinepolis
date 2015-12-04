@@ -133,7 +133,7 @@ create table reviews (
     constraint pk_reviews primary key (username, movie_id),
     constraint fk_reviews_movie_id foreign key (movie_id) references movies(movie_id),
     constraint fk_reviews_username foreign key (username) references users(username),
-    constraint ck_rating_pos check (rating >= 0)
+    constraint ck_rating_pos check (rating >= 0 and rating <= 10)
 );
 
 -- movies_spoken_languages
