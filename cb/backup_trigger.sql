@@ -27,7 +27,7 @@ begin
                     u.creation_date = p.creation_date,
                     u.content = p.content,
                     u.backup_flag = 1
-                where u.creation_date < p.creation_date
+                --where u.creation_date < p.creation_date
             when not matched then
                 insert values (
                     p.username,

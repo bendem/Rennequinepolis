@@ -127,7 +127,7 @@ create table reviews (
     username varchar2(63 char) not null,
     movie_id number(6, 0) not null,
     rating number(2, 0),
-    creation_date date default current_date,
+    creation_date timestamp default current_timestamp,
     content varchar2(511 char),
     backup_flag number(1, 0),
     constraint pk_reviews primary key (username, movie_id),

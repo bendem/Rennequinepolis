@@ -83,7 +83,7 @@ create or replace package body backup is
                 u.creation_date = p.creation_date,
                 u.content = p.content,
                 u.backup_flag = 1
-            where u.creation_date < p.creation_date
+            --where u.creation_date < p.creation_date
         when not matched then
             insert values (
                 p.username,
@@ -374,6 +374,9 @@ create or replace package body backup is
         backup.propagate_review_changes();
         backup.propagate_copy_changes();
         commit;
+    exception
+        when others then
+            Logging.e('sync_propagation fail');
     end;
 
 end backup;
