@@ -36,7 +36,7 @@ create or replace package body management is
         p_content  in reviews.content%type)
     is
         fk_exception exception;
-        pragma exception_init(fk_exception, -2191);
+        pragma exception_init(fk_exception, -2291);
     begin
         link_check.check_link_available;
 
@@ -61,7 +61,14 @@ create or replace package body management is
             );
     exception
         when fk_exception then
-            raise_application_error(20001, '');
+            case
+                when sqlerrm like '%FK_REVIEWS_MOVIE_ID%' then
+                    raise_application_error(-20001, 'Internal error, restart your search');
+                when sqlerrm like '%FK_REVIEWS_USERNAME%' then
+                    raise_application_error(-20002, 'Internal error, your session is invalid');
+                else
+                    raise;
+            end case;
         when others then
             logging.e('Failed to add a review: ' || sqlerrm);
             raise;

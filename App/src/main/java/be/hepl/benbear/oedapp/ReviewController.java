@@ -1,5 +1,6 @@
 package be.hepl.benbear.oedapp;
 
+import be.hepl.benbear.oedapp.jdbc.ExceptionUtil;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
@@ -139,7 +140,11 @@ public class ReviewController implements Initializable {
                 } catch(SQLException ignored) {}
                 e.printStackTrace();
                 Platform.runLater(() -> {
-                    app.alert(Alert.AlertType.ERROR, "An error happened: " + e.getMessage(), this).showAndWait();
+                    app.alert(
+                        Alert.AlertType.ERROR,
+                        "An error happened: " + ExceptionUtil.extractMessage(e),
+                        this
+                    ).showAndWait();
                 });
             });
     }
