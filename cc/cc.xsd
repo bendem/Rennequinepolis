@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<x:schema xmlns:x="http://www.w3.org/2001/XMLSchema" xmlns:xdb="http://xmlns.oracle.com/xdb">
+    <x:element name="movie" type="movie_type" />
+    <x:complexType name="movie_type">
+        <x:sequence>
+            <x:element name="id" type="x:integer" />
+            <x:element name="title" type="x:string" />
+            <x:element name="original_title" type="x:string" />
+            <x:element name="release_date" type="x:date" />
+            <x:element name="status" type="x:string" />
+            <x:element name="certification" type="x:string" />
+            <x:element name="vote_average" type="x:integer" />
+            <x:element name="vote_count" type="x:integer" />
+            <x:element name="runtime" type="x:integer" />
+            <x:element name="poster" type="x:hexBinary" />
+            <x:element name="budget" type="x:integer" />
+            <x:element name="revenue" type="x:integer" />
+            <x:element name="homepage" type="x:string" />
+            <x:element name="tagline" type="x:string" />
+            <x:element name="overview" type="x:string" />
+            <x:element name="copie_id" type="x:integer" minOccurs="0" maxOccurs="unbounded" />
+            <x:element name="actor" minOccurs="0" maxOccurs="unbounded">
+                <x:complexType>
+                    <x:sequence>
+                        <x:element name="id" type="x:integer" />
+                        <x:element name="name" type="x:string" />
+                        <x:element name="picture" type="x:hexBinary" />
+                        <x:element name="character_name" type="x:string" />
+                    </x:sequence>
+                </x:complexType>
+            </x:element>
+            <x:element name="director" minOccurs="0" maxOccurs="unbounded">
+                <x:complexType>
+                    <x:sequence>
+                        <x:element name="id" type="x:integer" />
+                        <x:element name="name" type="x:string" />
+                        <x:element name="picture" type="x:hexBinary" />
+                    </x:sequence>
+                </x:complexType>
+            </x:element>
+            <x:element name="production_company" type="x:string" minOccurs="0" maxOccurs="unbounded" />
+            <x:element name="production_country" type="x:string" minOccurs="0" maxOccurs="unbounded" />
+            <x:element name="genre" type="x:string" minOccurs="0" maxOccurs="unbounded" />
+            <x:element name="review" minOccurs="0" maxOccurs="unbounded">
+                <x:complexType>
+                    <x:sequence>
+                        <x:element name="rating" type="x:integer" />
+                        <x:element name="creation_date" type="x:date" />
+                        <x:element name="content" type="x:string" />
+                    </x:sequence>
+                </x:complexType>
+            </x:element>
+            <x:element name="spoken_language" type="x:string" minOccurs="0" maxOccurs="unbounded" />
+        </x:sequence>
+    </x:complexType>
+</x:schema>
