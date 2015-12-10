@@ -13,6 +13,7 @@ create or replace package body link_check is
         when dbup then
             raise_application_error(-20100, 'CB db link is back up');
         when others then
+            -- Ignores failure, means cb is still down.
             null;
     end;
 

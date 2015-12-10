@@ -1,5 +1,11 @@
 create or replace package body search is
 
+    title_criteria         constant varchar2(200) := q'[lower(movie_title) like lower('%:title%')]';
+    date_criteria          constant varchar2(200) := q'[extract(year from movie_release_date) :comparator :year]';
+    actor_base_criteria    constant varchar2(200) := q'[select movie_id from movies natural join movies_actors_characters natural join people where 1 = 1]';
+    director_base_criteria constant varchar2(200) := q'[select movie_id from movies natural join movies_directors natural join people where 1 = 1]';
+    person_part_criteria   constant varchar2(200) := q'[lower(person_name) like lower('%:name%')]';
+
     function search(
         p_actors varchar2_t,
         p_title movies.movie_title%type,
@@ -82,9 +88,9 @@ create or replace package body search is
         link_check.check_link_available;
 
         open x for select * from movies
-        left join images on (movie_poster_id = image_id)
-        left join statuses on (movie_status_id = status_id)
-        where movie_id = p_id;
+            left join images on (movie_poster_id = image_id)
+            left join statuses on (movie_status_id = status_id)
+            where movie_id = p_id;
         return x;
     end;
 
@@ -94,8 +100,10 @@ create or replace package body search is
         x sys_refcursor;
     begin
         open x for select * from people
-        left join images on (person_profile_id = image_id)
-        where person_id in (select person_id from characters where movie_id = p_id);
+            left join images on (person_profile_id = image_id)
+            where person_id in (
+                select person_id from characters where movie_id = p_id
+            );
         return x;
     end;
 
@@ -105,8 +113,10 @@ create or replace package body search is
         x sys_refcursor;
     begin
         open x for select * from people
-        left join images on (person_profile_id = image_id)
-        where person_id in (select person_id from movies_directors where movie_id = p_id);
+            left join images on (person_profile_id = image_id)
+            where person_id in (
+                select person_id from movies_directors where movie_id = p_id
+            );
         return x;
     end;
 
@@ -133,7 +143,9 @@ create or replace package body search is
     is
         x sys_refcursor;
     begin
-        open x for select * from movies_spoken_languages natural join spoken_languages where movie_id = p_id;
+        open x for select * from movies_spoken_languages
+            natural join spoken_languages
+            where movie_id = p_id;
         return x;
     end;
 

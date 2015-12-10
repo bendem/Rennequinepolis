@@ -1,3 +1,5 @@
+-- Backups changes made to a review if its owner is already up to date with
+-- its backup counter part.
 create or replace trigger backup_reviews_trigger
 before insert or update on reviews
 for each row
@@ -27,6 +29,8 @@ begin
                     u.creation_date = p.creation_date,
                     u.content = p.content,
                     u.backup_flag = 1
+                -- FIXME This should prevent overriding a more recent reviews
+                -- but it's causing more problems than it solves.
                 --where u.creation_date < p.creation_date
             when not matched then
                 insert values (
@@ -47,6 +51,7 @@ exception
 end;
 /
 
+-- Backups changes made to a movie copy.
 create or replace trigger backup_copies_trigger
 before insert on copies
 for each row

@@ -371,12 +371,13 @@ create or replace package body backup is
     procedure sync_propagation is
         pragma autonomous_transaction;
     begin
-        backup.propagate_review_changes();
-        backup.propagate_copy_changes();
+        backup.propagate_review_changes;
+        backup.propagate_copy_changes;
         commit;
     exception
         when others then
             Logging.e('sync_propagation fail');
+            rollback;
     end;
 
 end backup;

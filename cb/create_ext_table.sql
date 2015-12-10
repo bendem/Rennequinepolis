@@ -1,3 +1,4 @@
+-- TODO Should be configurable
 create or replace directory movies_dir as '/dev/shm/movies';
 /
 -- place movies.txt in the directory and change user rights to oracle:dba
@@ -56,5 +57,6 @@ create table movies_ext (
             spoken_languages     char(1000)
         )
     )
+    -- TODO Should be configurable
     location('movies.txt')
 ) reject limit unlimited;

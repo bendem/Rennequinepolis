@@ -1,5 +1,5 @@
 -- users
--- -------
+-- -----
 create table users (
     username varchar2(63 char) constraint pk_users primary key,
     password varchar2(63 char) not null,
@@ -10,8 +10,7 @@ create table users (
 );
 
 -- images
--- --------
-
+-- ------
 create table images (
     image_id number(6, 0) constraint pk_images primary key,
     image_path varchar2(32 char) not null,
@@ -20,7 +19,7 @@ create table images (
 );
 
 -- people
--- --------
+-- ------
 create table people (
     person_id number(7, 0) constraint pk_people primary key,
     person_name varchar2(23 char) not null,
@@ -28,7 +27,7 @@ create table people (
 );
 
 -- certifications
--- --------
+-- --------------
 create table certifications (
     certification_id number(6, 0) constraint pk_certifications primary key,
     certification_name varchar2(9 char) not null,
@@ -44,35 +43,35 @@ create table statuses (
 );
 
 -- spoken_languages
--- --------
+-- ----------------
 create table spoken_languages (
     spoken_language_id varchar2(2 char) constraint pk_spoken_languages primary key,
     spoken_language_name varchar2(15 char)
 );
 
 -- production_countries
--- --------
+-- --------------------
 create table production_countries (
     production_country_id varchar2(2 char) constraint pk_production_countries primary key,
     production_country_name varchar2(31 char)
 );
 
 -- production_companies
--- --------
+-- --------------------
 create table production_companies (
     production_company_id number(5, 0) constraint pk_production_companies primary key,
     production_company_name varchar2(45 char) not null
 );
 
 -- genres
--- --------
+-- ------
 create table genres (
     genre_id number(5, 0) constraint pk_genres primary key,
     genre_name varchar2(16 char) not null
 );
 
 -- movies
--- --------
+-- ------
 create table movies (
     movie_id number(6, 0) constraint pk_movies primary key,
     movie_title varchar2(58 char) not null,
@@ -100,7 +99,7 @@ create table movies (
 );
 
 -- copies
--- --------
+-- ------
 create table copies (
     movie_id number(6, 0) not null,
     copy_id number(4, 0) not null,
@@ -110,7 +109,7 @@ create table copies (
 );
 
 -- characters
--- --------
+-- ----------
 create table characters (
     movie_id number(6, 0) not null,
     character_id number(4, 0) not null,
@@ -122,7 +121,7 @@ create table characters (
 );
 
 -- reviews
--- ---------
+-- -------
 create table reviews (
     username varchar2(63 char) not null,
     movie_id number(6, 0) not null,
@@ -137,7 +136,7 @@ create table reviews (
 );
 
 -- movies_spoken_languages
--- --------
+-- -----------------------
 create table movies_spoken_languages (
     movie_id number(6, 0) not null,
     spoken_language_id varchar2(2 char) not null,
@@ -147,7 +146,7 @@ create table movies_spoken_languages (
 );
 
 -- movies_production_countries
--- --------
+-- ---------------------------
 create table movies_production_countries (
     movie_id number(6, 0) not null,
     production_country_id varchar2(2 char) not null,
@@ -157,7 +156,7 @@ create table movies_production_countries (
 );
 
 -- movies_production_companies
--- --------
+-- ---------------------------
 create table movies_production_companies (
     movie_id number(6, 0) not null,
     production_company_id number(5, 0) not null,
@@ -167,7 +166,7 @@ create table movies_production_companies (
 );
 
 -- movies_directors
--- --------
+-- ----------------
 create table movies_directors (
     movie_id number(6, 0) not null,
     person_id number(7, 0) not null,
@@ -176,7 +175,7 @@ create table movies_directors (
     constraint fk_mov_dir_person_id foreign key (person_id) references people(person_id)
 );
 -- movies_genres
--- --------
+-- -------------
 create table movies_genres (
     movie_id number(6, 0) not null,
     genre_id number(5, 0) not null,

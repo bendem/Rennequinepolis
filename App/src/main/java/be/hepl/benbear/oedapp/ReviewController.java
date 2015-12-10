@@ -76,12 +76,12 @@ public class ReviewController implements Initializable {
     }
 
     private void swapPanes(boolean loginAbove) {
-        stackPane.getChildren().add(0, stackPane.getChildren().remove(1));
-
         if(loginAbove) {
+            loginVBox.toBack(); // TODO Check this works
             reviewVBox.setOpacity(0);
             loginVBox.setOpacity(1);
         } else {
+            reviewVBox.toBack(); // TODO Check this works
             loginVBox.setOpacity(0);
             reviewVBox.setOpacity(1);
         }
@@ -95,18 +95,21 @@ public class ReviewController implements Initializable {
     private void onLogin(ActionEvent actionEvent) {
         String username = usernameField.getText().trim();
 
-        app.getConnection().preparedStatement("select * from users where username = ?",
+        // TODO This should be off the main thread
+        // FIXME This should call a procedure abstracting backup_flag away!
+        app.getConnection().preparedStatement("select * from users where username = ? and backup_flag <> 2",
             stmt -> stmt.setString(1, username),
             rs -> {
-                if(rs.next()) {
-                    String dbPassword = rs.getString("password");
-                    if(passwordField.getText().equals(dbPassword)) {
-                        app.connectUser(username);
-                        swapPanes(false);
-                        return;
-                    }
+                if(!rs.next()) {
+                    app.alert(Alert.AlertType.ERROR, "Invalid username or password", this).showAndWait();
+                    return;
                 }
-                app.alert(Alert.AlertType.ERROR, "Invalid username or password", this).showAndWait();
+
+                String dbPassword = rs.getString("password");
+                if(passwordField.getText().equals(dbPassword)) {
+                    app.connectUser(username);
+                    swapPanes(false);
+                }
             },
             e -> {
                 e.printStackTrace();
@@ -119,6 +122,7 @@ public class ReviewController implements Initializable {
     }
 
     private void onReview(ActionEvent actionEvent) {
+        // TODO This should be off the main thread
         app.getConnection().preparedCall("{ call management.add_review(?, ?, ?, ?) }",
             stmt -> {
                 stmt.setString(1, app.getUser());

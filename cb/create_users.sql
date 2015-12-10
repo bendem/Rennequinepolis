@@ -1,17 +1,17 @@
-create role myrole not identified;
-grant alter session to myrole;
-grant create database link to myrole;
-grant create session to myrole;
-grant create procedure to myrole;
-grant create sequence to myrole;
-grant create table to myrole;
-grant create trigger to myrole;
-grant create type to myrole;
-grant create synonym to myrole;
-grant create view to myrole;
-grant create job to myrole;
-grant create materialized view to myrole;
-grant create any directory to myrole;
+create role cb_role not identified;
+grant alter session to cb_role;
+grant create database link to cb_role;
+grant create session to cb_role;
+grant create procedure to cb_role;
+grant create sequence to cb_role;
+grant create table to cb_role;
+grant create trigger to cb_role;
+grant create type to cb_role;
+grant create synonym to cb_role;
+grant create view to cb_role;
+grant create job to cb_role;
+grant create materialized view to cb_role;
+grant create any directory to cb_role;
 
 create user cb identified by &cb_pwd
     default tablespace users
@@ -19,7 +19,7 @@ create user cb identified by &cb_pwd
     profile default
     account unlock;
 alter user cb quota unlimited on users;
-grant myrole to cb;
+grant cb_role to cb;
 
 create user cbb identified by &cb_pwd
     default tablespace users
@@ -27,7 +27,7 @@ create user cbb identified by &cb_pwd
     profile default
     account unlock;
 alter user cbb quota unlimited on users;
-grant myrole to cbb;
+grant cb_role to cbb;
 
 grant execute on dbms_lock to cb;
 grant execute on utl_file to cb;
@@ -36,6 +36,7 @@ grant execute on dbms_lock to cbb;
 grant execute on sys.owa_opt_lock to cb;
 grant execute on sys.owa_opt_lock to cbb;
 
+-- TODO Should 'http.xml' be configurable?
 begin
     dbms_output.put_line('Creating acl');
     dbms_network_acl_admin.create_acl(
