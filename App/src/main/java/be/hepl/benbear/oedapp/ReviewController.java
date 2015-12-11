@@ -96,39 +96,45 @@ public class ReviewController implements Initializable {
     private void onLogin(ActionEvent actionEvent) {
         String username = usernameField.getText().trim();
 
-        // TODO This should be off the main thread
-        app.getConnection().preparedCall("{ ? = call management.check_user(?, ?) }",
+        app.getThreadPool().execute(() -> app.getConnection().preparedCall("{ ? = call management.check_user(?, ?) }",
             stmt -> {
                 stmt.registerOutParameter(1, OracleTypes.CHAR);
                 stmt.setString(2, username);
                 stmt.setString(3, passwordField.getText());
                 stmt.execute();
 
-                if(stmt.getString(1).charAt(0) == '1') {
-                    app.connectUser(username);
-                    swapPanes(false);
-                } else {
-                    app.alert(Alert.AlertType.ERROR, "Invalid username or password", this).showAndWait();
-                }
+                boolean ok = stmt.getString(1).charAt(0) == '1';
+                Platform.runLater(() -> {
+                    if(ok) {
+                        app.connectUser(username);
+                        swapPanes(false);
+                    } else {
+                        app.alert(Alert.AlertType.ERROR, "Invalid username or password", this).showAndWait();
+                    }
+                });
             },
             e -> {
                 e.printStackTrace();
-                app.alert(
-                    Alert.AlertType.ERROR,
-                    "An error happened: " + e.getMessage(),
-                    movieDetailsController
-                ).showAndWait();
-            });
+                Platform.runLater(() -> {
+                    app.alert(
+                        Alert.AlertType.ERROR,
+                        "An error happened: " + e.getMessage(),
+                        movieDetailsController
+                    ).showAndWait();
+                });
+            }));
     }
 
     private void onReview(ActionEvent actionEvent) {
-        // TODO This should be off the main thread
-        app.getConnection().preparedCall("{ call management.add_review(?, ?, ?, ?) }",
+        int rating = Integer.parseInt(ratingField.getText().trim());
+        String review = reviewField.getText().trim();
+
+        app.getThreadPool().execute(() -> app.getConnection().preparedCall("{ call management.add_review(?, ?, ?, ?) }",
             stmt -> {
                 stmt.setString(1, app.getUser());
                 stmt.setInt(2, movieDetailsController.getMovie().getId());
-                stmt.setInt(3, Integer.parseInt(ratingField.getText().trim()));
-                stmt.setString(4, reviewField.getText().trim());
+                stmt.setInt(3, rating);
+                stmt.setString(4, review);
                 stmt.execute();
                 app.getConnection().commit();
 
@@ -150,7 +156,7 @@ public class ReviewController implements Initializable {
                         this
                     ).showAndWait();
                 });
-            });
+            }));
     }
 
     public void setMovieDetailsController(MovieDetailsController movieDetailsController) {
