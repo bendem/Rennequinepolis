@@ -16,6 +16,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import oracle.jdbc.OracleTypes;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -96,19 +97,18 @@ public class ReviewController implements Initializable {
         String username = usernameField.getText().trim();
 
         // TODO This should be off the main thread
-        // FIXME This should call a procedure abstracting backup_flag away!
-        app.getConnection().preparedStatement("select * from users where username = ? and backup_flag <> 2",
-            stmt -> stmt.setString(1, username),
-            rs -> {
-                if(!rs.next()) {
-                    app.alert(Alert.AlertType.ERROR, "Invalid username or password", this).showAndWait();
-                    return;
-                }
+        app.getConnection().preparedCall("{ ? = call management.check_user(?, ?) }",
+            stmt -> {
+                stmt.registerOutParameter(1, OracleTypes.CHAR);
+                stmt.setString(2, username);
+                stmt.setString(3, passwordField.getText());
+                stmt.execute();
 
-                String dbPassword = rs.getString("password");
-                if(passwordField.getText().equals(dbPassword)) {
+                if(stmt.getString(1).charAt(0) == '1') {
                     app.connectUser(username);
                     swapPanes(false);
+                } else {
+                    app.alert(Alert.AlertType.ERROR, "Invalid username or password", this).showAndWait();
                 }
             },
             e -> {

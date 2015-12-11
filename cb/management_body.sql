@@ -263,5 +263,22 @@ create or replace package body management is
             end case;
     end modify_review;
 
+    function check_user(
+        p_username in users.username%type,
+        p_password in users.password%type) return char
+    is
+        u users%rowtype;
+    begin
+        select * into u from users
+        where
+            username = p_username
+            and password = p_password
+            and backup_flag <> 2;
+        return '1';
+    exception
+        when no_data_found then
+            return '0';
+    end check_user;
+
 end management;
 /

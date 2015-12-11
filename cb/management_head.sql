@@ -48,5 +48,13 @@ create or replace package management is
         p_reviewbefore in reviews%rowtype,
         p_reviewafter  in reviews%rowtype);
 
+    -- Checks if a username exists and if their password is correct.
+    -- @param p_username
+    -- @param p_password
+    -- @return '1' if the user exists and their password is correct, '0' otherwise
+    function check_user(
+        p_username in users.username%type,
+        p_password in users.password%type) return char;
+
 end management;
 /

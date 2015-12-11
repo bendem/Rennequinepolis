@@ -121,7 +121,7 @@ public class SwappableConnection {
         return execute(() -> connection.prepareCall(sql));
     }
 
-    public void preparedCall(String sql, SQLConsumer<PreparedStatement> action, Consumer<SQLException> errorHandler) {
+    public void preparedCall(String sql, SQLConsumer<CallableStatement> action, Consumer<SQLException> errorHandler) {
         System.err.println(sql);
         while(true) {
             try(CallableStatement stmt = connection.prepareCall(sql)) {
