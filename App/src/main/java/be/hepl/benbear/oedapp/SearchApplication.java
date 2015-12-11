@@ -6,8 +6,11 @@ import javafx.stage.Stage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.sql.SQLRecoverableException;
+import java.util.List;
 import java.util.Objects;
+import java.util.OptionalInt;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,13 +39,32 @@ public class SearchApplication extends BaseApplication {
 
     @Override
     public void init() throws Exception {
-        Class.forName("oracle.jdbc.driver.OracleDriver");
-        // FIXME Once again, pwd in code :/
+        List<String> params = getParameters().getRaw();
+        if(params.isEmpty()) {
+            throw new IllegalArgumentException("Usage: java -jar file.jar <config>");
+        }
+        Config config = new Config(Paths.get(params.get(0)));
+        String driver = config.getStringThrowing("master.jdbc_driver");
+        Class.forName(driver);
+
+        String jdbc = config.getStringThrowing("master.jdbc_url");
+        String username = config.getStringThrowing("master.username");
+        String password = config.getStringThrowing("master.password");
         connection = new SwappableConnection(
             e -> e instanceof SQLRecoverableException || e.getErrorCode() == 20100,
-            "jdbc:oracle:thin:@178.32.41.4:8080:xe", "cb", "cb_bendemiscrazy")
-            .registerSlave("jdbc:oracle:thin:@178.32.41.4:8080:xe", "cbb", "cb_bendemiscrazy")
-            .connect();
+            jdbc, username, password);
+
+        OptionalInt optSlaveCount = config.getInt("slaves.count");
+        if(optSlaveCount.isPresent()) {
+            for(int i = 0; i < optSlaveCount.getAsInt(); ++i) {
+                jdbc = config.getStringThrowing("slaves." + i + ".jdbc_url");
+                username = config.getStringThrowing("slaves." + i + ".username");
+                password = config.getStringThrowing("slaves." + i + ".password");
+                connection.registerSlave(jdbc, username, password);
+            }
+        }
+
+        connection.connect();
     }
 
     @Override
