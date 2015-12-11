@@ -23,6 +23,7 @@ SYS_PWD=$1
 
 echo "drop user cb cascade;
     drop user cbb cascade;
+    drop user cc cascade;
     drop role cb_role;
     execute dbms_network_acl_admin.drop_acl('http.xml');
     commit;

@@ -4,4 +4,4 @@ create user cc identified by &cc_pwd
     profile default
     account unlock;
 alter user cc quota unlimited on users;
-grant myrole to cc;
+grant cb_role to cc;

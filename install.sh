@@ -1,15 +1,13 @@
 #!/bin/sh
-# Usage:
-#   CB_IP=<ip[:<port>]> ./install.sh <sys_pwd> <cb_pwd>
 set -e
 ROOT=`dirname \`realpath $0\``
 
-if [ $# -ne 2 ]; then
+if [ $# -ne 3 ]; then
     echo
-    echo ' Needs exactly 2 args'
+    echo ' Needs exactly 3 args'
     echo
     echo ' Usage:'
-    echo '  CB_IP=<ip[:<port>]> ./install.sh <sys_pwd> <cb_pwd>'
+    echo '  CB_IP=<ip[:<port>]> ./install.sh <sys_pwd> <cb_pwd> <cc_pwd>'
     echo
     exit 1
 fi
@@ -23,19 +21,25 @@ fi
 
 SYS_PWD=$1
 CB_PWD=$2
+CC_PWD=$3
 SQLPLUS="sqlplus -S -L"
 INSERT_CB_PWD="s/&cb_pwd/$CB_PWD/g"
+INSERT_CB_PWD="s/&cc_pwd/$CC_PWD/g"
 
 export NLS_LANG=.UTF8
 
 echo "Creating users"
 echo "=============="
-cat $ROOT/cb/create_users.sql | sed "$INSERT_CB_PWD" | $SQLPLUS sys/$SYS_PWD@$CB_IP as sysdba
+cat $ROOT/cb/create_users.sql \
+    $ROOT/cc/create_user.sql  \
+    | sed "$INSERT_CB_PWD"    \
+    | sed "$INSERT_CC_PWD"    \
+    | $SQLPLUS sys/$SYS_PWD@$CB_IP as sysdba
 
 echo "Creating db links"
 echo "================="
 cat $ROOT/cb/create_db_link_cbb.sql | sed "$INSERT_CB_PWD" | $SQLPLUS cbb/$CB_PWD@$CB_IP
-cat $ROOT/cb/create_db_link_cb.sql | sed "$INSERT_CB_PWD" | $SQLPLUS cb/$CB_PWD@$CB_IP
+cat $ROOT/cb/create_db_link_cb.sql  | sed "$INSERT_CB_PWD" | $SQLPLUS cb/$CB_PWD@$CB_IP
 
 echo "Initializing cb"
 echo "==============="
@@ -75,7 +79,7 @@ cat $ROOT/cb/crea.sql                \
         | $SQLPLUS cbb/$CB_PWD@$CB_IP
 
 echo "Setting up cb backup"
-echo "================"
+echo "===================="
 cat $ROOT/cb/backup_trigger.sql  \
     $ROOT/cb/management_head.sql \
     $ROOT/cb/management_body.sql \
@@ -83,3 +87,8 @@ cat $ROOT/cb/backup_trigger.sql  \
     $ROOT/cb/backup_body.sql     \
     $ROOT/cb/create_job.sql      \
         | $SQLPLUS cb/$CB_PWD@$CB_IP
+
+echo "Setting up cc"
+echo "============="
+cat $ROOT/cc/create_xsd.sql  \
+        | $SQLPLUS cc/$CC_PWD@$CB_IP
