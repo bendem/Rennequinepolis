@@ -154,15 +154,20 @@ public class SearchController implements Initializable {
     }
 
     private void onHelp() {
-        Dialog<Void> dialog = new Dialog<>();
-        // TODO Check this displays correctly
-        dialog.initOwner(app.getMainStage());
-        dialog.setTitle("Search query syntax");
-        dialog.setHeaderText("Search query syntax");
-        dialog.setContentText("Search syntax:\n(id:<id>|([title:]<title> actor:<actor> director:<director> before:<year> during:<year> after:year)\nYou can use quotes to insert any multi words like actor:\"Bob Marley\"");
-        dialog.setOnCloseRequest(e -> dialog.close());
-        dialog.getDialogPane().getButtonTypes().add(new ButtonType("OK", ButtonBar.ButtonData.OK_DONE));
-        dialog.show();
+        Alert alert = app.alert(Alert.AlertType.INFORMATION, "Search movies by title.\n" +
+            "You can provide a more complex filter by using these specific keywords:\n" +
+            "+ id\n" +
+            "+ title\n" +
+            "+ actor\n" +
+            "+ director\n" +
+            "+ before (year)\n" +
+            "+ after (year)\n" +
+            "+ during (year)\n\n" +
+            "Example: actor:\"Bob Marley\" title:rx before:2013\n", this);
+        alert.setTitle("Search query syntax - RQS");
+        alert.setHeaderText("Search query syntax");
+        //alert.getDialogPane().setExpanded(true);
+        alert.showAndWait();
     }
 
     private static class SearchTask extends FetchTask<Movie> {
