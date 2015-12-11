@@ -131,7 +131,6 @@ public class MovieDetailsController implements Initializable {
         taglineText.setText(movie.getTagline());
         homepageLink.setText(movie.getHomepage());
         if(!movie.getHomepage().equals("(empty)")) {
-            // FIXME This doesn't seem to open the default browser (at least not accurately)
             homepageLink.setOnAction(e -> app.getHostServices().showDocument(movie.getHomepage()));
         }
 
