@@ -1,56 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <x:schema xmlns:x="http://www.w3.org/2001/XMLSchema" xmlns:xdb="http://xmlns.oracle.com/xdb">
-    <x:element name="movie" type="movie_type" />
-    <x:complexType name="movie_type">
-        <x:sequence>
-            <x:element name="id" type="x:integer" />
-            <x:element name="title" type="x:string" />
-            <x:element name="original_title" type="x:string" />
-            <x:element name="release_date" type="x:date" />
-            <x:element name="status" type="x:string" />
-            <x:element name="certification" type="x:string" />
-            <x:element name="vote_average" type="x:integer" />
-            <x:element name="vote_count" type="x:integer" />
-            <x:element name="runtime" type="x:integer" />
-            <x:element name="poster" type="x:hexBinary" />
-            <x:element name="budget" type="x:integer" />
-            <x:element name="revenue" type="x:integer" />
-            <x:element name="homepage" type="x:string" />
-            <x:element name="tagline" type="x:string" />
-            <x:element name="overview" type="x:string" />
-            <x:element name="copie_id" type="x:integer" minOccurs="0" maxOccurs="unbounded" />
-            <x:element name="actor" minOccurs="0" maxOccurs="unbounded">
-                <x:complexType>
-                    <x:sequence>
-                        <x:element name="id" type="x:integer" />
-                        <x:element name="name" type="x:string" />
-                        <x:element name="picture" type="x:hexBinary" />
-                        <x:element name="character_name" type="x:string" />
-                    </x:sequence>
-                </x:complexType>
-            </x:element>
-            <x:element name="director" minOccurs="0" maxOccurs="unbounded">
-                <x:complexType>
-                    <x:sequence>
-                        <x:element name="id" type="x:integer" />
-                        <x:element name="name" type="x:string" />
-                        <x:element name="picture" type="x:hexBinary" />
-                    </x:sequence>
-                </x:complexType>
-            </x:element>
-            <x:element name="production_company" type="x:string" minOccurs="0" maxOccurs="unbounded" />
-            <x:element name="production_country" type="x:string" minOccurs="0" maxOccurs="unbounded" />
-            <x:element name="genre" type="x:string" minOccurs="0" maxOccurs="unbounded" />
-            <x:element name="review" minOccurs="0" maxOccurs="unbounded">
-                <x:complexType>
-                    <x:sequence>
-                        <x:element name="rating" type="x:integer" />
-                        <x:element name="creation_date" type="x:date" />
-                        <x:element name="content" type="x:string" />
-                    </x:sequence>
-                </x:complexType>
-            </x:element>
-            <x:element name="spoken_language" type="x:string" minOccurs="0" maxOccurs="unbounded" />
-        </x:sequence>
-    </x:complexType>
+    <x:element name="movie" xdb:SQLName="movie" xdb:SQLCollType="movies">
+        <x:complexType xdb:SQLType="movie_type">
+            <x:sequence>
+                <x:element name="id" type="x:integer" xdb:SQLName="id" />
+                <x:element name="title" type="x:string" xdb:SQLName="title" />
+                <x:element name="original_title" type="x:string" xdb:SQLName="original_title" />
+                <x:element name="release_date" type="x:date" xdb:SQLName="release_date" />
+                <x:element name="status" type="x:string" xdb:SQLName="status" />
+                <x:element name="certification" type="x:string" xdb:SQLName="certification" />
+                <x:element name="vote_average" type="x:integer" xdb:SQLName="vote_average" />
+                <x:element name="vote_count" type="x:integer" xdb:SQLName="vote_count" />
+                <x:element name="runtime" type="x:integer" xdb:SQLName="runtime" />
+                <x:element name="poster" type="x:hexBinary" xdb:SQLName="poster" />
+                <x:element name="budget" type="x:integer" xdb:SQLName="budget" />
+                <x:element name="revenue" type="x:integer" xdb:SQLName="revenue" />
+                <x:element name="homepage" type="x:string" xdb:SQLName="homepage" />
+                <x:element name="tagline" type="x:string" xdb:SQLName="tagline" />
+                <x:element name="overview" type="x:string" xdb:SQLName="overview" />
+                <x:element name="copy" minOccurs="0" maxOccurs="unbounded" xdb:SQLName="copy" xdb:SQLCollType="copies">
+                    <x:complexType xdb:SQLType="copy">
+                        <x:sequence>
+                            <x:element name="id" type="x:integer" />
+                            <x:element name="schedule" minOccurs="0" maxOccurs="unbounded" xdb:SQLName="schedule" xdb:SQLCollType="schedules">
+                                <x:complexType xdb:SQLType="schedule">
+                                    <x:sequence>
+                                        <x:element name="schedule_start" type="x:date" xdb:SQLName="schedule_start" />
+                                        <x:element name="schedule_end" type="x:date" xdb:SQLName="schedule_end" />
+                                        <x:element name="hall_id" type="x:integer" xdb:SQLName="hall_id" />
+                                    </x:sequence>
+                                </x:complexType>
+                            </x:element>
+                        </x:sequence>
+                    </x:complexType>
+                </x:element>
+                <x:element name="actor" minOccurs="0" maxOccurs="unbounded" xdb:SQLName="actor" xdb:SQLCollType="actors">
+                    <x:complexType xdb:SQLType="actor">
+                        <x:sequence>
+                            <x:element name="id" type="x:integer" />
+                            <x:element name="name" type="x:string" />
+                            <x:element name="picture" type="x:hexBinary" />
+                            <x:element name="character_name" type="x:string" />
+                        </x:sequence>
+                    </x:complexType>
+                </x:element>
+                <x:element name="director" minOccurs="0" maxOccurs="unbounded" xdb:SQLName="director" xdb:SQLCollType="directors">
+                    <x:complexType xdb:SQLType="director">
+                        <x:sequence>
+                            <x:element name="id" type="x:integer" xdb:SQLName="id" />
+                            <x:element name="name" type="x:string" xdb:SQLName="name" />
+                            <x:element name="picture" type="x:hexBinary" xdb:SQLName="picture" />
+                        </x:sequence>
+                    </x:complexType>
+                </x:element>
+                <x:element name="production_company" type="x:string" minOccurs="0" maxOccurs="unbounded" xdb:SQLName="production_company" xdb:SQLCollType="production_companies"/>
+                <x:element name="production_country" type="x:string" minOccurs="0" maxOccurs="unbounded" xdb:SQLName="production_country" xdb:SQLCollType="production_countries"/>
+                <x:element name="genre" type="x:string" minOccurs="0" maxOccurs="unbounded" xdb:SQLName="genre" xdb:SQLCollType="genres" />
+                <x:element name="review" minOccurs="0" maxOccurs="unbounded" xdb:SQLName="review" xdb:SQLCollType="reviews">
+                    <x:complexType xdb:SQLType="review">
+                        <x:sequence>
+                            <x:element name="rating" type="x:integer" xdb:SQLName="rating" />
+                            <x:element name="creation_date" type="x:date" xdb:SQLName="creation_date" />
+                            <x:element name="content" type="x:string" xdb:SQLName="content" />
+                        </x:sequence>
+                    </x:complexType>
+                </x:element>
+                <x:element name="spoken_language" type="x:string" minOccurs="0" maxOccurs="unbounded" xdb:SQLName="spoken_language" xdb:SQLCollType="spoken_languages" />
+            </x:sequence>
+        </x:complexType>
+    </x:element>
 </x:schema>
