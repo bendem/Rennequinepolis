@@ -77,11 +77,11 @@ public class ReviewController implements Initializable {
 
     private void swapPanes(boolean loginAbove) {
         if(loginAbove) {
-            loginVBox.toBack(); // TODO Check this works
+            loginVBox.toBack();
             reviewVBox.setOpacity(0);
             loginVBox.setOpacity(1);
         } else {
-            reviewVBox.toBack(); // TODO Check this works
+            reviewVBox.toBack();
             loginVBox.setOpacity(0);
             reviewVBox.setOpacity(1);
         }
