@@ -18,22 +18,6 @@
                 <x:element name="homepage" type="x:string" xdb:SQLName="homepage" minOccurs="0" maxOccurs="1" />
                 <x:element name="tagline" type="x:string" xdb:SQLName="tagline" minOccurs="0" maxOccurs="1" />
                 <x:element name="overview" type="x:string" xdb:SQLName="overview" minOccurs="0" maxOccurs="1" />
-                <x:element name="copy" minOccurs="0" maxOccurs="unbounded" xdb:SQLName="copy" xdb:SQLCollType="copies">
-                    <x:complexType xdb:SQLType="copy">
-                        <x:sequence>
-                            <x:element name="id" type="x:integer" />
-                            <x:element name="schedule" minOccurs="0" maxOccurs="unbounded" xdb:SQLName="schedule" xdb:SQLCollType="schedules">
-                                <x:complexType xdb:SQLType="schedule">
-                                    <x:sequence>
-                                        <x:element name="schedule_start" type="x:date" xdb:SQLName="schedule_start" />
-                                        <x:element name="schedule_end" type="x:date" xdb:SQLName="schedule_end" />
-                                        <x:element name="hall_id" type="x:integer" xdb:SQLName="hall_id" />
-                                    </x:sequence>
-                                </x:complexType>
-                            </x:element>
-                        </x:sequence>
-                    </x:complexType>
-                </x:element>
                 <x:element name="actor" minOccurs="0" maxOccurs="unbounded" xdb:SQLName="actor" xdb:SQLCollType="actors">
                     <x:complexType xdb:SQLType="actor">
                         <x:sequence>
@@ -66,6 +50,31 @@
                     </x:complexType>
                 </x:element>
                 <x:element name="spoken_language" type="x:string" minOccurs="0" maxOccurs="unbounded" xdb:SQLName="spoken_language" xdb:SQLCollType="spoken_languages" />
+            </x:sequence>
+        </x:complexType>
+    </x:element>
+    <x:element name="copy" xdb:SQLName="copy" xdb:SQLCollType="copies">
+        <x:complexType xdb:SQLType="copy">
+            <x:sequence>
+                <x:element name="copy_id" type="x:integer" />
+                <x:element name="movie_id" type="x:integer" />
+            </x:sequence>
+        </x:complexType>
+    </x:element>
+    <x:element name="schedule" xdb:SQLName="schedule" xdb:SQLCollType="schedules">
+        <x:complexType xdb:SQLType="schedule">
+            <x:sequence>
+                <x:element name="copy_id" type="x:integer" />
+                <x:element name="movie_id" type="x:integer" />
+                <x:element name="time_schedule" minOccurs="0" maxOccurs="unbounded" xdb:SQLName="time_schedule" xdb:SQLCollType="time_schedules">
+                    <x:complexType xdb:SQLType="time_schedule">
+                        <x:sequence>
+                            <x:element name="schedule_start" type="x:dateTime" xdb:SQLName="schedule_start" />
+                            <x:element name="schedule_end" type="x:dateTime" xdb:SQLName="schedule_end" />
+                            <x:element name="hall_id" type="x:integer" xdb:SQLName="hall_id" />
+                        </x:sequence>
+                    </x:complexType>
+                </x:element>
             </x:sequence>
         </x:complexType>
     </x:element>
