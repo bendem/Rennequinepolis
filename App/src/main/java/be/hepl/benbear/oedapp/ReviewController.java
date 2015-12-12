@@ -115,13 +115,11 @@ public class ReviewController implements Initializable {
             },
             e -> {
                 e.printStackTrace();
-                Platform.runLater(() -> {
-                    app.alert(
-                        Alert.AlertType.ERROR,
-                        "An error happened: " + e.getMessage(),
-                        movieDetailsController
-                    ).showAndWait();
-                });
+                Platform.runLater(() -> app.alert(
+                    Alert.AlertType.ERROR,
+                    "An error happened: " + e.getMessage(),
+                    movieDetailsController
+                ).showAndWait());
             }));
     }
 
@@ -149,13 +147,11 @@ public class ReviewController implements Initializable {
                     app.getConnection().rollback();
                 } catch(SQLException ignored) {}
                 e.printStackTrace();
-                Platform.runLater(() -> {
-                    app.alert(
-                        Alert.AlertType.ERROR,
-                        "An error happened: " + ExceptionUtil.extractMessage(e),
-                        this
-                    ).showAndWait();
-                });
+                Platform.runLater(() -> app.alert(
+                    Alert.AlertType.ERROR,
+                    "An error happened: " + ExceptionUtil.extractMessage(e),
+                    this
+                ).showAndWait());
             }));
     }
 

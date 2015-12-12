@@ -1,76 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.layout.*?>
 
 <AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="be.hepl.benbear.oedapp.ReviewController">
-   <children>
-      <StackPane fx:id="stackPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <children>
-            <VBox fx:id="loginVBox" opacity="0.0" spacing="10.0">
-               <children>
-                  <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Login">
-                     <font>
-                        <Font size="20.0" />
-                     </font>
-                     <VBox.margin>
-                        <Insets />
-                     </VBox.margin>
-                     <padding>
-                        <Insets bottom="10.0" top="15.0" />
-                     </padding>
-                  </Label>
-                  <GridPane hgap="10.0" vgap="10.0" VBox.vgrow="ALWAYS">
-                     <columnConstraints>
-                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
-                        <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
-                     </columnConstraints>
-                     <rowConstraints>
-                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="-Infinity" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="-Infinity" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
-                     </rowConstraints>
-                     <children>
-                        <TextField fx:id="usernameField" GridPane.columnIndex="1" />
-                        <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <Label maxHeight="1.7976931348623157E308" text="Username" />
-                        <Label maxHeight="1.7976931348623157E308" text="Password" GridPane.rowIndex="1" />
-                        <Button fx:id="loginButton" disable="true" mnemonicParsing="false" text="Login" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                     </children>
-                  </GridPane>
-               </children>
-            </VBox>
-            <VBox fx:id="reviewVBox" spacing="10.0">
-               <children>
-                  <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Add review">
-                     <font>
-                        <Font size="20.0" />
-                     </font>
-                     <VBox.margin>
-                        <Insets bottom="10.0" top="15.0" />
-                     </VBox.margin>
-                  </Label>
-                  <HBox spacing="10.0">
-                     <children>
-                        <Label maxHeight="1.7976931348623157E308" text="Rating" />
-                        <TextField fx:id="ratingField" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" HBox.hgrow="ALWAYS" />
-                     </children>
-                  </HBox>
-                  <Label maxHeight="1.7976931348623157E308" text="Review" />
-                  <TextArea fx:id="reviewField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <Button fx:id="reviewButton" defaultButton="true" mnemonicParsing="false" text="Add review" />
-               </children>
-               <StackPane.margin>
-                  <Insets />
-               </StackPane.margin>
-            </VBox>
-         </children>
-      </StackPane>
-   </children>
+   <StackPane fx:id="stackPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <VBox fx:id="loginVBox" opacity="0.0" spacing="10.0">
+         <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Login">
+            <font>
+               <Font size="20.0"/>
+            </font>
+            <VBox.margin>
+               <Insets/>
+            </VBox.margin>
+            <padding>
+               <Insets bottom="10.0" top="15.0"/>
+            </padding>
+         </Label>
+         <GridPane hgap="10.0" vgap="10.0" VBox.vgrow="ALWAYS">
+            <columnConstraints>
+               <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+               <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"/>
+            </columnConstraints>
+            <rowConstraints>
+               <RowConstraints maxHeight="1.7976931348623157E308" minHeight="-Infinity" vgrow="SOMETIMES"/>
+               <RowConstraints minHeight="-Infinity" vgrow="SOMETIMES"/>
+               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS"/>
+            </rowConstraints>
+            <TextField fx:id="usernameField" GridPane.columnIndex="1"/>
+            <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            <Label maxHeight="1.7976931348623157E308" text="Username"/>
+            <Label maxHeight="1.7976931348623157E308" text="Password" GridPane.rowIndex="1"/>
+            <Button fx:id="loginButton" disable="true" mnemonicParsing="false" text="Login" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+         </GridPane>
+      </VBox>
+      <VBox fx:id="reviewVBox" spacing="10.0">
+         <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Add review">
+            <font>
+               <Font size="20.0"/>
+            </font>
+            <VBox.margin>
+               <Insets bottom="10.0" top="15.0"/>
+            </VBox.margin>
+         </Label>
+         <HBox spacing="10.0">
+            <Label maxHeight="1.7976931348623157E308" text="Rating"/>
+            <TextField fx:id="ratingField" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" HBox.hgrow="ALWAYS"/>
+         </HBox>
+         <Label maxHeight="1.7976931348623157E308" text="Review"/>
+         <TextArea fx:id="reviewField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+         <Button fx:id="reviewButton" defaultButton="true" mnemonicParsing="false" text="Add review"/>
+         <StackPane.margin>
+            <Insets/>
+         </StackPane.margin>
+      </VBox>
+   </StackPane>
    <padding>
-      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
    </padding>
 </AnchorPane>
