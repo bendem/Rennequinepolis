@@ -24,7 +24,7 @@ CB_PWD=$2
 CC_PWD=$3
 SQLPLUS="sqlplus -S -L"
 INSERT_CB_PWD="s/&cb_pwd/$CB_PWD/g"
-INSERT_CB_PWD="s/&cc_pwd/$CC_PWD/g"
+INSERT_CC_PWD="s/&cc_pwd/$CC_PWD/g"
 
 export NLS_LANG=.UTF8
 
@@ -38,8 +38,15 @@ cat $ROOT/cb/create_users.sql \
 
 echo "Creating db links"
 echo "================="
-cat $ROOT/cb/create_db_link_cbb.sql | sed "$INSERT_CB_PWD" | $SQLPLUS cbb/$CB_PWD@$CB_IP
-cat $ROOT/cb/create_db_link_cb.sql  | sed "$INSERT_CB_PWD" | $SQLPLUS cb/$CB_PWD@$CB_IP
+cat $ROOT/cb/create_db_link_cbb.sql \
+    | sed "$INSERT_CB_PWD"          \
+    | sed "$INSERT_CC_PWD"          \
+    | $SQLPLUS cbb/$CB_PWD@$CB_IP
+
+cat $ROOT/cb/create_db_link_cb.sql  \
+    | sed "$INSERT_CB_PWD"          \
+    | sed "$INSERT_CC_PWD"          \
+    | $SQLPLUS cb/$CB_PWD@$CB_IP
 
 echo "Initializing cb"
 echo "==============="

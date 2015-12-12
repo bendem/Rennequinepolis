@@ -6,18 +6,26 @@
                 <x:element name="id" type="x:integer" xdb:SQLName="id" />
                 <x:element name="title" type="x:string" xdb:SQLName="title" />
                 <x:element name="original_title" type="x:string" xdb:SQLName="original_title" />
-                <x:element name="release_date" type="x:date" xdb:SQLName="release_date" />
-                <x:element name="status" type="x:string" xdb:SQLName="status" />
-                <x:element name="certification" type="x:string" xdb:SQLName="certification" />
+                <x:element name="release_date" type="x:date" xdb:SQLName="release_date"
+                     minOccurs="0" maxOccurs="1" />
+                <x:element name="status" type="x:string" xdb:SQLName="status"
+                     minOccurs="0" maxOccurs="1" />
+                <x:element name="certification" type="x:string" xdb:SQLName="certification"
+                     minOccurs="0" maxOccurs="1" />
                 <x:element name="vote_average" type="x:integer" xdb:SQLName="vote_average" />
                 <x:element name="vote_count" type="x:integer" xdb:SQLName="vote_count" />
-                <x:element name="runtime" type="x:integer" xdb:SQLName="runtime" />
-                <x:element name="poster" type="x:hexBinary" xdb:SQLName="poster" />
+                <x:element name="runtime" type="x:integer" xdb:SQLName="runtime"
+                     minOccurs="0" maxOccurs="1" />
+                <x:element name="poster" type="x:hexBinary" xdb:SQLType="BLOB" xdb:SQLName="poster"
+                     minOccurs="0" maxOccurs="1" />
                 <x:element name="budget" type="x:integer" xdb:SQLName="budget" />
                 <x:element name="revenue" type="x:integer" xdb:SQLName="revenue" />
-                <x:element name="homepage" type="x:string" xdb:SQLName="homepage" />
-                <x:element name="tagline" type="x:string" xdb:SQLName="tagline" />
-                <x:element name="overview" type="x:string" xdb:SQLName="overview" />
+                <x:element name="homepage" type="x:string" xdb:SQLName="homepage"
+                     minOccurs="0" maxOccurs="1" />
+                <x:element name="tagline" type="x:string" xdb:SQLName="tagline"
+                     minOccurs="0" maxOccurs="1" />
+                <x:element name="overview" type="x:string" xdb:SQLName="overview"
+                     minOccurs="0" maxOccurs="1" />
                 <x:element name="copy" minOccurs="0" maxOccurs="unbounded" xdb:SQLName="copy" xdb:SQLCollType="copies">
                     <x:complexType xdb:SQLType="copy">
                         <x:sequence>
@@ -39,7 +47,7 @@
                         <x:sequence>
                             <x:element name="id" type="x:integer" />
                             <x:element name="name" type="x:string" />
-                            <x:element name="picture" type="x:hexBinary" />
+                            <x:element name="picture" type="x:hexBinary" xdb:SQLType="BLOB" />
                             <x:element name="character_name" type="x:string" />
                         </x:sequence>
                     </x:complexType>
@@ -49,7 +57,7 @@
                         <x:sequence>
                             <x:element name="id" type="x:integer" xdb:SQLName="id" />
                             <x:element name="name" type="x:string" xdb:SQLName="name" />
-                            <x:element name="picture" type="x:hexBinary" xdb:SQLName="picture" />
+                            <x:element name="picture" type="x:hexBinary" xdb:SQLType="BLOB" xdb:SQLName="picture" />
                         </x:sequence>
                     </x:complexType>
                 </x:element>

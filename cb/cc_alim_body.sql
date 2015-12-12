@@ -13,7 +13,7 @@ create or replace package body cc_alim is
         p_id movies.movie_id%type)
     is
     begin
-        insert into movies@link.cc
+        insert into cc_queue
             select XMLElement("movie",
                 XMLForest(
                     movie_id             "id",
