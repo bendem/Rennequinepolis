@@ -2,11 +2,48 @@ create or replace package body cc_alim is
 
     procedure send_copies_of_all
     is
+        type copies_t is table of copies%rowtype;
+        v_copies copies_t;
     begin
-        null;
+        delete from copies extext where (movie_id,copy_id) in (select movie_id, copy_id from copies ext where
+        rownum < round(abs(sys.dbms_random.value(0, (select count(*) from copies int where int.movie_id = ext.movie_id)/2) + 1))
+        and ext.movie_id = extext.movie_id)
+        returning bulk collect into v_copies;
+
+        insert into cc_queue
+            select 'copy', XMLAgg(XMLElement("copy",
+                XMLForest(
+                    copy_id "copy_id",
+                    movie_id "movie_id"
+                )
+            )) from table(v_copies);
     exception
         when others then
             dbms_output.put_line(sqlerrm);
+    end;
+
+    procedure send_copies(
+        p_id movies.movie_id%type)
+    is
+        type copies_t is table of copies%rowtype;
+        v_copies copies_t;
+    begin
+        delete from copies where movie_id = p_id and
+        rownum < round(abs(sys.dbms_random.value(0, (select count(*) from copies where movie_id = p_id)/2) + 1
+        returning bulk collect into v_copies;
+
+
+        insert into cc_queue
+            select 'copy', XMLAgg(XMLElement("copy",
+                XMLForest(
+                    copy_id "copy_id",
+                    movie_id "movie_id"
+                )
+            )) from table(v_copies);
+
+    exception
+      when others then
+        null;
     end;
 
     procedure send_movie(
@@ -14,7 +51,7 @@ create or replace package body cc_alim is
     is
     begin
         insert into cc_queue
-            select XMLElement("movie",
+            select 'movie', XMLElement("movie",
                 XMLForest(
                     movie_id             "id",
                     movie_title          "title",
