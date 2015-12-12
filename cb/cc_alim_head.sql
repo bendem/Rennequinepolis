@@ -1,7 +1,7 @@
 create or replace package cc_alim is
 
     -- Inserts a set amount of movies from movies_ext into the main database.
-    procedure send_copies_of_all();
+    procedure send_copies_of_all;
 
     -- Send a movie and all it's related information to CC
     -- @param Id of the movie to send
