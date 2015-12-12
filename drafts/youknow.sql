@@ -1,3 +1,29 @@
+-- ------------
+-- YAY XML \o/
+select * from cc_queue@link.cb;
+insert into movies select * from cc_queue@link.cb;
+commit;
+
+select extract(object_value, '/movie/original_title/text()').getStringVal() from movies;
+
+update movies set object_value = updatexml(object_value, '/movie/original_title/text()', 'Aaaaaariel')
+   where extractvalue(object_value, '/movie/original_title') = 'Ariel';
+
+update movies set object_value = appendchildxml(object_value, '/movie', xmltype('<copy><id>3</id></copy>'));
+update movies set object_value = insertchildxml(
+    object_value,
+    '/movie',
+    'copy',
+    xmltype('<copy><id>1</id></copy>')
+)
+--where extractvalue(object_value, '/movie/original_title') = 'Ariel'
+;
+
+select extract(object_value, '/movie/copy').getClobVal() from movies;
+select * from movies;
+
+
+
 declare
     x sys_refcursor;
     r movies%rowtype;

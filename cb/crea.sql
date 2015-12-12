@@ -174,6 +174,7 @@ create table movies_directors (
     constraint fk_mov_dir_movie_id foreign key (movie_id) references movies(movie_id),
     constraint fk_mov_dir_person_id foreign key (person_id) references people(person_id)
 );
+
 -- movies_genres
 -- -------------
 create table movies_genres (
@@ -183,3 +184,10 @@ create table movies_genres (
     constraint fk_mov_gen_movie_id foreign key (movie_id) references movies(movie_id),
     constraint fk_mov_gen_genre_id foreign key (genre_id) references genres(genre_id)
 );
+
+-- the table cc will poll when pinged by cb
+-- ----------------------------------------
+create table cc_queue (
+    type varchar2(100),
+    data xmltype
+) xmltype data store as binary xml;

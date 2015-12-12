@@ -3,25 +3,25 @@
     <x:element name="movie" xdb:SQLName="movie" xdb:SQLCollType="movies">
         <x:complexType xdb:SQLType="movie_type">
             <x:sequence>
-                <x:element name="id" type="x:integer" xdb:SQLName="id" />
+                <x:element name="id" type="x:nonNegativeInteger" xdb:SQLName="id" />
                 <x:element name="title" type="x:string" xdb:SQLName="title" />
                 <x:element name="original_title" type="x:string" xdb:SQLName="original_title" />
                 <x:element name="release_date" type="x:date" xdb:SQLName="release_date" minOccurs="0" maxOccurs="1" />
                 <x:element name="status" type="x:string" xdb:SQLName="status" minOccurs="0" maxOccurs="1" />
                 <x:element name="certification" type="x:string" xdb:SQLName="certification" minOccurs="0" maxOccurs="1" />
-                <x:element name="vote_average" type="x:integer" xdb:SQLName="vote_average" />
-                <x:element name="vote_count" type="x:integer" xdb:SQLName="vote_count" />
-                <x:element name="runtime" type="x:integer" xdb:SQLName="runtime" minOccurs="0" maxOccurs="1" />
+                <x:element name="vote_average" type="x:decimal" xdb:SQLName="vote_average" />
+                <x:element name="vote_count" type="x:nonNegativeInteger" xdb:SQLName="vote_count" />
+                <x:element name="runtime" type="x:nonNegativeInteger" xdb:SQLName="runtime" minOccurs="0" maxOccurs="1" />
                 <x:element name="poster" type="x:hexBinary" xdb:SQLType="BLOB" xdb:SQLName="poster" minOccurs="0" maxOccurs="1" />
-                <x:element name="budget" type="x:integer" xdb:SQLName="budget" />
-                <x:element name="revenue" type="x:integer" xdb:SQLName="revenue" />
+                <x:element name="budget" type="x:nonNegativeInteger" xdb:SQLName="budget" />
+                <x:element name="revenue" type="x:nonNegativeInteger" xdb:SQLName="revenue" />
                 <x:element name="homepage" type="x:string" xdb:SQLName="homepage" minOccurs="0" maxOccurs="1" />
                 <x:element name="tagline" type="x:string" xdb:SQLName="tagline" minOccurs="0" maxOccurs="1" />
                 <x:element name="overview" type="x:string" xdb:SQLName="overview" minOccurs="0" maxOccurs="1" />
                 <x:element name="actor" minOccurs="0" maxOccurs="unbounded" xdb:SQLName="actor" xdb:SQLCollType="actors">
                     <x:complexType xdb:SQLType="actor">
                         <x:sequence>
-                            <x:element name="id" type="x:integer" />
+                            <x:element name="id" type="x:nonNegativeInteger" />
                             <x:element name="name" type="x:string" />
                             <x:element name="picture" type="x:hexBinary" xdb:SQLType="BLOB" />
                             <x:element name="character_name" type="x:string" />
@@ -31,7 +31,7 @@
                 <x:element name="director" minOccurs="0" maxOccurs="unbounded" xdb:SQLName="director" xdb:SQLCollType="directors">
                     <x:complexType xdb:SQLType="director">
                         <x:sequence>
-                            <x:element name="id" type="x:integer" xdb:SQLName="id" />
+                            <x:element name="id" type="x:nonNegativeInteger" xdb:SQLName="id" />
                             <x:element name="name" type="x:string" xdb:SQLName="name" />
                             <x:element name="picture" type="x:hexBinary" xdb:SQLType="BLOB" xdb:SQLName="picture" />
                         </x:sequence>
@@ -43,8 +43,8 @@
                 <x:element name="review" minOccurs="0" maxOccurs="unbounded" xdb:SQLName="review" xdb:SQLCollType="reviews">
                     <x:complexType xdb:SQLType="review">
                         <x:sequence>
-                            <x:element name="rating" type="x:integer" xdb:SQLName="rating" />
-                            <x:element name="creation_date" type="x:date" xdb:SQLName="creation_date" />
+                            <x:element name="rating" type="x:unsignedByte" xdb:SQLName="rating" />
+                            <x:element name="creation_date" type="x:dateTime" xdb:SQLName="creation_date" />
                             <x:element name="content" type="x:string" xdb:SQLName="content" />
                         </x:sequence>
                     </x:complexType>
@@ -56,22 +56,21 @@
     <x:element name="copy" xdb:SQLName="copy" xdb:SQLCollType="copies">
         <x:complexType xdb:SQLType="copy">
             <x:sequence>
-                <x:element name="copy_id" type="x:integer" />
-                <x:element name="movie_id" type="x:integer" />
+                <x:element name="copy_id" type="x:nonNegativeInteger" />
+                <x:element name="movie_id" type="x:nonNegativeInteger" />
             </x:sequence>
         </x:complexType>
     </x:element>
     <x:element name="schedule" xdb:SQLName="schedule" xdb:SQLCollType="schedules">
         <x:complexType xdb:SQLType="schedule">
             <x:sequence>
-                <x:element name="copy_id" type="x:integer" />
-                <x:element name="movie_id" type="x:integer" />
+                <x:element name="copy_id" type="x:nonNegativeInteger" />
+                <x:element name="movie_id" type="x:nonNegativeInteger" />
                 <x:element name="time_schedule" minOccurs="0" maxOccurs="unbounded" xdb:SQLName="time_schedule" xdb:SQLCollType="time_schedules">
                     <x:complexType xdb:SQLType="time_schedule">
                         <x:sequence>
                             <x:element name="schedule_start" type="x:dateTime" xdb:SQLName="schedule_start" />
-                            <x:element name="schedule_end" type="x:dateTime" xdb:SQLName="schedule_end" />
-                            <x:element name="hall_id" type="x:integer" xdb:SQLName="hall_id" />
+                            <x:element name="hall_id" type="x:unsignedByte" xdb:SQLName="hall_id" />
                         </x:sequence>
                     </x:complexType>
                 </x:element>
