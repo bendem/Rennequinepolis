@@ -9,11 +9,6 @@ create or replace package body cb_pull is
                     select extractvalue(object_value, '/movie/id') from movies
                 );
         delete from cc_queue@link.cb where type = 'movie';
-        commit;
-    exception
-        when others then
-            rollback;
-            raise;
     end;
 
     procedure pull_copies is
@@ -22,11 +17,6 @@ create or replace package body cb_pull is
             select data from cc_queue@link.cb
             where type = 'copy';
         delete from cc_queue@link.cb where type = 'type';
-        commit;
-    exception
-        when others then
-            rollback;
-            raise;
     end;
 
 end cb_pull;

@@ -31,8 +31,11 @@ create or replace package body cc_alim is
                     xmlforest(
                         v_copies(i).copy_id "copy_id",
                         v_copies(i).movie_id "movie_id"))));
+        cb_pull.pull_copies@link.cc;
+        commit;
     exception
         when others then
+            rollback;
             logging.e(sqlerrm);
             raise;
     end;
@@ -57,8 +60,11 @@ create or replace package body cc_alim is
                     xmlforest(
                         v_copies(i).copy_id "copy_id",
                         v_copies(i).movie_id "movie_id"))));
+        cb_pull.pull_copies@link.cc;
+        commit;
     exception
         when others then
+            rollback;
             logging.e(sqlerrm);
             raise;
     end;
@@ -151,8 +157,11 @@ create or replace package body cc_alim is
             left join statuses on (m.movie_status_id = status_id)
             left join images on (m.movie_poster_id = image_id)
             where movie_id = p_id;
+        cb_pull.pull_movies@link.cc;
+        commit;
     exception
         when others then
+            rollback;
             logging.e(sqlerrm);
             raise;
     end;
