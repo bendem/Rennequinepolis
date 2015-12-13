@@ -19,5 +19,17 @@ create or replace package body cb_pull is
         delete from cc_queue@link.cb where type = 'type';
     end;
 
+    function movie_exists(
+        p_movie_id number) return boolean
+    is
+        x number;
+    begin
+        select 1 into x from movies where extractvalue(object_value, '/movie/id') = p_movie_id;
+        return true;
+    exception
+        when no_data_found then
+            return false;
+    end;
+
 end cb_pull;
 /
