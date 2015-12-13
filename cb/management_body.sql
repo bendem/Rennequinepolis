@@ -280,5 +280,24 @@ create or replace package body management is
             return '0';
     end check_user;
 
+    procedure remove_copies(
+        p_copies copies_t)
+    is
+    begin
+        forall i in indices of p_copies
+            update copies set backup_flag = 2
+            where
+                copy_id = p_copies(i).copy_id
+                and movie_id = p_copies(i).movie_id
+                ;
+
+        begin
+            backup.propagate_copy_deletions;
+        exception
+            when others then
+                logging.i('Failed to propagate copy deletions, scheduled for next backup job');
+        end;
+    end remove_copies;
+
 end management;
 /

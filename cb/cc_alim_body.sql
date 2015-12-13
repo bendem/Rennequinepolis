@@ -1,14 +1,8 @@
 create or replace package body cc_alim is
 
-    type copy_r is record(
-        movie_id copies.movie_id%type,
-        copy_id  copies.copy_id%type
-    );
-    type copies_t is table of copy_r;
-
     procedure send_copies_of_all
     is
-        v_copies copies_t;
+        v_copies management.copies_t;
     begin
         update copies outer
         set backup_flag = 2
@@ -43,7 +37,7 @@ create or replace package body cc_alim is
     procedure send_copies(
         p_id movies.movie_id%type)
     is
-        v_copies copies_t;
+        v_copies management.copies_t;
     begin
         update copies
         set backup_flag = 2

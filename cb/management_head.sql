@@ -1,5 +1,11 @@
 create or replace package management is
 
+    type copy_r is record(
+        movie_id copies.movie_id%type,
+        copy_id  copies.copy_id%type
+    );
+    type copies_t is table of copy_r;
+
     -- Inserts a user into the db
     -- @param p_username  the user's username
     -- @param p_password  the user's password
@@ -55,6 +61,11 @@ create or replace package management is
     function check_user(
         p_username in users.username%type,
         p_password in users.password%type) return char;
+
+    -- Removes copies from the database.
+    -- @param p_copies a table of copy_id and movie_id to remove
+    procedure remove_copies(
+        p_copies copies_t);
 
 end management;
 /
