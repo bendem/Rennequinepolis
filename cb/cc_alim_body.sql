@@ -13,20 +13,21 @@ create or replace package body cc_alim is
         update copies outer
         set backup_flag = 2
         where backup_flag <> 2
-        and (movie_id, copy_id) in (
-            select movie_id, copy_id from copies middle
-            where rownum < round(sys.dbms_random.value(0, (
-                select count(*) from copies inner
-                where inner.movie_id = middle.movie_id
-                and backup_flag <> 2
-            ) / 2) + 1)
-            and middle.movie_id = outer.movie_id
-        ) returning movie_id, copy_id bulk collect into v_copies;
+            and (movie_id, copy_id) in (
+                select movie_id, copy_id from copies middle
+                where rownum < round(sys.dbms_random.value(0, (
+                        select count(*) from copies inner
+                        where inner.movie_id = middle.movie_id
+                        and backup_flag <> 2
+                    ) / 2) + 1)
+                    and middle.movie_id = outer.movie_id
+            )
+        returning movie_id, copy_id bulk collect into v_copies;
 
         forall i in indices of v_copies insert into cc_queue values(
             'copy',
-            XMLAgg(
-                XMLElement("copy",
+            xmlagg(
+                xmlelement("copy",
                     xmlforest(
                         v_copies(i).copy_id "copy_id",
                         v_copies(i).movie_id "movie_id"))));
@@ -51,8 +52,8 @@ create or replace package body cc_alim is
 
         forall i in indices of v_copies insert into cc_queue values(
             'copy',
-            XMLAgg(
-                XMLElement("copy",
+            xmlagg(
+                xmlelement("copy",
                     xmlforest(
                         v_copies(i).copy_id "copy_id",
                         v_copies(i).movie_id "movie_id"))));
@@ -67,8 +68,8 @@ create or replace package body cc_alim is
     is
     begin
         insert into cc_queue
-            select 'movie', XMLElement("movie",
-                XMLForest(
+            select 'movie', xmlelement("movie",
+                xmlforest(
                     movie_id             "id",
                     movie_title          "title",
                     movie_original_title "original_title",
@@ -85,9 +86,9 @@ create or replace package body cc_alim is
                     movie_tagline        "tagline",
                     movie_overview       "overview"
                 ), (
-                    select XMLAgg(
-                        XMLElement("actor",
-                            XMLForest(
+                    select xmlagg(
+                        xmlelement("actor",
+                            xmlforest(
                                 person_id      "id",
                                 person_name    "name",
                                 image          "picture",
@@ -100,9 +101,9 @@ create or replace package body cc_alim is
                     left join images on (person_profile_id = image_id)
                     where movie_id = p_id
                 ), (
-                    select XMLAgg(
-                        XMLElement("director",
-                            XMLForest(
+                    select xmlagg(
+                        xmlelement("director",
+                            xmlforest(
                                 person_id   "id",
                                 person_name "name",
                                 image       "picture"
@@ -114,22 +115,22 @@ create or replace package body cc_alim is
                     left join images on (person_profile_id = image_id)
                     where movie_id = p_id
                 ), (
-                    select XMLAgg(XMLElement("production_company", production_company_name))
+                    select xmlagg(xmlelement("production_company", production_company_name))
                     from production_companies
                     natural join movies_production_companies
                     where movie_id = p_id
                 ), (
-                    select XMLAgg(XMLElement("production_country", production_country_name))
+                    select xmlagg(xmlelement("production_country", production_country_name))
                     from production_countries
                     natural join movies_production_countries
                     where movie_id = p_id
                 ), (
-                    select XMLAgg(XMLElement("genre", genre_name))
+                    select xmlagg(xmlelement("genre", genre_name))
                     from genres natural join movies_genres where movie_id = p_id
                 ), (
-                    select XMLAgg(
-                        XMLElement("review",
-                            XMLForest(
+                    select xmlagg(
+                        xmlelement("review",
+                            xmlforest(
                                 rating        "rating",
                                 creation_date "creation_date",
                                 content       "content"
@@ -139,7 +140,7 @@ create or replace package body cc_alim is
                     from reviews
                     where movie_id = p_id and backup_flag <> 2
                 ), (
-                    select XMLAgg(XMLElement("spoken_language", spoken_language_name))
+                    select xmlagg(xmlelement("spoken_language", spoken_language_name))
                     from spoken_languages
                     natural join movies_spoken_languages
                     where movie_id = p_id
