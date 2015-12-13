@@ -16,7 +16,7 @@ create or replace package body cb_pull is
         insert into copies
             select data from cc_queue@link.cb
             where type = 'copy';
-        delete from cc_queue@link.cb where type = 'type';
+        delete from cc_queue@link.cb where type = 'copy';
     end;
 
     function movie_exists(

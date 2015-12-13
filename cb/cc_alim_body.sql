@@ -49,11 +49,10 @@ create or replace package body cc_alim is
 
         forall i in indices of v_copies insert into cc_queue values(
             'copy',
-            xmlagg(
-                xmlelement("copy",
-                    xmlforest(
-                        v_copies(i).copy_id "copy_id",
-                        v_copies(i).movie_id "movie_id"))));
+            xmlelement("copy",
+                xmlforest(
+                    v_copies(i).copy_id "copy_id",
+                    v_copies(i).movie_id "movie_id")));
     exception
         when others then
             logging.e('Failed to send copies of movie ' || p_id || ': ' || sqlerrm);
