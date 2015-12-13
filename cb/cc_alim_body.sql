@@ -3,34 +3,20 @@ create or replace package body cc_alim is
     procedure send_copies_of_all
     is
         v_copies management.copies_t;
+        movie_ids number_t;
     begin
-        update copies outer
-        set backup_flag = 2
-        where backup_flag <> 2
-            and (movie_id, copy_id) in (
-                select movie_id, copy_id from copies middle
-                where rownum < round(sys.dbms_random.value(0, (
-                        select count(*) from copies inner
-                        where inner.movie_id = middle.movie_id
-                        and backup_flag <> 2
-                    ) / 2) + 1)
-                    and middle.movie_id = outer.movie_id
-            )
-        returning movie_id, copy_id bulk collect into v_copies;
+        select movie_id bulk collect into movie_ids from movies;
 
-        forall i in indices of v_copies insert into cc_queue values(
-            'copy',
-            xmlagg(
-                xmlelement("copy",
-                    xmlforest(
-                        v_copies(i).copy_id "copy_id",
-                        v_copies(i).movie_id "movie_id"))));
+        for i in movie_ids.first..movie_ids.last loop
+            send_copies(movie_ids(i));
+        end loop;
+
         cb_pull.pull_copies@link.cc;
         commit;
     exception
         when others then
             rollback;
-            logging.e(sqlerrm);
+            logging.e('Failed to send weekly copies: ' || sqlerrm);
             raise;
     end;
 
@@ -39,13 +25,22 @@ create or replace package body cc_alim is
     is
         v_copies management.copies_t;
     begin
-        update copies
-        set backup_flag = 2
-        where movie_id = p_id and backup_flag <> 2
+        select movie_id, copy_id bulk collect into v_copies
+        from copies
+        where movie_id = p_id
+            and backup_flag <> 2
             and rownum < round(sys.dbms_random.value(0, (
-                select count(*) from copies where movie_id = p_id and backup_flag <> 2
-            ) / 2)) + 1
-        returning movie_id, copy_id bulk collect into v_copies;
+                select count(*)
+                from copies
+                where movie_id = p_id
+                    and backup_flag <> 2
+            ) / 2)) + 1;
+
+        if v_copies.count = 0 then
+            return;
+        end if;
+
+        management.remove_copies(v_copies);
 
         forall i in indices of v_copies insert into cc_queue values(
             'copy',
@@ -55,11 +50,9 @@ create or replace package body cc_alim is
                         v_copies(i).copy_id "copy_id",
                         v_copies(i).movie_id "movie_id"))));
         cb_pull.pull_copies@link.cc;
-        commit;
     exception
         when others then
-            rollback;
-            logging.e(sqlerrm);
+            logging.e('Failed to send copies of movie ' || p_id || ': ' || sqlerrm);
             raise;
     end;
 
