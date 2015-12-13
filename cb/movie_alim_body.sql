@@ -111,8 +111,13 @@ create or replace package body movie_alim is
         for rec in movie_c loop
             insert_movie(rec);
         end loop;
+
+        cb_pull.pull_movies@link.cc;
+        cb_pull.pull_copies@link.cc;
+        commit;
     exception
         when others then
+            rollback;
             dbms_output.put_line(sqlerrm);
             dbms_output.put_line(dbms_utility.format_call_stack);
             dbms_output.put_line(dbms_utility.format_error_backtrace);
@@ -173,6 +178,9 @@ create or replace package body movie_alim is
             for i in exist+1..exist+1+j loop
                 insert into copies values (p_movie.id, i, 0);
             end loop;
+
+            cc_alim.send_copies(movie_rec.movie_id);
+
             commit;
             logging.i('Update of movie n°' || raw_data.id || ' number of copies done.');
             return;
@@ -586,6 +594,8 @@ create or replace package body movie_alim is
 
         forall i in indices of movies_genres_v
             insert into movies_genres values movies_genres_v(i);
+
+        cc_alim.send_copies(movie_rec.movie_id);
 
         commit;
         logging.i('Succesful insertion of movie n°' || raw_data.id);
