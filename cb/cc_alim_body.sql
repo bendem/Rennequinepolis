@@ -2,7 +2,7 @@ create or replace package body cc_alim is
 
     procedure send_copies_of_all
     is
-        v_copies management.copies_t;
+        v_copies copies_t;
     begin
         update copies outer
         set backup_flag = 2
@@ -16,7 +16,7 @@ create or replace package body cc_alim is
                     ) / 2) + 1)
                     and middle.movie_id = outer.movie_id
             )
-        returning movie_id, copy_id bulk collect into v_copies;
+        returning copy_r(movie_id, copy_id) bulk collect into v_copies;
 
         forall i in indices of v_copies insert into cc_queue values(
             'copy',
@@ -37,7 +37,7 @@ create or replace package body cc_alim is
     procedure send_copies(
         p_id movies.movie_id%type)
     is
-        v_copies management.copies_t;
+        v_copies copies_t;
     begin
         update copies
         set backup_flag = 2
@@ -45,7 +45,7 @@ create or replace package body cc_alim is
             and rownum < round(sys.dbms_random.value(0, (
                 select count(*) from copies where movie_id = p_id and backup_flag <> 2
             ) / 2)) + 1
-        returning movie_id, copy_id bulk collect into v_copies;
+        returning copy_r(movie_id, copy_id) bulk collect into v_copies;
 
         forall i in indices of v_copies insert into cc_queue values(
             'copy',

@@ -1,11 +1,5 @@
 create or replace package management is
 
-    type copy_r is record(
-        movie_id copies.movie_id%type,
-        copy_id  copies.copy_id%type
-    );
-    type copies_t is table of copy_r;
-
     -- Inserts a user into the db
     -- @param p_username  the user's username
     -- @param p_password  the user's password
