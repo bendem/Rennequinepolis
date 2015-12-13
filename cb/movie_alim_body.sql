@@ -169,17 +169,17 @@ create or replace package body movie_alim is
         end;
 
         if exist <> 0 then
-            logging.i('Update of movie n°' || raw_data.id || ' number of copies starting.');
+            logging.i('Update of movie n°' || p_movie.id || ' number of copies starting.');
             j := round(abs(sys.dbms_random.normal * 2) + 5);
             update movies set
                 movie_copies = movie_copies + j
             where movie_id = p_movie.id;
 
-            for i in exist+1..exist+1+j loop
+            for i in exist + 1..exist + j loop
                 insert into copies values (p_movie.id, i, 0);
             end loop;
 
-            cc_alim.send_copies(movie_rec.movie_id);
+            cc_alim.send_copies(p_movie.id);
             cb_pull.pull_movies@link.cc;
             cb_pull.pull_copies@link.cc;
 
