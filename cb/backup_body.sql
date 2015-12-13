@@ -4,6 +4,7 @@ create or replace package body backup is
     begin
         logging.i('Starting backup job');
         backup.propagate_user_deletions;
+        backup.propagate_copy_deletions;
         backup.propagate_user_changes;
         backup.propagate_movie_changes;
         backup.propagate_copy_changes;
