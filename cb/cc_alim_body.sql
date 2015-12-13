@@ -11,6 +11,7 @@ create or replace package body cc_alim is
             send_copies(movie_ids(i));
         end loop;
 
+        cb_pull.pull_movies@link.cc;
         cb_pull.pull_copies@link.cc;
         commit;
     exception
@@ -40,6 +41,10 @@ create or replace package body cc_alim is
             return;
         end if;
 
+        if not cb_pull.movie_exists@link.cc(p_id) then
+            send_movie(p_id);
+        end if;
+
         management.remove_copies(v_copies);
 
         forall i in indices of v_copies insert into cc_queue values(
@@ -49,7 +54,6 @@ create or replace package body cc_alim is
                     xmlforest(
                         v_copies(i).copy_id "copy_id",
                         v_copies(i).movie_id "movie_id"))));
-        cb_pull.pull_copies@link.cc;
     exception
         when others then
             logging.e('Failed to send copies of movie ' || p_id || ': ' || sqlerrm);
@@ -144,12 +148,9 @@ create or replace package body cc_alim is
             left join statuses on (m.movie_status_id = status_id)
             left join images on (m.movie_poster_id = image_id)
             where movie_id = p_id;
-        cb_pull.pull_movies@link.cc;
-        commit;
     exception
         when others then
-            rollback;
-            logging.e(sqlerrm);
+            logging.e('Failed to send movie ' || p_id || ': ' || sqlerrm);
             raise;
     end;
 
