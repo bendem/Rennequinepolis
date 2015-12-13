@@ -8,6 +8,9 @@ create or replace package backup is
     -- Deletes users deleted from this db in its backup counter part.
     procedure propagate_user_deletions;
 
+    -- Deletes copies deleted from this db in its backup counter part.
+    procedure propagate_copy_deletions;
+
     -- Synchronizes changes made to users in the db with its backup counter
     -- part.
     procedure propagate_user_changes;

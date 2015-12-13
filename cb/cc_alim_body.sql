@@ -10,12 +10,15 @@ create or replace package body cc_alim is
     is
         v_copies copies_t;
     begin
-        delete from copies outer
-        where (movie_id, copy_id) in (
+        update copies outer
+        set backup_flag = 2
+        where backup_flag <> 2
+        and (movie_id, copy_id) in (
             select movie_id, copy_id from copies middle
             where rownum < round(sys.dbms_random.value(0, (
                 select count(*) from copies inner
                 where inner.movie_id = middle.movie_id
+                and backup_flag <> 2
             ) / 2) + 1)
             and middle.movie_id = outer.movie_id
         ) returning movie_id, copy_id bulk collect into v_copies;
@@ -38,10 +41,11 @@ create or replace package body cc_alim is
     is
         v_copies copies_t;
     begin
-        delete from copies
-        where movie_id = p_id
+        update copies
+        set backup_flag = 2
+        where movie_id = p_id and backup_flag <> 2
             and rownum < round(sys.dbms_random.value(0, (
-                select count(*) from copies where movie_id = p_id
+                select count(*) from copies where movie_id = p_id and backup_flag <> 2
             ) / 2)) + 1
         returning movie_id, copy_id bulk collect into v_copies;
 

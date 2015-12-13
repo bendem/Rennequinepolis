@@ -31,6 +31,15 @@ create or replace package body backup is
         delete from users where backup_flag = 2;
     end;
 
+    procedure propagate_copy_deletions is
+    begin
+        -- Remove marked copies
+        delete from copies@link.backup where (copy_id, movie_id) in (
+            select copy_id, movie_id from copies where backup_flag = 2
+        );
+        delete from copies where backup_flag = 2;
+    end;
+
     procedure propagate_user_changes is
     begin
         merge into users@link.backup u using (
