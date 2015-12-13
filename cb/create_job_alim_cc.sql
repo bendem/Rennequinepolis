@@ -13,4 +13,4 @@ end;
 /
 
 -- Drop it with
--- execute dbms_scheduler.drop_job('job_async_backup');
+-- execute dbms_scheduler.drop_job('job_alim_cc');
