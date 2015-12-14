@@ -44,7 +44,7 @@
                     <x:complexType xdb:SQLType="review">
                         <x:sequence>
                             <x:element name="rating" type="x:unsignedByte" xdb:SQLName="rating" />
-                            <x:element name="creation_date" type="x:dateTime" xdb:SQLName="creation_date" />
+                            <x:element name="creation_date" type="x:dateTime" xdb:SQLType="TIMESTAMP WITH TIME ZONE" xdb:SQLName="creation_date" />
                             <x:element name="content" type="x:string" xdb:SQLName="content" />
                         </x:sequence>
                     </x:complexType>
@@ -69,7 +69,7 @@
                 <x:element name="time_schedule" minOccurs="0" maxOccurs="unbounded" xdb:SQLName="time_schedule" xdb:SQLCollType="time_schedules">
                     <x:complexType xdb:SQLType="time_schedule">
                         <x:sequence>
-                            <x:element name="schedule_start" type="x:dateTime" xdb:SQLName="schedule_start" />
+                            <x:element name="schedule_start" type="x:dateTime" xdb:SQLType="TIMESTAMP WITH TIME ZONE" xdb:SQLName="schedule_start" />
                             <x:element name="hall_id" type="x:unsignedByte" xdb:SQLName="hall_id" />
                         </x:sequence>
                     </x:complexType>
