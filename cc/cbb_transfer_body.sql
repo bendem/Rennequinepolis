@@ -1,43 +1,38 @@
-create or replace package body cb_pull is
+create or replace package body cbb_transfer is
 
     -- TODO Pulls should get a flag to pull from cbb instead of cb.
 
     procedure pull_movies is
     begin
         insert into movies
-            select data from cc_queue@link.cb
+            select data from cc_queue@link.cbb
             where type = 'movie'
                 and extractvalue(data, '/movie/id') not in (
                     select extractvalue(object_value, '/movie/id') from movies
                 );
-        delete from cc_queue@link.cb where type = 'movie';
+        delete from cc_queue@link.cbb where type = 'movie';
     end;
 
     procedure pull_copies is
     begin
         insert into copies
-            select data from cc_queue@link.cb
+            select data from cc_queue@link.cbb
             where type = 'copy';
-        delete from cc_queue@link.cb where type = 'copy';
+        delete from cc_queue@link.cbb where type = 'copy';
     end;
 
     function movie_exists(
         p_movie_id number) return boolean
     is
-        x number;
     begin
-        select 1 into x from movies where extractvalue(object_value, '/movie/id') = p_movie_id;
-        return true;
-    exception
-        when no_data_found then
-            return false;
+        return cb_transfer.movie_exists(p_movie_id);
     end;
 
     procedure push_copies
         -- TODO Should get a flag to send to cbb instead of cb
     is
         pragma autonomous_transaction;
-        v_copies management.copies_t@link.cb;
+        v_copies management.copies_t@link.cbb;
     begin
         select
             extractvalue(object_value, '/schedule/movie_id') "movie_id",
@@ -72,7 +67,7 @@ create or replace package body cb_pull is
             ;
 
         for i in v_copies.first..v_copies.last loop
-            insert into copies@link.cb(movie_id, copy_id, backup_flag) values (
+            insert into copies@link.cbb(movie_id, copy_id, backup_flag) values (
                 v_copies(i).movie_id, v_copies(i).copy_id, 0
             );
         end loop;
@@ -84,5 +79,5 @@ create or replace package body cb_pull is
             raise;
     end;
 
-end cb_pull;
+end cb_transfer;
 /

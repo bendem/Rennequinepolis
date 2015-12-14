@@ -1,4 +1,4 @@
-create or replace package cb_pull is
+create or replace package cb_transfer is
 
     -- Pulls the movies made available by cb into the database.
     procedure pull_movies;
@@ -15,5 +15,5 @@ create or replace package cb_pull is
     -- TODO
     procedure push_copies;
 
-end cb_pull;
+end cb_transfer;
 /
