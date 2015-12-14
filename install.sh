@@ -48,6 +48,11 @@ cat $ROOT/cb/create_db_link_cb.sql  \
     | sed "$INSERT_CC_PWD"          \
     | $SQLPLUS cb/$CB_PWD@$CB_IP
 
+cat $ROOT/cc/create_db_link_cc.sql  \
+    | sed "$INSERT_CB_PWD"          \
+    | sed "$INSERT_CB_PWD"          \
+    | $SQLPLUS cc/$CC_PWD@$CB_IP
+
 echo "Initializing cb"
 echo "==============="
 cat $ROOT/cb/crea.sql                 \
@@ -59,8 +64,6 @@ cat $ROOT/cb/crea.sql                 \
     $ROOT/utils/timer_head.sql        \
     $ROOT/utils/timer_body.sql        \
     $ROOT/cb/create_ext_table.sql     \
-    $ROOT/cb/movie_alim_head.sql      \
-    $ROOT/cb/movie_alim_body.sql      \
     $ROOT/cb/link_check_head.sql      \
     $ROOT/cb/link_check_body_cb.sql   \
     $ROOT/cb/search_head.sql          \
@@ -88,14 +91,35 @@ cat $ROOT/cb/crea.sql                \
 echo "Setting up cb backup"
 echo "===================="
 cat $ROOT/cb/backup_trigger.sql  \
-    $ROOT/cb/management_head.sql \
-    $ROOT/cb/management_body.sql \
     $ROOT/cb/backup_head.sql     \
     $ROOT/cb/backup_body.sql     \
+    $ROOT/cb/management_head.sql \
+    $ROOT/cb/management_body.sql \
     $ROOT/cb/create_job.sql      \
         | $SQLPLUS cb/$CB_PWD@$CB_IP
 
 echo "Setting up cc"
 echo "============="
-cat $ROOT/cc/create_xsd.sql  \
+cat $ROOT/cc/create_xsd.sql        \
+    $ROOT/cc/create_table.sql      \
+    $ROOT/cc/cb_transfer_head.sql  \
+    $ROOT/cc/cb_transfer_body.sql  \
+    $ROOT/cc/cbb_transfer_head.sql \
+    $ROOT/cc/cbb_transfer_body.sql \
         | $SQLPLUS cc/$CC_PWD@$CB_IP
+
+echo "Setting up cb proxy and alims"
+echo "==================="
+cat $ROOT/cb/cc_proxy_head.sql    \
+    $ROOT/cb/cc_proxy_cb_body.sql \
+    $ROOT/cb/movie_alim_head.sql  \
+    $ROOT/cb/movie_alim_body.sql  \
+    $ROOT/cb/cc_alim_head.sql     \
+    $ROOT/cb/cc_alim_body.sql     \
+        | $SQLPLUS cb/$CB_PWD@$CB_IP
+
+echo "Setting up cbb proxy"
+echo "==================="
+cat $ROOT/cb/cc_proxy_head.sql     \
+    $ROOT/cb/cc_proxy_cbb_body.sql \
+        | $SQLPLUS cbb/$CB_PWD@$CB_IP
