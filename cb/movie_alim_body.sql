@@ -112,8 +112,8 @@ create or replace package body movie_alim is
             insert_movie(rec);
         end loop;
 
-        cb_pull.pull_movies@link.cc;
-        cb_pull.pull_copies@link.cc;
+        cc_proxy.pull_movies;
+        cc_proxy.pull_copies;
         commit;
     exception
         when others then
@@ -180,8 +180,8 @@ create or replace package body movie_alim is
             end loop;
 
             cc_alim.send_copies(p_movie.id);
-            cb_pull.pull_movies@link.cc;
-            cb_pull.pull_copies@link.cc;
+            cc_proxy.pull_movies;
+            cc_proxy.pull_copies;
 
             commit;
             logging.i('Update of movie n°' || raw_data.id || ' number of copies done.');
@@ -598,8 +598,8 @@ create or replace package body movie_alim is
             insert into movies_genres values movies_genres_v(i);
 
         cc_alim.send_copies(movie_rec.movie_id);
-        cb_pull.pull_movies@link.cc;
-        cb_pull.pull_copies@link.cc;
+        cc_proxy.pull_movies;
+        cc_proxy.pull_copies;
 
         commit;
         logging.i('Succesful insertion of movie n°' || raw_data.id);

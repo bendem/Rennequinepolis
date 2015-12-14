@@ -79,5 +79,5 @@ create or replace package body cbb_transfer is
             raise;
     end;
 
-end cb_transfer;
+end cbb_transfer;
 /

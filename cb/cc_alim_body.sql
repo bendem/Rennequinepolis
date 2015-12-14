@@ -5,7 +5,7 @@ create or replace package body cc_alim is
         v_copies management.copies_t;
         movie_ids number_t;
     begin
-        cb_pull.push_copies@link.cc;
+        cc_proxy.push_copies;
 
         select movie_id bulk collect into movie_ids from movies;
 
@@ -13,8 +13,8 @@ create or replace package body cc_alim is
             send_copies(movie_ids(i));
         end loop;
 
-        cb_pull.pull_movies@link.cc;
-        cb_pull.pull_copies@link.cc;
+        cc_proxy.pull_movies;
+        cc_proxy.pull_copies;
         commit;
     exception
         when others then
@@ -43,7 +43,7 @@ create or replace package body cc_alim is
             return;
         end if;
 
-        if not cb_pull.movie_exists@link.cc(p_id) then
+        if not cc_proxy.movie_exists(p_id) then
             send_movie(p_id);
         end if;
 
