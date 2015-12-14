@@ -19,6 +19,46 @@ update movies set object_value = insertchildxml(
 --where extractvalue(object_value, '/movie/original_title') = 'Ariel'
 ;
 
+
+--  THE ONE
+select
+    extractvalue(object_value, '/schedule/copy_id') "copy_id"
+from
+    schedules s
+where not exists(
+    select * from
+        schedules s2,
+        xmltable('/schedule/time_schedule/schedule_start' passing s.object_value) t
+    where
+        to_timestamp_tz(extractvalue(t.column_value, 'schedule_start'), 'YYYY-MM-DD"T"HH24:MI:SS.FFTZH:TZM') + (
+            select
+                numtodsinterval(extractvalue(m.object_value, '/movie/runtime'), 'minute')
+            from movies m
+            where
+                extractvalue(m.object_value, '/movie/id') = extractvalue(s.object_value, '/schedule/movie_id')
+        ) + numtodsinterval(30, 'minute') > current_timestamp
+        and extractvalue(s.object_value,'/schedule/movie_id') = extractvalue(s2.object_value,'/schedule/movie_id')
+        and extractvalue(s.object_value,'/schedule/copy_id') = extractvalue(s2.object_value,'/schedule/copy_id')
+)
+;
+
+
+
+insert into schedules
+    select xmlelement(
+        "schedule",
+        xmlforest(
+            1 "copy_id",
+            2 "movie_id",
+            xmlforest(
+                current_timestamp "schedule_start",
+                1 "hall_id"
+            ) "time_schedule"
+        )
+    ) from dual;
+commit;
+
+
 select extract(object_value, '/movie/copy').getClobVal() from movies;
 select * from movies;
 
@@ -57,7 +97,7 @@ begin
     for i in r.first..r.last loop
         movie_alim.insert_movie(r(i));
     end loop;
-    execute backup.propagate_changes;
+    -- execute backup.propagate_changes;
 end;
 /
 

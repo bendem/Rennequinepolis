@@ -5,6 +5,8 @@ create or replace package body cc_alim is
         v_copies management.copies_t;
         movie_ids number_t;
     begin
+        cb_pull.push_copies@link.cc;
+
         select movie_id bulk collect into movie_ids from movies;
 
         for i in movie_ids.first..movie_ids.last loop
