@@ -1,3 +1,6 @@
+-- This is a proxy that'll forward remote calls correctly depending on the user.
+-- cb's implementation will call cb_transfer while cbb's implementation will call
+-- cbb_transfer.
 create or replace package cc_proxy is
 
     -- Pulls the movies made available by cb into the database.
