@@ -112,10 +112,10 @@ echo "Setting up cb proxy and alims"
 echo "==================="
 cat $ROOT/cb/cc_proxy_head.sql    \
     $ROOT/cb/cc_proxy_cb_body.sql \
-    $ROOT/cb/movie_alim_head.sql  \
-    $ROOT/cb/movie_alim_body.sql  \
     $ROOT/cb/cc_alim_head.sql     \
     $ROOT/cb/cc_alim_body.sql     \
+    $ROOT/cb/movie_alim_head.sql  \
+    $ROOT/cb/movie_alim_body.sql  \
         | $SQLPLUS cb/$CB_PWD@$CB_IP
 
 echo "Setting up cbb proxy"
