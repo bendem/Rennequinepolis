@@ -1,4 +1,4 @@
-create or replace package cc_proxy is
+create or replace package body cc_proxy is
 
     procedure pull_movies
     is
