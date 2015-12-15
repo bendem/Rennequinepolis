@@ -65,7 +65,7 @@ create or replace package body cb_transfer is
         );
 
         logging.d('Found ' || v_copies.count || ' copies to send back.');
-        if v_copies.count then
+        if v_copies.count = 0 then
             return;
         end if;
 
