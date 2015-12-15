@@ -46,23 +46,29 @@ create or replace package body cb_transfer is
         from
             schedules s
         where not exists(
-            select * from
-                schedules s2,
-                xmltable('/schedule/time_schedule/schedule_start' passing s.object_value) t
-            where
-                to_timestamp_tz(
-                    extractvalue(t.column_value, 'schedule_start'),
-                    'YYYY-MM-DD"T"HH24:MI:SS.FFTZH:TZM'
-                ) + (
-                    select
-                        numtodsinterval(extractvalue(m.object_value, '/movie/runtime'), 'minute')
-                    from movies m
-                    where
-                        extractvalue(m.object_value, '/movie/id') = extractvalue(s.object_value, '/schedule/movie_id')
-                ) + numtodsinterval(30, 'minute') > current_timestamp
-                and extractvalue(s.object_value,'/schedule/movie_id') = extractvalue(s2.object_value,'/schedule/movie_id')
-                and extractvalue(s.object_value,'/schedule/copy_id') = extractvalue(s2.object_value,'/schedule/copy_id')
-        );
+                select * from
+                    schedules s2,
+                    xmltable('/schedule/time_schedule/schedule_start' passing s.object_value) t
+                where
+                    to_timestamp_tz(
+                        extractvalue(t.column_value, 'schedule_start'),
+                        'YYYY-MM-DD"T"HH24:MI:SS.FFTZH:TZM'
+                    ) + (
+                        select
+                            numtodsinterval(extractvalue(m.object_value, '/movie/runtime'), 'minute')
+                        from movies m
+                        where
+                            extractvalue(m.object_value, '/movie/id') = extractvalue(s.object_value, '/schedule/movie_id')
+                    ) + numtodsinterval(30, 'minute') > current_timestamp
+                    and extractvalue(s.object_value,'/schedule/movie_id') = extractvalue(s2.object_value,'/schedule/movie_id')
+                    and extractvalue(s.object_value,'/schedule/copy_id') = extractvalue(s2.object_value,'/schedule/copy_id')
+            )
+            and (extractvalue(object_value, '/schedule/movie_id'), extractvalue(object_value, '/schedule/copy_id')) in (
+                select
+                    extractvalue(c.object_value, '/copy/movie_id'), extractvalue(c.object_value, '/copy/copy_id')
+                from copies c
+            )
+        ;
 
         logging.d('Found ' || v_copies.count || ' copies to send back.');
         if v_copies.count = 0 then
@@ -77,10 +83,10 @@ create or replace package body cb_transfer is
             ;
 
         for i in v_copies.first..v_copies.last loop
+            logging.d('sending copy ' || v_copies(i).copy_id || ':' || v_copies(i).movie_id || ' back.');
             insert into copies@link.cb(movie_id, copy_id, backup_flag) values (
                 v_copies(i).movie_id, v_copies(i).copy_id, 0
             );
-            logging.d('sending copy ' || v_copies(i).copy_id || ':' || v_copies(i).movie_id || ' back.');
         end loop;
 
         commit;

@@ -5,8 +5,6 @@ create or replace package body cc_alim is
         v_copies management.copies_t;
         movie_ids number_t;
     begin
-        cc_proxy.push_copies;
-
         select movie_id bulk collect into movie_ids from movies;
 
         for i in movie_ids.first..movie_ids.last loop
@@ -16,6 +14,8 @@ create or replace package body cc_alim is
         cc_proxy.pull_movies;
         cc_proxy.pull_copies;
         commit;
+
+        cc_proxy.push_copies;
     exception
         when others then
             rollback;
