@@ -64,6 +64,11 @@ create or replace package body cb_transfer is
                 and extractvalue(s.object_value,'/schedule/copy_id') = extractvalue(s2.object_value,'/schedule/copy_id')
         );
 
+        logging.d('Found ' || v_copies.count || ' copies to send back.');
+        if v_copies.count then
+            return;
+        end if;
+
         forall i in indices of v_copies
             delete from copies
             where
@@ -75,11 +80,13 @@ create or replace package body cb_transfer is
             insert into copies@link.cb(movie_id, copy_id, backup_flag) values (
                 v_copies(i).movie_id, v_copies(i).copy_id, 0
             );
+            logging.d('sending copy ' || v_copies(i).copy_id || ':' || v_copies(i).movie_id || ' back.');
         end loop;
 
         commit;
     exception
         when others then
+            logging.e('Error sending copies back: ' || sqlerrm);
             rollback;
             raise;
     end;
