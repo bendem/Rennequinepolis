@@ -101,6 +101,7 @@ cat $ROOT/cb/backup_trigger.sql  \
 echo "Setting up cc"
 echo "============="
 cat $ROOT/cc/create_xsd.sql        \
+    $ROOT/utils/logs.sql           \
     $ROOT/cc/create_table.sql      \
     $ROOT/cc/cb_transfer_head.sql  \
     $ROOT/cc/cb_transfer_body.sql  \
