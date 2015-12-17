@@ -130,7 +130,8 @@ create or replace package body management is
             begin
                 select * into user
                 from users
-                where username = p_userbefore.username and backup_flag <> 2
+                where username = p_userbefore.username
+                    and backup_flag <> 2
                 for update nowait;
                 i := 3;
             exception
@@ -251,7 +252,6 @@ create or replace package body management is
         when not_equal_exception then
             logging.e('Data mismatch on review update: ' || sqlerrm);
             raise_application_error(-20162, 'Record has been modified before your modification could be applied');
-            rollback;
         when dup_val_on_index then
             raise_application_error(-20140, 'Primary key already in use');
         when pkey_null then

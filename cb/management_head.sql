@@ -43,6 +43,7 @@ create or replace package management is
     -- Modifies a user, checking if it has not been modified in the meantime
     -- @param p_userbefore the previous value of the user
     -- @param p_userafter  the new value for the user
+    -- @transaction this method will commit on success
     procedure modify_user(
         p_userbefore in users%rowtype,
         p_userafter  in users%rowtype);
@@ -50,6 +51,7 @@ create or replace package management is
     -- Modifies a review, checking if it has not been modified in the meantime
     -- @param p_reviewbefore the previous value of the review
     -- @param p_reviewafter  the new value for the review
+    -- @transaction this method will commit on success
     procedure modify_review(
         p_reviewbefore in reviews%rowtype,
         p_reviewafter  in reviews%rowtype);

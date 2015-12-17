@@ -1,6 +1,9 @@
 create or replace package cc_alim is
 
-    -- Inserts a set amount of movies from movies_ext into the main database.
+    -- Sends a random amount of the copies in cb to cc.
+    --
+    -- This method will also trigger the process on cc to send unused copies back.
+    -- @transaction this method will commit on success and rollback on error
     procedure send_copies_of_all;
 
     -- Send copies of a specific movie to CC

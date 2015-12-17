@@ -12,7 +12,9 @@ create or replace package cbb_transfer is
     function movie_exists(
         p_movie_id number) return boolean;
 
-    -- TODO
+    -- Pushes copies that are not scheduled anymore back to cbb.
+    -- @transaction this method will commit on success and rollback on error
+    -- @autonomous_transaction
     procedure push_copies;
 
 end cbb_transfer;

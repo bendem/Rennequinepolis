@@ -1,12 +1,16 @@
 create or replace package movie_alim is
 
     -- Inserts a set amount of movies from movies_ext into the main database.
+    --
+    -- This method will also trigger sending movies to cc.
     -- @param p_count the number of movies to transfer
+    -- @transaction this method will commit on success and rollback on error
     procedure insert_movies(
         p_count pls_integer);
 
     -- Inserts a movies_ext row into the main database
     -- @param p_movie the rowtype to decompose and insert
+    -- @transaction this method will commit on success and rollback on error
     procedure insert_movie(
         p_movie movies_ext%rowtype);
 

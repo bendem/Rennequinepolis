@@ -3,6 +3,7 @@ create or replace package backup is
     -- Synchronizes the db with its backup counter part.
     --
     -- This is a procedure wrapping all below procedures in a transaction.
+    -- @transaction this method will commit on success and rollback on error
     procedure propagate_changes;
 
     -- Deletes users deleted from this db in its backup counter part.
@@ -32,6 +33,8 @@ create or replace package backup is
     --
     -- Used in cbb.link_check.check_link_available to propagate changes
     -- when cb comes back up without messing with the current transaction.
+    -- @transaction this method will commit on success and rollback on error
+    -- @autonomous_transaction
     procedure sync_propagation;
 
 end backup;
