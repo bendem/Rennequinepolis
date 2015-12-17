@@ -2,12 +2,6 @@
 
     type schedules_t is table of schedule_r;
 
-    schedule_filename constant varchar2(10) := 'schedules_';
-
-    movie_interval constant interval day(0) to second(0) := interval '30' minute;
-    closing_hour   constant interval day(0) to second(0) := interval '23' hour;
-    closing_minute constant interval day(0) to second(0) := interval '30' minute;
-
     procedure read_file
     is
         v_schedules schedules_t;
