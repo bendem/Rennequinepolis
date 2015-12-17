@@ -14,6 +14,7 @@
         v_filename varchar2(30) := get_filename;
         v_movie xmltype;
         v_x xmltype;
+        v_writing boolean := false;
     begin
         v_x := xmltype(bfilename('XML_DIR', v_filename || '.xml'), nls_charset_id('AL32UTF8'));
 
@@ -51,7 +52,18 @@
             schedule(v_movie, v_schedules(i), v_x, i);
         end loop;
 
+        v_writing := true;
         dbms_xslprocessor.clob2file(v_x.getclobval(), 'XML_DIR', v_filename || '_feedback.xml');
+        commit;
+    exception
+        when others then
+            logging.e('An error happened while scheduling movies: ' || sqlerrm);
+            rollback;
+            if not writing then
+                -- If failure doesn't come from writing the report, there will be useful information in it
+                dbms_xslprocessor.clob2file(v_x.getclobval(), 'XML_DIR', v_filename || '_feedback.xml');
+            end if;
+            raise;
     end read_file;
 
     function get_filename return varchar2
