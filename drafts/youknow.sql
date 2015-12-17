@@ -1,3 +1,60 @@
+
+execute scheduling.read_file;
+
+delete from schedules;
+
+select to_timestamp(current_date) + interval '20' hour + interval '30' minute from dual;
+
+insert into schedules
+    select xmlelement(
+        "schedule",
+        xmlforest(
+            3 "copy_id",
+            2 "movie_id",
+            xmlforest(
+                current_timestamp - interval '1' day "schedule_start",
+                1 "hall_id"
+            ) "time_schedule"
+        )
+    ) from dual;
+commit;
+
+select
+    extractvalue(object_value, '/copy/copy_id'),
+    extractvalue(object_value, '/copy/movie_id')
+from copies;
+
+
+
+with schedules_(copy_id, movie_id, schedule_start) as (
+    select
+        extractvalue(s.object_value, '/schedule/copy_id'),
+        extractvalue(s.object_value, '/schedule/movie_id'),
+        to_timestamp_tz(extractvalue(t.object_value, '/time_schedule/schedule_start'))
+    from
+        schedules s,
+        xmltable('/schedule/time_schedule' passing s.object_value) t
+)
+select
+    *
+from schedules_
+where
+    schedule_start < trunc(current_timestamp)
+    and schedule_start > trunc(current_timestamp) - interval '1' day
+;
+
+execute archive.archive;
+delete from archives;
+select
+    extractvalue(object_value, '/archive/movie_id'),
+    extractvalue(object_value, '/archive/running_days'),
+    extractvalue(object_value, '/archive/places_sold')
+from archives;
+
+
+
+
+
 -- ------------
 -- YAY XML \o/
 select * from cc_queue@link.cb;
