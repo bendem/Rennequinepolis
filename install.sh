@@ -100,13 +100,16 @@ cat $ROOT/cb/backup_trigger.sql  \
 
 echo "Setting up cc"
 echo "============="
-cat $ROOT/cc/create_xsd.sql        \
-    $ROOT/utils/logs.sql           \
-    $ROOT/cc/create_table.sql      \
-    $ROOT/cc/cb_transfer_head.sql  \
-    $ROOT/cc/cb_transfer_body.sql  \
-    $ROOT/cc/cbb_transfer_head.sql \
-    $ROOT/cc/cbb_transfer_body.sql \
+cat $ROOT/cc/create_xsd.sql            \
+    $ROOT/utils/logs.sql               \
+    $ROOT/cc/create_table.sql          \
+    $ROOT/cc/cb_transfer_head.sql      \
+    $ROOT/cc/cb_transfer_body.sql      \
+    $ROOT/cc/cbb_transfer_head.sql     \
+    $ROOT/cc/cbb_transfer_body.sql     \
+    $ROOT/cc/scheduling_head.sql       \
+    $ROOT/cc/scheduling_body.sql       \
+    $ROOT/cc/create_job_scheduling.sql \
         | $SQLPLUS cc/$CC_PWD@$CB_IP
 
 echo "Setting up cb proxy and alims"
