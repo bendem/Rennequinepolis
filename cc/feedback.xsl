@@ -17,11 +17,15 @@
                     margin: auto;
                     margin-top: 1em;
                 }
+                h1 {
+                    text-align: center;
+                }
                 .movie {
                     margin-top: 1em;
                 }
                 h2 {
                     margin-bottom: 0.2em;
+                    padding-left: 0.5rem;
                 }
                 table {
                     border-collapse: collapse;
@@ -34,7 +38,7 @@
                 tr:first-child {
                     border: none;
                 }
-                tr:nth-child(2n + 1) {
+                tr:nth-child(2n) {
                     background-color: #eee;
                 }
                 td {
@@ -45,7 +49,7 @@
                     border: none;
                 }
                 .error {
-                    width: 5ch;
+                    width: 7ch;
                     color: #a11;
                 }
                 .success {
@@ -56,7 +60,7 @@
                     max-width: 16ch;
                 }
                 .msg {
-                    width: calc(80vw - 16ch - 5ch - 3em - 2px);
+                    width: calc(80vw - 16ch - 7ch - 3em - 2px);
                 }
                 </style>
                 <title>Schedule feedback</title>
@@ -77,14 +81,17 @@
                                     <xsl:choose>
                                         <xsl:when test="local-name()='success'">
                                             <td class="success">success</td>
+                                            <td class="time">
+                                                <xsl:value-of select="." />
+                                            </td>
                                         </xsl:when>
                                         <xsl:otherwise>
                                             <td class="error">error</td>
+                                            <td class="time">
+                                                <xsl:value-of select="time" />
+                                            </td>
                                         </xsl:otherwise>
                                     </xsl:choose>
-                                        <td class="time">
-                                            <xsl:value-of select="time" />
-                                        </td>
                                         <xsl:if test="msg">
                                             <td class="msg">
                                                 <xsl:value-of select="msg" />

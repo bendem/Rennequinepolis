@@ -259,9 +259,7 @@
         p_time timestamp) return xmltype
     is
     begin
-        return xmltype('<success>
-            <time>' || to_char(p_time, 'DD-MM-YYYY HH24:MI') || '</time>
-        </success>');
+        return xmltype('<success>' || to_char(p_time, 'DD-MM-YYYY HH24:MI') || '</success>');
     end success;
 
 end scheduling;

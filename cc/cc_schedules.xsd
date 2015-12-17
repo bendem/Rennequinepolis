@@ -9,6 +9,15 @@
                             <x:element name="movie_id" type="x:nonNegativeInteger" />
                             <x:element name="start" type="x:string" />
                             <x:element name="hall_id" type="x:nonNegativeInteger" />
+                            <x:element name="error" minOccurs="0" maxOccurs="unbounded">
+                                <x:complexType>
+                                    <x:sequence>
+                                        <x:element name="time" type="x:dateTime" />
+                                        <x:element name="msg" type="x:string" />
+                                    </x:sequence>
+                                </x:complexType>
+                            </x:element>
+                            <x:element name="success" type="x:dateTime" minOccurs="0" maxOccurs="unbounded" />
                         </x:sequence>
                     </x:complexType>
                 </x:element>
