@@ -39,8 +39,15 @@ varray "XMLDATA"."time_schedule" store as table time_schedule_table (
 )
 ;
 
+create table archives of xmltype
+xmltype store as object relational
+xmlschema "http://xmlns.bendem.be/cc"
+element "archive";
+
 alter table movies add constraint pk_movies primary key (XMLDATA."id");
 alter table copies add constraint pk_copies primary key (XMLDATA."copy_id", XMLDATA."movie_id");
 alter table schedules add constraint pk_schedules primary key (XMLDATA."copy_id", XMLDATA."movie_id");
 alter table copies add constraint fk_copies foreign key (XMLDATA."movie_id") references movies(XMLDATA."id");
 alter table schedules add constraint fk_schedules foreign key (XMLDATA."movie_id") references movies(XMLDATA."id");
+alter table archives add constraint pk_archives primary key (XMLDATA."movie_id");
+alter table archives add constraint fk_archives foreign key (XMLDATA."movie_id") references movies(XMLDATA."id");

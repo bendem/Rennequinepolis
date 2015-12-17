@@ -77,4 +77,13 @@
             </x:sequence>
         </x:complexType>
     </x:element>
+    <x:element name="archive" xdb:SQLName="archive" xdb:SQLCollType="archives">
+        <x:complexType xdb:SQLType="archive">
+            <x:sequence>
+                <x:element name="movie_id" type="x:nonNegativeInteger" />
+                <x:element name="running_days" type="x:nonNegativeInteger" />
+                <x:element name="places_sold" type="x:nonNegativeInteger" />
+            </x:sequence>
+        </x:complexType>
+    </x:element>
 </x:schema>

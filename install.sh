@@ -110,6 +110,9 @@ cat $ROOT/cc/create_xsd.sql            \
     $ROOT/cc/scheduling_head.sql       \
     $ROOT/cc/scheduling_body.sql       \
     $ROOT/cc/create_job_scheduling.sql \
+    $ROOT/cc/archive_head.sql          \
+    $ROOT/cc/archive_body.sql          \
+    $ROOT/cc/create_job_archiving.sql  \
         | $SQLPLUS cc/$CC_PWD@$CB_IP
 
 echo "Setting up cb proxy and alims"
