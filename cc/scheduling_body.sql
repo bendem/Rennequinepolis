@@ -244,6 +244,7 @@
         p_xml in out nocopy xmltype)
     is
     begin
+        null;
         -- Oracle allows creating PIs, but there is 0 way to insert them...
         -- select insertxmlbefore(
         --     p_xml, '/schedules',

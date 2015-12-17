@@ -21,20 +21,10 @@ create user cb identified by &cb_pwd
 alter user cb quota unlimited on users;
 grant cb_role to cb;
 
-create user cbb identified by &cb_pwd
-    default tablespace users
-    temporary tablespace temp
-    profile default
-    account unlock;
-alter user cbb quota unlimited on users;
-grant cb_role to cbb;
-
 grant execute on dbms_lock to cb;
 grant execute on utl_file to cb;
 grant execute on utl_http to cb;
-grant execute on dbms_lock to cbb;
 grant execute on sys.owa_opt_lock to cb;
-grant execute on sys.owa_opt_lock to cbb;
 
 -- TODO Should 'http.xml' be configurable?
 begin
