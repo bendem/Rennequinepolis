@@ -39,6 +39,9 @@ create or replace package scheduling is
         p_index number,
         p_xml in out nocopy xmltype);
 
+    procedure insert_stylesheet(
+        p_xml in out nocopy xmltype);
+
     function success(
         p_time timestamp) return xmltype;
 

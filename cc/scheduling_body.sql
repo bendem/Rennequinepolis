@@ -52,6 +52,8 @@
             schedule(v_movie, v_schedules(i), v_x, i);
         end loop;
 
+        insert_stylesheet(v_x);
+
         v_writing := true;
         dbms_xslprocessor.clob2file(v_x.getclobval(), 'XML_DIR', v_filename || '_feedback.xml');
         commit;
@@ -59,7 +61,7 @@
         when others then
             logging.e('An error happened while scheduling movies: ' || sqlerrm);
             rollback;
-            if not writing then
+            if not v_writing then
                 -- If failure doesn't come from writing the report, there will be useful information in it
                 dbms_xslprocessor.clob2file(v_x.getclobval(), 'XML_DIR', v_filename || '_feedback.xml');
             end if;
@@ -244,6 +246,18 @@
             return null;
     end get_copy;
 
+    procedure insert_stylesheet(
+        p_xml in out nocopy xmltype)
+    is
+    begin
+        -- Oracle allows creating PIs, but there is 0 way to insert them...
+        -- select insertxmlbefore(
+        --     p_xml, '/schedules',
+        --     xmlpi("xml-stylesheet", 'type="text/xsl" href="feedback.xsl"')
+        -- ) into p_xml
+        -- from dual;
+    end insert_stylesheet;
+
     procedure report(
         p_msg xmltype,
         p_index number,
@@ -262,7 +276,7 @@
     is
     begin
         return xmltype('<error>
-            <msg>' || p_msg || '</msg>
+            <msg><![CDATA[' || p_msg || ']]></msg>
             <time>' || to_char(p_time, 'DD-MM-YYYY HH24:MI') || '</time>
         </error>');
     end error;
