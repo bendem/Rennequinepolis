@@ -1,6 +1,6 @@
 create or replace package archive is
 
-    -- TODO Doc
+    -- Archives scheduled movies of the previous days.
     procedure archive;
 
 end archive;
