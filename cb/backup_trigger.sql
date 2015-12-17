@@ -14,14 +14,14 @@ begin
         select backup_flag into backup_flag from users where username = :new.username;
         if backup_flag = 1 then
             merge into reviews@link.backup u using (
-            select
-                :new.username username,
-                :new.movie_id movie_id,
-                :new.rating rating,
-                :new.creation_date creation_date,
-                :new.content content,
-                :new.backup_flag backup_flag
-            from dual
+                select
+                    :new.username username,
+                    :new.movie_id movie_id,
+                    :new.rating rating,
+                    :new.creation_date creation_date,
+                    :new.content content,
+                    :new.backup_flag backup_flag
+                from dual
             ) p on (u.username = p.username and u.movie_id = p.movie_id)
             when matched then
                 update set

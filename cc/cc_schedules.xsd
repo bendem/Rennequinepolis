@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<x:schema xmlns:x="http://www.w3.org/2001/XMLSchema">
+    <x:element name="schedules">
+        <x:complexType>
+            <x:sequence>
+                <x:element name="schedule" minOccurs="1" maxOccurs="unbounded">
+                    <x:complexType>
+                        <x:sequence>
+                            <x:element name="movie_id" type="x:nonNegativeInteger" />
+                            <x:element name="start" type="x:string" />
+                            <x:element name="hall_id" type="x:nonNegativeInteger" />
+                        </x:sequence>
+                    </x:complexType>
+                </x:element>
+            </x:sequence>
+        </x:complexType>
+    </x:element>
+</x:schema>

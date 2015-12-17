@@ -20,6 +20,19 @@ update movies set object_value = insertchildxml(
 ;
 
 
+with schedules_(meta, sched) as (
+    select s.object_value, t.object_value
+    from
+        schedules s,
+        xmltable('/schedule/time_schedule' passing s.object_value) t
+)
+select
+    extractvalue(meta, '/schedule/copy_id'),
+    extractvalue(meta, '/schedule/movie_id'),
+    to_timestamp_tz(extractvalue(sched, '/time_schedule/schedule_start'))
+from schedules_;
+
+
 --  THE ONE
 select
     extractvalue(object_value, '/schedule/copy_id') "copy_id"

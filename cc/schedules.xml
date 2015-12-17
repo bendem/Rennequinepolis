@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schedules>
+    <schedule>
+        <movie_id>2</movie_id>
+        <start>13:30</start>
+        <hall_id>2</hall_id>
+    </schedule>
+    <schedule>
+        <movie_id>2</movie_id>
+        <start>13:30</start>
+        <hall_id>1</hall_id>
+    </schedule>
+</schedules>
