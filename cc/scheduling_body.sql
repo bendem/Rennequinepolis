@@ -167,13 +167,13 @@
         from schedules_
         inner join movies on (extractvalue(object_value, '/movie/id') = extractvalue(meta, '/schedule/movie_id'))
         where (
-                -- p_time_start start is between scheduled movie
+                -- p_time_start is between scheduled movie start and end
                 schedule_start < p_time_start
                 and schedule_start
                     + numtodsinterval(extractvalue(object_value, '/movie/runtime'), 'minute')
                     + movie_interval > p_time_start
             or
-                -- p_time_end start is between scheduled movie
+                -- p_time_end is between scheduled movie start and end
                 schedule_start < p_time_end
                 and schedule_start
                     + numtodsinterval(extractvalue(object_value, '/movie/runtime'), 'minute')
