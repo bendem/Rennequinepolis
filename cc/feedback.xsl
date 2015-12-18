@@ -14,8 +14,7 @@
                 }
                 main {
                     width: 80vw;
-                    margin: auto;
-                    margin-top: 1em;
+                    margin: 1em auto;
                 }
                 h1 {
                     text-align: center;
