@@ -2,6 +2,8 @@
 target/
 build/
 .idea/
+docs/*
+!docs/*.tex
 *.exe
 *.log
 *.iml

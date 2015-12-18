@@ -1,0 +1,233 @@
+\documentclass[a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{minted}
+\usepackage{setspace}
+
+\title{Rennequinepolis - Getting started}
+\author{Benjamin Demarteau, Erwan Flohic}
+
+\frenchspacing
+\setlength{\parskip}{1em}
+
+\raggedright
+
+\pagestyle{fancy}
+\rhead{Getting started}
+
+\newminted{sql}{linenos,frame=leftline,numbersep=5pt} % TODO update to be able to use 'breaklines' and such
+
+\begin{document}
+
+\maketitle
+
+\newpage
+\renewcommand*\contentsname{Table of contents}
+
+\tableofcontents
+
+\newpage
+\section{Introduction}
+
+Rennequinepolis (RQS) is a company that distributes movies and manages cinemas that project them.\par
+This application is separated into multiple parts that will provide the different features needed by the company:
+\begin{itemize}
+	\item The \emph{centrale belge} (CB) handles storing, searching, reviewing and distributing these films
+	\item The \emph{centrale belge backup} (CBB) is a backup of CB and can take the load over when CB fails
+	\item The \emph{cinéma} (CC) represents the database of a cinema containing movies and schedules
+	\item App is a desktop application to search and review movies from the database
+\end{itemize}
+
+\section{Preparing the installation}
+
+Before installing the application, you'll want to make sure you have some software installed.
+\begin{itemize}
+	\item 3 distant servers running an Oracle DB instance
+	\item a recent JDK (at least Java 8)
+	\item a recent JRE (at least Java 8) with a implementation of JavaFX available (openjfx if you use the openjdk)
+	\item a working Gradle installation (at least 2.5)
+\end{itemize}
+
+Before installing the different components of the application, you will need to create a directory readable and writable by the oracle instance (\texttt{chown oracle:dba <directory>}) on the server running CB and place the file named movies.txt in it. We recommend you choose a subdirectory of \texttt{/dev/shm/} if your server is running Linux and the operating system supports shared ram; it can help increase read performances greatly.
+\par
+You will also need to create a readable and writable directory on CC and put the \texttt{cc.xsd} and \texttt{cc\_schedules.xsd} files inside it.
+
+\section{Installation}
+
+The installation process in itself is very straight-forward. You simply need to run the \texttt{install.sh} script with the IPs and passwords of the different instances. The script will then create the needed users, roles, tables, packages, etc.
+
+\begin{minted}{sh}
+./install.sh <cb_ip> <cbb_ip> <cc_ip>       \
+    <cb_sys_pwd> <cbb_sys_pwd> <cc_sys_pwd> \
+    <cb_pwd> <cbb_pwd> <cc_pwd>
+\end{minted}
+
+You can also use the \texttt{uninstall.sh} script to revert all the changes made on install like so:
+
+\begin{minted}{sh}
+./uninstall.sh <cb_ip> <cbb_ip> <cc_ip> \
+    <cb_sys_pwd> <cbb_sys_pwd> <cc_sys_pwd>
+\end{minted}
+
+To compile the desktop application, navigate inside the \texttt{App} folder and run
+\begin{minted}{sh}
+gradle build
+\end{minted}
+That'll generate a usable jar in the \texttt{build/libs} directory.
+
+\section{Using the components}
+
+If all went well, you now have everything set up to start using the platform.
+
+\subsection{Injecting movies in CB}
+
+The first thing you'll want to do is to insert some movies into CB so that you can actually start using the application.\par
+You can either insert random movies from the external table or select a specific movie to insert yourself:
+
+\begin{sqlcode}
+-- Insert 500 random films
+execute movie_alim.insert_movies(500);
+
+-- Insert a selection of films
+declare
+    type t is table of movies_ext%rowtype;
+    r t;
+begin
+    select * bulk collect into r from movies_ext where title in (
+        'Ariel', 'Blade Runner', 'Titanic'
+    );
+    for i in r.first..r.last loop
+        movie_alim.insert_movie(r(i));
+    end loop;
+end;
+/
+\end{sqlcode}
+
+Provisioning the database will have 2 effects:
+\begin{itemize}
+	\item Information about the movies are inserted into CB
+	\item Copies of these movies are inserted, some in CB, some in CC
+\end{itemize}
+
+\subsection{Using the App}
+
+Once this is done, you can start using the App to search the newly inserted movies but you'll probably want to create a user to be able to insert reviews as well.
+
+\begin{sqlcode}
+begin
+    execute management.add_user(
+        'username',
+        'password',
+        'lastname',
+        'firstname'
+    );
+end;
+/
+\end{sqlcode}
+
+To run the application, you will need to provide it a config file. Here is an example:
+\begin{minted}{ini}
+# The FQDN of the driver to use (needs to included in the classpath at runtime)
+master.jdbc_driver=oracle.jdbc.driver.OracleDriver
+# Connection information for the master node (CB in this case)
+master.jdbc_url=jdbc:oracle:thin:@178.32.41.4:8080:xe
+master.username=cb
+master.password=cb_bendemiscrazy
+
+# Number of slaves (we only have CB)
+slaves.count=1
+
+# Connection information for the slave nodes (only CBB in this case)
+slaves.0.jdbc_url=jdbc:oracle:thin:@178.32.41.4:8080:xe
+slaves.0.username=cbb
+slaves.0.password=cb_bendemiscrazy
+\end{minted}
+
+\subsection{Scheduling CC movies}
+
+Once a day, at midnight, a job will run on CC to schedule movies provided in a xml file that you can drop inside the same directory as the xsd files with the name schedules\_DD\_MM\_YYYY.xml. The first thing the job will do is validate the file against cc\_schedules.xsd, so make sure it matches the specification.
+
+\begin{minted}{xml}
+<?xml version="1.0" encoding="UTF-8"?>
+<schedules>
+    <schedule>
+        <movie_id>2</movie_id>
+        <start>13:30</start>
+        <hall_id>2</hall_id>
+    </schedule>
+    <schedule>
+        <movie_id>2</movie_id>
+        <start>13:30</start>
+        <hall_id>1</hall_id>
+    </schedule>
+</schedules>
+\end{minted}
+
+The job will walk through that file and schedule the movies specified at the provided time in the provided hall if it the hall is available and CC has a copy of the movie available in that time frame.\par
+A report file will be generated after the job is executed containing successes and errors.
+
+\begin{minted}{xml}
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="feedback.xsl"?>
+<schedules>
+    <schedule>
+        <movie_id>8</movie_id>
+        <start>13:30</start>
+        <hall_id>3</hall_id>
+        <error>
+            <msg><![CDATA[No information about movie 8]]></msg>
+            <time>17-12-2015 17:53</time>
+        </error>
+    </schedule>
+</schedules>
+\end{minted}
+
+\section{The code}
+
+The codebase is separated in 3 main parts:
+\begin{enumerate}
+	\item The code of CB and CBB (mainly PL/SQL)
+	\item The code of CC (mainly PL/SQL and xml)
+	\item The code from the desktop application (mainly Java)
+\end{enumerate}
+If you ever doubt what a package does, make sure to consult the package head for a quick overview of its methods and what they do.\par
+Next to these main parts is the utils directory that contains utilities to log, time code, check sizes, split strings and provides useful types.
+
+\subsection{CB and CBB}
+
+\begin{itemize}
+	\item All files prefixed with \texttt{create\_} were executed by the installation script to create the database.
+	\item The \texttt{movie\_alim} package contains methods to interact with the external table and feed the database new movies.
+	\item The \texttt{backup} package and trigger are obviously handling all the backup logic. The package handling the asynchronous part while the trigger handles the synchronous part.
+	\item The \texttt{cc\_alim} package contains the logic needed to send movie copies from CB to CC. It relies on the \texttt{cc\_proxy} package to route its calls to CC methods either to \texttt{cb\_transfer} (if called from CB) or to \texttt{cbb\_transfer} (if called from CBB).
+	\item The \texttt{management} package allows basic operations on users and reviews as well as removing copies.
+	\item The \texttt{link\_check} package contains the logic to force the application to switch back to CB if CBB detects it's available again. The CB implementation is empty.
+	\item The \texttt{search} package provides facilities to search and retrieves information about a movie.
+	\item The \texttt{stats} package contains the logic that was used to analyze the external table and provide sane column types to the schema.
+\end{itemize}
+
+\subsection{CC}
+
+\begin{itemize}
+	\item Same as before, all the files prefixed with \texttt{create\_} were executed by the installation script to create the database.
+	\item The \texttt{cb\_transfer} and \texttt{cbb\_transfer} packages are used to pull data provided by CB (such as movies and copies) and to push back to CB movies that are not scheduled anymore. There is two versions so that CC can send and receive from CBB if CB is not available.
+	\item The \texttt{scheduling} package contains all the logic needed to parse the files you will provide with movies to schedule.
+	\item The \texttt{archive} package contains a single method called daily by a job to keep a trace of the number of days a movie was running for as well as how many places were sold for it.
+\end{itemize}
+
+\subsection{App}
+
+The application code is separated in 3 parts:
+
+\begin{itemize}
+	\item The views written in FXML
+	\item The Application containing all the global state and application wide methods
+	\item The controllers containing the logic corresponding to each view
+\end{itemize}
+
+On top of these main components, the application relies heavily on \texttt{SwappableConnection} to handle the database access combined either directly with the thread pool accessible from \texttt{SearchApplication} or using the \texttt{FetchTask} class to pipe jdbc results directly into JavaFX components using properties.
+
+\end{document}
