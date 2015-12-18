@@ -67,7 +67,7 @@ cat $ROOT/cc/create_db_link_cc.sql  \
 
 echo "Initializing cb"
 echo "==============="
-cat $ROOT/cb/crea.sql                 \
+cat $ROOT/cb/create_tables.sql        \
     $ROOT/cb/movie_sequences.sql      \
     $ROOT/utils/logs.sql              \
     $ROOT/utils/types.sql             \
@@ -84,7 +84,7 @@ cat $ROOT/cb/crea.sql                 \
 
 echo "Initializing cbb"
 echo "================"
-cat $ROOT/cb/crea.sql                \
+cat $ROOT/cb/create_tables.sql       \
     $ROOT/utils/logs.sql             \
     $ROOT/utils/types.sql            \
     $ROOT/utils/utils_head.sql       \
