@@ -11,6 +11,7 @@
         v_writing boolean := false;
     begin
         v_x := xmltype(bfilename('XML_DIR', v_filename || '.xml'), nls_charset_id('AL32UTF8'));
+        logging.d('Reading file');
 
         if v_x.isSchemaValid('http://xmlns.bendem.be/cc_schedules') = 0 then
             logging.e('Invalid schedule file');
@@ -81,7 +82,7 @@
         v_x xmltype;
         v_copy_id number;
     begin
-        v_closing_time := to_timestamp(current_date) + closing_hour + closing_minute;
+        v_closing_time := to_timestamp(trunc(current_timestamp)) + closing_hour + closing_minute;
         v_time_start := to_timestamp(
             to_char(current_date , 'DD-MM-YYYY') || ' ' || p_schedule.start_time,
             'DD-MM-YYYY HH24:MI'
