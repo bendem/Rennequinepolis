@@ -6,6 +6,9 @@
 \usepackage{hyperref}
 \usepackage{minted}
 \usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{rotating}
+\usepackage{pdflscape}
 
 \title{Rennequinepolis - Getting started}
 \author{Benjamin Demarteau, Erwan Flohic}
@@ -198,10 +201,24 @@ Next to these main parts is the utils directory that contains utilities to log, 
 
 \subsection{CB and CBB}
 
+\subsubsection{The schema}
+
+\begin{center}
+	\includegraphics[width=\linewidth]{cb_movies}
+\end{center}
+
+\begin{center}
+	\includegraphics[scale=0.4]{cb_reviews}
+\end{center}
+
+\subsubsection{The packages}
+
 \begin{itemize}
 	\item All files prefixed with \texttt{create\_} were executed by the installation script to create the database.
 	\item The \texttt{movie\_alim} package contains methods to interact with the external table and feed the database new movies.
-	\item The \texttt{backup} package and trigger are obviously handling all the backup logic. The package handling the asynchronous part while the trigger handles the synchronous part.
+	\item The \texttt{backup} package and trigger are obviously handling all the backup logic.
+
+	The package contains the logic to backup tables asynchronously using tokens. Any table containing a \texttt{backup\_flag} is backed up asynchronously. A value of 0 means the row is dirty, 1 means the row is clean and 2 means the row has been deleted.
 	\item The \texttt{cc\_alim} package contains the logic needed to send movie copies from CB to CC. It relies on the \texttt{cc\_proxy} package to route its calls to CC methods either to \texttt{cb\_transfer} (if called from CB) or to \texttt{cbb\_transfer} (if called from CBB).
 	\item The \texttt{management} package allows basic operations on users and reviews as well as removing copies.
 	\item The \texttt{link\_check} package contains the logic to force the application to switch back to CB if CBB detects it's available again. The CB implementation is empty.
@@ -211,6 +228,12 @@ Next to these main parts is the utils directory that contains utilities to log, 
 
 \subsection{CC}
 
+\subsubsection{The schema}
+
+\includegraphics[width=\linewidth]{cc}
+
+\subsubsection{The packages}
+
 \begin{itemize}
 	\item Same as before, all the files prefixed with \texttt{create\_} were executed by the installation script to create the database.
 	\item The \texttt{cb\_transfer} and \texttt{cbb\_transfer} packages are used to pull data provided by CB (such as movies and copies) and to push back to CB movies that are not scheduled anymore. There is two versions so that CC can send and receive from CBB if CB is not available.
@@ -219,6 +242,8 @@ Next to these main parts is the utils directory that contains utilities to log, 
 \end{itemize}
 
 \subsection{App}
+
+\includegraphics[width=\linewidth]{App}
 
 The application code is separated in 3 parts:
 
