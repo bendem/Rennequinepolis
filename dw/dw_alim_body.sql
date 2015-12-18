@@ -89,8 +89,10 @@ create or replace package body dw_alim is
     begin
         dw_alim.load_dimensions;
         dw_alim.load_facts;
+        commit;
     exception
         when others then
+        rollback;
             dbms_output.put_line(sqlerrm);
             dbms_output.put_line(dbms_utility.format_call_stack);
             dbms_output.put_line(dbms_utility.format_error_backtrace);
