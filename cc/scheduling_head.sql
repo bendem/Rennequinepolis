@@ -80,7 +80,6 @@ create or replace package scheduling is
 
     -- Inserts the stylesheet PI at the start of the document.
     -- @param p_xml the xmltype to insert to stylesheet PI in
-    -- @FIXME We didn't actually find a way to insert it in, this method does nothing
     procedure insert_stylesheet(
         p_xml in out nocopy xmltype);
 

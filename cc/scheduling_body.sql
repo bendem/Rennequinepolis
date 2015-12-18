@@ -212,13 +212,19 @@
             from
                 schedules s,
                 xmltable('/schedule/time_schedule' passing s.object_value) t
+            where
+                to_timestamp_tz(extractvalue(t.object_value, '/time_schedule/schedule_start'))
+                    > to_timestamp(trunc(p_time_start))
+                and to_timestamp_tz(extractvalue(t.object_value, '/time_schedule/schedule_start'))
+                    + v_duration < to_timestamp(trunc(p_time_start)) + interval '1' day
         )
         select
             extractvalue(object_value, '/copy/copy_id') into v_copy_id
         from copies
         left join schedules_ on (
-            extractvalue(meta, '/copy/movie_id') = p_movie_id
-            and extractvalue(meta, '/copy/copy_id') = extractvalue(object_value, '/copy/copy_id')
+            -- extractvalue(meta, '/schedule/movie_id') = p_movie_id
+            extractvalue(meta, '/schedule/movie_id') = extractvalue(object_value, '/copy/movie_id')
+            and extractvalue(meta, '/schedule/copy_id') = extractvalue(object_value, '/copy/copy_id')
         )
         where extractvalue(object_value, '/copy/movie_id') = p_movie_id
             and
@@ -228,9 +234,11 @@
             or
                 -- not scheduled at the same time
                 (
-                    schedule_start + v_duration < p_time_start
+                    -- ends before the schedule
+                    p_time_end < schedule_start
                 or
-                    schedule_start > p_time_end
+                    -- starts after the schedule
+                    schedule_start + v_duration < p_time_start
                 )
             )
             and rownum = 1
@@ -244,14 +252,16 @@
     procedure insert_stylesheet(
         p_xml in out nocopy xmltype)
     is
+        v_style xmltype;
     begin
-        null;
-        -- Oracle allows creating PIs, but there is 0 way to insert them...
-        -- select insertxmlbefore(
-        --     p_xml, '/schedules',
-        --     xmlpi("xml-stylesheet", 'type="text/xsl" href="feedback.xsl"')
-        -- ) into p_xml
-        -- from dual;
+        select
+            xmlpi("xml-stylesheet", 'type="text/xsl" href="feedback.xsl"') into v_style
+        from dual;
+        p_xml := xmltype(
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            || v_style.getClobVal()
+            || p_xml.extract('/').getClobVal()
+        );
     end insert_stylesheet;
 
     procedure report(
