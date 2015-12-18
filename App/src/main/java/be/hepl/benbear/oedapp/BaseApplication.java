@@ -8,7 +8,9 @@ import javafx.scene.control.Alert;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
@@ -117,4 +119,21 @@ public abstract class BaseApplication extends Application {
         return Objects.requireNonNull(clazz.getClassLoader().getResource(name), "Resource not found: " + name);
     }
 
+    protected InputStream getResourceStream(String name) {
+        return Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(name), "Resource not found: " + name);
+    }
+
+    protected byte[] getResourceBytes(String name) {
+        byte[] buffer = new byte[255];
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        int read;
+        try(InputStream resource = getResourceStream(name)) {
+            while((read = resource.read(buffer)) > 0) {
+                out.write(buffer, 0, read);
+            }
+        } catch(IOException e) {
+            throw new RuntimeException(e);
+        }
+        return out.toByteArray();
+    }
 }

@@ -3,13 +3,10 @@ package be.hepl.benbear.oedapp;
 import be.hepl.benbear.oedapp.jdbc.SwappableConnection;
 import javafx.stage.Stage;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Paths;
 import java.sql.SQLRecoverableException;
 import java.util.List;
-import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -78,24 +75,6 @@ public class SearchApplication extends BaseApplication {
 
     public SwappableConnection getConnection() {
         return connection;
-    }
-
-    private InputStream getResourceStream(String name) {
-        return Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(name), "Resource not found: " + name);
-    }
-
-    private byte[] getResourceBytes(String name) {
-        byte[] buffer = new byte[255];
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int read;
-        try(InputStream resource = getResourceStream(name)) {
-            while((read = resource.read(buffer)) > 0) {
-                out.write(buffer, 0, read);
-            }
-        } catch(IOException e) {
-            throw new RuntimeException(e);
-        }
-        return out.toByteArray();
     }
 
     public byte[] getEmptyImage() {
