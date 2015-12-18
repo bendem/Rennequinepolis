@@ -21,7 +21,11 @@
 \pagestyle{fancy}
 \rhead{Getting started}
 
-\newminted{sql}{linenos,frame=leftline,numbersep=5pt} % TODO update to be able to use 'breaklines' and such
+% TODO update to be able to use 'breaklines' and such
+\newminted{sh}{linenos,frame=leftline,numbersep=5pt}
+\newminted{ini}{linenos,frame=leftline,numbersep=5pt}
+\newminted{xml}{linenos,frame=leftline,numbersep=5pt}
+\newminted{sql}{linenos,frame=leftline,numbersep=5pt}
 
 \begin{document}
 
@@ -62,23 +66,23 @@ You will also need to create a readable and writable directory on CC and put the
 
 The installation process in itself is very straight-forward. You simply need to run the \texttt{install.sh} script with the IPs and passwords of the different instances. The script will then create the needed users, roles, tables, packages, etc.
 
-\begin{minted}{sh}
+\begin{shcode}
 ./install.sh <cb_ip> <cbb_ip> <cc_ip>       \
     <cb_sys_pwd> <cbb_sys_pwd> <cc_sys_pwd> \
     <cb_pwd> <cbb_pwd> <cc_pwd>
-\end{minted}
+\end{shcode}
 
 You can also use the \texttt{uninstall.sh} script to revert all the changes made on install like so:
 
-\begin{minted}{sh}
+\begin{shcode}
 ./uninstall.sh <cb_ip> <cbb_ip> <cc_ip> \
     <cb_sys_pwd> <cbb_sys_pwd> <cc_sys_pwd>
-\end{minted}
+\end{shcode}
 
 To compile the desktop application, navigate inside the \texttt{App} folder and run
-\begin{minted}{sh}
+\begin{shcode}
 gradle build
-\end{minted}
+\end{shcode}
 That'll generate a usable jar in the \texttt{build/libs} directory.
 
 \section{Using the components}
@@ -132,7 +136,7 @@ end;
 \end{sqlcode}
 
 To run the application, you will need to provide it a config file. Here is an example:
-\begin{minted}{ini}
+\begin{inicode}
 # The FQDN of the driver to use (needs to included in the classpath at runtime)
 master.jdbc_driver=oracle.jdbc.driver.OracleDriver
 # Connection information for the master node (CB in this case)
@@ -147,13 +151,13 @@ slaves.count=1
 slaves.0.jdbc_url=jdbc:oracle:thin:@178.32.41.4:8080:xe
 slaves.0.username=cbb
 slaves.0.password=cb_bendemiscrazy
-\end{minted}
+\end{inicode}
 
 \subsection{Scheduling CC movies}
 
 Once a day, at midnight, a job will run on CC to schedule movies provided in a xml file that you can drop inside the same directory as the xsd files with the name schedules\_DD\_MM\_YYYY.xml. The first thing the job will do is validate the file against cc\_schedules.xsd, so make sure it matches the specification.
 
-\begin{minted}{xml}
+\begin{xmlcode}
 <?xml version="1.0" encoding="UTF-8"?>
 <schedules>
     <schedule>
@@ -167,12 +171,12 @@ Once a day, at midnight, a job will run on CC to schedule movies provided in a x
         <hall_id>1</hall_id>
     </schedule>
 </schedules>
-\end{minted}
+\end{xmlcode}
 
 The job will walk through that file and schedule the movies specified at the provided time in the provided hall if it the hall is available and CC has a copy of the movie available in that time frame.\par
 A report file will be generated after the job is executed containing successes and errors.
 
-\begin{minted}{xml}
+\begin{xmlcode}
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="feedback.xsl"?>
 <schedules>
@@ -186,7 +190,7 @@ A report file will be generated after the job is executed containing successes a
         </error>
     </schedule>
 </schedules>
-\end{minted}
+\end{xmlcode}
 
 \section{The code}
 
