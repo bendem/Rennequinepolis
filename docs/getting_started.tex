@@ -135,19 +135,19 @@ end;
 /
 \end{sqlcode}
 
-To run the application, you will need to provide it a config file. Here is an example:
+The application takes a config path parameter as its first argument. Here is an example configuration to get you started:
 \begin{inicode}
 # The FQDN of the driver to use (needs to included in the classpath at runtime)
 master.jdbc_driver=oracle.jdbc.driver.OracleDriver
-# Connection information for the master node (CB in this case)
+# JDBC connection information for the master node (CB in this case)
 master.jdbc_url=jdbc:oracle:thin:@178.32.41.4:8080:xe
 master.username=cb
 master.password=cb_bendemiscrazy
 
-# Number of slaves (we only have CB)
+# Number of slaves (we only have CBB)
 slaves.count=1
 
-# Connection information for the slave nodes (only CBB in this case)
+# JDBC connection information for the slave nodes (only CBB in this case)
 slaves.0.jdbc_url=jdbc:oracle:thin:@178.32.41.4:8080:xe
 slaves.0.username=cbb
 slaves.0.password=cb_bendemiscrazy
@@ -194,14 +194,15 @@ A report file will be generated after the job is executed containing successes a
 
 \section{The code}
 
-The codebase is separated in 3 main parts:
+The codebase is separated in several parts:
 \begin{enumerate}
-	\item The code of CB and CBB (mainly PL/SQL)
-	\item The code of CC (mainly PL/SQL and xml)
-	\item The code from the desktop application (mainly Java)
+	\item The code of CB and CBB (mainly PL/SQL) situated in the \texttt{cb} folder
+	\item The code of CC (mainly PL/SQL and xml) situated in the \texttt{cc} folder
+	\item The code from the desktop application (mainly Java) situated in the \texttt{App} folder
+	\item The code for the data warehouse (mainly PL/SQL) situated in the \texttt{dw} and \texttt{mkt} folder
 \end{enumerate}
 If you ever doubt what a package does, make sure to consult the package head for a quick overview of its methods and what they do.\par
-Next to these main parts is the utils directory that contains utilities to log, time code, check sizes, split strings and provides useful types.
+Next to these main parts is the \texttt{utils} directory that contains utilities to log, time code, check sizes, split strings and provides useful types.
 
 \subsection{CB and CBB}
 
@@ -249,7 +250,7 @@ Next to these main parts is the utils directory that contains utilities to log, 
 
 \includegraphics[width=\linewidth]{App}
 
-The application code is separated in 3 parts:
+The application code is separated in 3 main parts:
 
 \begin{itemize}
 	\item The views written in FXML
