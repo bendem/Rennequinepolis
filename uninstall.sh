@@ -4,7 +4,15 @@ set -e
 if [ $# -ne 6 ]; then
     echo ' Needs exactly 6 args'
     echo ' Usage:'
-    echo '  CB_IP=<ip[:<port>]> ./uninstall.sh <cb_ip> <cbb_ip> <cc_ip> <cb_sys_pwd> <cbb_sys_pwd> <cc_sys_pwd>'
+    echo '  ./uninstall.sh <cb_ip> <cbb_ip> <cc_ip> \'
+    echo '      <cb_sys_pwd> <cbb_sys_pwd> <cc_sys_pwd>'
+    echo
+    echo '  <cb_ip>       the IP [and port] of the CB oracle instance (i.e. 127.0.0.1:4509)'
+    echo '  <cbb_ip>      the IP [and port] of the CBB oracle instance'
+    echo '  <cc_ip>       the IP [and port] of the CC oracle instance'
+    echo '  <cb_sys_pwd>  the sys password of the CB oracle instance'
+    echo '  <cbb_sys_pwd> the sys password of the CBB oracle instance'
+    echo '  <cc_sys_pwd>  the sys password of the CC oracle instance'
     exit 1
 fi
 

@@ -2,10 +2,25 @@
 set -e
 ROOT=`dirname \`realpath $0\``
 
-if [ $# -ne 9 ]; then
-    echo ' Needs exactly 9 args'
+if [ $# -ne 11 ]; then
+    echo ' Needs exactly 11 args'
     echo ' Usage:'
-    echo '  ./install.sh <cb_ip> <cbb_ip> <cc_ip> <cb_sys_pwd> <cbb_sys_pwd> <cc_sys_pwd> <cb_pwd> <cbb_pwd> <cc_pwd>'
+    echo '  ./install.sh <cb_ip> <cbb_ip> <cc_ip>       \'
+    echo '      <cb_sys_pwd> <cbb_sys_pwd> <cc_sys_pwd> \'
+    echo '      <cb_pwd> <cbb_pwd> <cc_pwd>             \'
+    echo '      <cb_dir> <cc_dir>'
+    echo
+    echo '  <cb_ip>       the IP [and port] of the CB oracle instance (i.e. 127.0.0.1:4509)'
+    echo '  <cbb_ip>      the IP [and port] of the CBB oracle instance'
+    echo '  <cc_ip>       the IP [and port] of the CC oracle instance'
+    echo '  <cb_sys_pwd>  the sys password of the CB oracle instance'
+    echo '  <cbb_sys_pwd> the sys password of the CBB oracle instance'
+    echo '  <cc_sys_pwd>  the sys password of the CC oracle instance'
+    echo '  <cb_pwd>      the password to give to the CB user'
+    echo '  <cbb_pwd>     the password to give to the CBB user'
+    echo '  <cc_pwd>      the password to give to the CC user'
+    echo '  <cb_dir>      the directory to use to find the movies.txt file'
+    echo '  <cc_dir>      the directory to use to find the CC XSDs'
     exit 1
 fi
 
@@ -20,6 +35,14 @@ CC_SYS_PWD=$6
 CB_PWD=$7
 CBB_PWD=$8
 CC_PWD=$9
+
+# Greater than 9 parameters, gotta shift to access them
+shift
+echo $9
+CB_DIR=$9
+shift
+echo $9
+CC_DIR=$9
 
 SQLPLUS="sqlplus -S -L"
 
@@ -80,6 +103,7 @@ cat $ROOT/cb/create_tables.sql        \
     $ROOT/cb/link_check_body_cb.sql   \
     $ROOT/cb/search_head.sql          \
     $ROOT/cb/search_body.sql          \
+        | sed "s/&cb_dir/$(echo $CB_DIR | sed 's/\//\\\//g')/g" \
         | $SQLPLUS cb/$CB_PWD@$CB_IP
 
 echo "Initializing cbb"
@@ -125,6 +149,7 @@ cat $ROOT/cc/create_xsd.sql            \
     $ROOT/cc/archive_head.sql          \
     $ROOT/cc/archive_body.sql          \
     $ROOT/cc/create_job_archiving.sql  \
+        | sed "s/&cc_dir/$(echo $CC_DIR | sed 's/\//\\\//g')/g" \
         | $SQLPLUS cc/$CC_PWD@$CC_IP
 
 echo "Setting up cb proxy and alims"

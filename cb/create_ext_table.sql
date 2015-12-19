@@ -1,5 +1,5 @@
 -- TODO Should be configurable
-create or replace directory movies_dir as '/dev/shm/movies';
+create or replace directory movies_dir as '&cb_dir';
 /
 -- place movies.txt in the directory and change user rights to oracle:dba
 

@@ -1,4 +1,4 @@
-create or replace directory xml_dir as '/dev/shm/movies/xml';
+create or replace directory xml_dir as '&cc_dir';
 
 begin
     -- dbms_xmlschema.deleteschema(
